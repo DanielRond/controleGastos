@@ -11,12 +11,15 @@ Formato esperado (data/entradas/exemplo.json):
         {
           "mes": 1,
           "salario": 5000.00,
-          "outras_receitas": 250.00,
+          "receitas": [
+            {"descricao": "Freela", "valor": 250.00, "dia": 15, "categoria": "extra"}
+          ],
           "despesas": [
             {"descricao": "Aluguel", "valor": 1200.00, "dia": 5, "categoria": "moradia"}
           ],
+          "meta_investimento": 1000.00,
           "investimentos": [
-            {"tipo": "renda_fixa", "valor": 1000.00, "dia": 10, "descricao": "CDB"}
+            {"tipo": "renda_fixa", "ativo": "CDI", "valor": 1000.00, "dia": 10, "descricao": "Reserva de emergência"}
           ]
         }
       ]
@@ -74,9 +77,12 @@ def carregar_json(caminho: str | Path) -> LivroCaixa:
 
             for item in mes_dados.get("investimentos", []):
                 tipo = item.get("tipo", "")
+                ativo = item.get("ativo", "")
                 descricao, valor, quando, categoria = _link(ancora, item)
                 atual.investimentos.append(
-                    Investimento(descricao, valor, quando, categoria, tipo=tipo)
+                    Investimento(descricao, valor, quando, categoria, tipo=tipo, ativo=ativo)
                 )
+
+            atual.meta_investimento = Decimal(str(mes_dados.get("meta_investimento", "0")))
 
     return livros

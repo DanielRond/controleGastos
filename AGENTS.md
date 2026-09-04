@@ -62,9 +62,10 @@ Todo JSON em `data/entradas/` segue o esquema:
         {
           "mes": 1,
           "salario": 5000.00,
+          "meta_investimento": 1000.00,
           "receitas":    [{"descricao": "...", "valor": 0.0, "dia": 1, "categoria": "..."}],
           "despesas":    [{"descricao": "...", "valor": 0.0, "dia": 1, "categoria": "..."}],
-          "investimentos":[{"tipo": "...", "descricao": "...", "valor": 0.0, "dia": 1, "categoria": "..."}]
+          "investimentos":[{"tipo": "...", "ativo": "...", "descricao": "...", "valor": 0.0, "dia": 1, "categoria": "..."}]
         }
       ]
     }
@@ -72,14 +73,20 @@ Todo JSON em `data/entradas/` segue o esquema:
 }
 ```
 
-Campos opcionais: `salario`, `receitas`, `despesas`, `investimentos`. `tipo` em investimentos indica a classe do ativo (ex.: `renda_fixa`, `renda_variavel`).
+Campos opcionais: `salario`, `receitas`, `despesas`, `investimentos`, `meta_investimento`.
+
+Em investimentos:
+- `tipo` indica a classe do ativo. Valores conhecidos: `renda_fixa`, `fii` (fundos imobiliários), `cripto` (criptomoedas).
+- `ativo` é o ticker/nome do ativo (opcional), ex.: `KNSC11`, `BTC`, `CDI`. Quando presente, é exibido na coluna Categoria da aba do mês.
+- Taxas/liquidação podem ser lançadas como item de investimento com `descricao` própria e o mesmo `tipo`.
+- `meta_investimento` é o valor que se pretende investir no mês (ex.: 250.00); a planilha compara com o total investido.
 
 ## Saída (planilha)
 
 - **Resumo Geral**: totais por mês/ano de receitas, despesas, investimentos e saldo livre.
-- **Aba por mês** (`2025-01`): seções Receitas, Despesas, Investimentos, com totais e saldo livre.
-
-Convenção: `saldo_livre = receitas - despesas - investimentos`.
+- **Aba por mês** (`2025-01`): seções Receitas, Despesas, Investimentos.
+  - Em investimentos: cada lançamento mostra o ativo e o % do total investido na coluna extra; subtotal e % por tipo/classe; e comparação com `meta_investimento`.
+- Convenção: `saldo_livre = receitas - despesas - investimentos`.
 
 ## Regras para agentes de IA
 

@@ -36,6 +36,7 @@ class Despesa(Transacao):
 @dataclass(slots=True)
 class Investimento(Transacao):
     tipo: str = ""
+    ativo: str = ""
 
 
 @dataclass(slots=True)
@@ -45,6 +46,7 @@ class Mes:
     receitas: list[Receita] = field(default_factory=list)
     despesas: list[Despesa] = field(default_factory=list)
     investimentos: list[Investimento] = field(default_factory=list)
+    meta_investimento: Decimal = Decimal(0)
 
     @property
     def total_receitas(self) -> Decimal:

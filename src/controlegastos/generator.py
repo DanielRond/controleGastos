@@ -22,10 +22,16 @@ logger = logging.getLogger(__name__)
 _HEADER_FILL = PatternFill("solid", fgColor="1F4E79")
 _HEADER_FONT = Font(color="FFFFFF", bold=True)
 _GERAL_FILL = PatternFill("solid", fgColor="D9E1F2")
-_TIPO_FILL = PatternFill("solid", fgColor="F2F2F2")
 _SEPARADOR_FONT = Font(bold=True)
+_META_FILL = PatternFill("solid", fgColor="FFF2CC")
 
-_COLUNAS = {"DATA": "A", "DESCRICAO": "B", "CATEGORIA": "C", "VALOR": "D"}
+_TIPO_LABEL = {
+    "renda_fixa": "Renda Fixa",
+    "fii": "Fundos Imobiliários",
+    "fiis": "Fundos Imobiliários",
+    "cripto": "Criptomoedas",
+    "criptomoedas": "Criptomoedas",
+}
 
 
 def _configurar_colunas(sheet) -> None:
@@ -65,9 +71,62 @@ def _linha_total(sheet, linha: int, rotulo: str, valor: Decimal) -> None:
     celula.number_format = "#,##0.00"
 
 
+def _renderizar_investimentos(sheet, linha: int, mes: Mes) -> int:
+    total = mes.total_investimentos
+    por_tipo: dict[str, Decimal] = {}
+    for item in mes.investimentos:
+        chave = item.tipo or item.categoria
+        por_tipo[chave] = por_tipo.get(chave, Decimal(0)) + item.valor
+
+    for item in sorted(mes.investimentos, key=lambda t: (t.tipo, t.data, t.descricao)):
+        coluna_categoria = item.ativo or _TIPO_LABEL.get(item.tipo or "", item.tipo or item.categoria)
+        _linha_transacao(sheet, linha, item.data, item.descricao, coluna_categoria, item.valor)
+        if total:
+            pct = item.valor * 100 / total
+            sheet.cell(row=linha, column=5, value=float(round(pct, 2))).number_format = "0.00"
+        linha += 1
+
+    _linha_total(sheet, linha, "Total Investimentos", total)
+    linha += 1
+
+    for tipo, subtotal in sorted(por_tipo.items()):
+        if not total:
+            continue
+        label = _TIPO_LABEL.get(tipo, tipo)
+        pct = subtotal * 100 / total
+        rotulo = f"{label} ({tipo})"
+        sheet.cell(row=linha, column=3, value=rotulo).font = Font(bold=True, italic=True)
+        celula = sheet.cell(row=linha, column=4, value=float(subtotal))
+        celula.font = Font(bold=True, italic=True)
+        celula.number_format = "#,##0.00"
+        pct_celula = sheet.cell(row=linha, column=5, value=float(round(pct, 2)))
+        pct_celula.font = Font(bold=True, italic=True)
+        pct_celula.number_format = "0.00"
+        linha += 1
+
+    if mes.meta_investimento:
+        saldo_meta = mes.meta_investimento - total
+        sheet.cell(row=linha, column=3, value="Meta de Investimento").font = _SEPARADOR_FONT
+        sheet.cell(row=linha, column=3).fill = _META_FILL
+        celula = sheet.cell(row=linha, column=4, value=float(mes.meta_investimento))
+        celula.font = _SEPARADOR_FONT
+        celula.fill = _META_FILL
+        celula.number_format = "#,##0.00"
+        linha += 1
+        sheet.cell(row=linha, column=3, value="Falta investir (meta)" if saldo_meta > 0 else "Acima da meta").font = _SEPARADOR_FONT
+        sheet.cell(row=linha, column=3).fill = _META_FILL
+        celula = sheet.cell(row=linha, column=4, value=float(saldo_meta))
+        celula.font = _SEPARADOR_FONT
+        celula.fill = _META_FILL
+        celula.number_format = "#,##0.00"
+        linha += 1
+
+    return linha
+
+
 def _renderizar_mes(sheet, mes: Mes) -> None:
     _configurar_colunas(sheet)
-    _cabecalho(sheet, ["Data", "Descrição", "Categoria", "Valor"])
+    _cabecalho(sheet, ["Data", "Descrição", "Categoria", "Valor", "% do Total Investido"])
     linha = 2
 
     linha = _secao(sheet, linha, "Receitas")
@@ -85,11 +144,8 @@ def _renderizar_mes(sheet, mes: Mes) -> None:
     linha += 2
 
     linha = _secao(sheet, linha, "Investimentos")
-    for item in sorted(mes.investimentos, key=lambda t: t.data):
-        _linha_transacao(sheet, linha, item.data, item.descricao, item.tipo or item.categoria, item.valor)
-        linha += 1
-    _linha_total(sheet, linha, "Total Investimentos", mes.total_investimentos)
-    linha += 2
+    linha = _renderizar_investimentos(sheet, linha, mes)
+    linha += 1
 
     _linha_total(sheet, linha, "Saldo Livre", mes.saldo_livre)
 
