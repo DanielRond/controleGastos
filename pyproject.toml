@@ -1,0 +1,19 @@
+[project]
+name = "controlegastos"
+version = "0.1.0"
+description = "Gera planilhas Excel de controle de gastos pessoais a partir de JSON"
+readme = "README.md"
+authors = [
+    { name = "DanielRond", email = "danieldossantos1818@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "openpyxl>=3.1.5",
+]
+
+[project.scripts]
+controlegastos = "controlegastos:main"
+
+[build-system]
+requires = ["uv_build>=0.12.5,<0.13.0"]
+build-backend = "uv_build"

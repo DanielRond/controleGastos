@@ -1,0 +1,37 @@
+{
+  "moeda": "BRL",
+  "anos": [
+    {
+      "ano": 2025,
+      "meses": [
+        {
+          "mes": 1,
+          "salario": 5000.00,
+          "receitas": [
+            {"descricao": "Freela extra", "valor": 250.00, "dia": 15, "categoria": "extra"}
+          ],
+          "despesas": [
+            {"descricao": "Aluguel", "valor": 1200.00, "dia": 5, "categoria": "moradia"},
+            {"descricao": "Supermercado", "valor": 450.00, "dia": 8, "categoria": "alimentacao"},
+            {"descricao": "Energia", "valor": 130.00, "dia": 10, "categoria": "utilidades"}
+          ],
+          "investimentos": [
+            {"tipo": "renda_fixa", "descricao": "CDB", "valor": 1000.00, "dia": 10, "categoria": "fi"},
+            {"tipo": "renda_variavel", "descricao": "Ações", "valor": 500.00, "dia": 20, "categoria": "rv"}
+          ]
+        },
+        {
+          "mes": 2,
+          "salario": 5000.00,
+          "despesas": [
+            {"descricao": "Aluguel", "valor": 1200.00, "dia": 5, "categoria": "moradia"},
+            {"descricao": "Transporte", "valor": 200.00, "dia": 7, "categoria": "transporte"}
+          ],
+          "investimentos": [
+            {"tipo": "renda_fixa", "descricao": "Tesouro Selic", "valor": 1000.00, "dia": 12, "categoria": "fi"}
+          ]
+        }
+      ]
+    }
+  ]
+}
