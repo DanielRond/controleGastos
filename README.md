@@ -1,7 +1,6 @@
 # controleGastos
 
-![testes](https://img.shields.io/badge/testes-pytest-green)
-![lint](https://img.shields.io/badge/lint-ruff-passing)
+![CI](https://github.com/DanielRond/controleGastos/actions/workflows/ci.yml/badge.svg)
 
 Ferramenta de linha de comando para **controle de gastos pessoais**, que gera planilhas Excel (.xlsx) organizando **receitas**, **despesas** e **investimentos** por mês e por ano.
 
