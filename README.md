@@ -1,6 +1,56 @@
 # controleGastos
 
+![testes](https://img.shields.io/badge/testes-pytest-green)
+![lint](https://img.shields.io/badge/lint-ruff-passing)
+
 Ferramenta de linha de comando para **controle de gastos pessoais**, que gera planilhas Excel (.xlsx) organizando **receitas**, **despesas** e **investimentos** por mês e por ano.
+
+## Demonstração
+
+Capturas de uma planilha gerada a partir de dados reais. As imagens ficam em `docs/media/`.
+
+### Resumo Geral
+
+![Resumo Geral](docs/media/ResumoGeral.jpeg)
+
+Totais de receitas, despesas, investimentos e saldo livre por mês/ano.
+
+### Aba do mês — Receitas e Despesas
+
+![Receitas e Despesas](docs/media/ReceitasDespesas.jpeg)
+
+Lançamentos de receitas e despesas de um mês, com totais por categoria e saldo livre.
+
+### Aba do mês — Investimentos
+
+![Investimentos](docs/media/Investimentos.jpeg)
+
+Investimentos com o ativo, % do total investido, subtotal e % por classe (renda fixa, FIIs, cripto) e comparação com a meta do mês.
+
+### Gráficos
+
+![Pizza por classe de investimento](docs/media/GraficoPizza.jpeg)
+
+Distribuição do total investido por classe de ativo.
+
+![Barras mensais](docs/media/GraficoBarra.jpeg)
+
+Receitas, despesas, investimentos e saldo livre por mês.
+
+## Como funciona
+
+```text
+JSON (data/entradas/*.json)  →  controlegastos gerar  →  planilha .xlsx
+```
+
+1. Você descreve os lançamentos em um arquivo JSON: salário, receitas, despesas e investimentos, cada um com dia, descrição, valor e categoria.
+2. O comando `controlegastos gerar` lê o arquivo e monta a planilha.
+3. A planilha vem com o **Resumo Geral** (totais por mês/ano), uma **aba por mês** (lançamentos detalhados) e a aba **Gráficos**.
+4. Convenção: `saldo_livre = receitas - despesas - investimentos`.
+
+## Motivação
+
+Controle financeiro pessoal **simples e auditável**, sem depender de planilha manual: os dados ficam em arquivos de texto versionáveis e a planilha é gerada por um comando, sempre com os mesmos critérios de totalização. Os investimentos são organizados por classe (renda fixa, FIIs, cripto) com meta mensal, o que facilita acompanhar a distribuição da carteira e o quanto ainda falta investir.
 
 ## Requisitos
 
@@ -29,8 +79,18 @@ Planilha `.xlsx` com:
 
 - **Resumo Geral** — totais de receitas, despesas, investimentos e saldo livre por mês/ano.
 - **Aba por mês** (ex.: `2025-01`) — lançamentos de receitas, despesas e investimentos com totais e saldo livre.
+- **Gráficos** — pizza por classe de investimento e barras mensais.
 
 Convenção: `saldo_livre = receitas - despesas - investimentos`.
+
+## Roadmap
+
+Ideias futuras (não implementadas):
+
+- **Entrada menos manual** — interface web/UI ou importação de extratos bancários.
+- **Validação de schema** — validar o JSON de entrada com erro claro antes de gerar a planilha.
+- **Gráficos extras** — evolução do patrimônio, ranking de categorias, comparativo entre meses.
+- **Exportação CSV** — além do `.xlsx`.
 
 ## Documentação para máquinas/agentes
 
