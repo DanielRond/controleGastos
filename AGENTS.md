@@ -38,7 +38,7 @@ uv run ruff check .
 
 ```
 data/
-  entradas/          # JSONs com lançamentos (fonte de dados)
+  entradas/          # JSONs com lançamentos (fonte de dados), ex.: exemplo.json e exemplo-completo.json (fictícios, públicos)
 saida/               # Planilhas geradas (criada automaticamente)
 src/controlegastos/
   __init__.py        # entry point (main)

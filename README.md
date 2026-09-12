@@ -6,7 +6,7 @@ Ferramenta de linha de comando para **controle de gastos pessoais**, que gera pl
 
 ## Demonstração
 
-Capturas de uma planilha gerada a partir de dados reais. As imagens ficam em `docs/media/`.
+Capturas de uma planilha gerada a partir de dados de exemplo (fictícios). As imagens ficam em `docs/media/`.
 
 ### Resumo Geral
 
@@ -14,17 +14,11 @@ Capturas de uma planilha gerada a partir de dados reais. As imagens ficam em `do
 
 Totais de receitas, despesas, investimentos e saldo livre por mês/ano.
 
-### Aba do mês — Receitas e Despesas
+### Aba do mês
 
-![Receitas e Despesas](docs/media/ReceitasDespesas.jpeg)
+![MesDetalhe](docs/media/MesDetalhe.jpeg)
 
-Lançamentos de receitas e despesas de um mês, com totais por categoria e saldo livre.
-
-### Aba do mês — Investimentos
-
-![Investimentos](docs/media/Investimentos.jpeg)
-
-Investimentos com o ativo, % do total investido, subtotal e % por classe (renda fixa, FIIs, cripto) e comparação com a meta do mês.
+Lançamentos do mês com receitas, despesas e investimentos — incluindo o ativo, o % do total investido, subtotal e % por classe (renda fixa, FIIs, cripto) e a comparação com a meta do mês.
 
 ### Gráficos
 
