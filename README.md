@@ -95,4 +95,3 @@ Ideias futuras (não implementadas):
 ## Documentação para máquinas/agentes
 
 - [AGENTS.md](AGENTS.md) — guia de desenvolvimento para agentes de IA.
-- [PROMPTS.md](PROMPTS.md) — histórico de instruções do usuário; leia antes de alterar o projeto.

@@ -50,7 +50,6 @@ docs/media/          # capturas da planilha usadas no README
 tests/               # suíte pytest (loader, modelo, generator, cli)
 .github/workflows/   # CI (ruff + pytest)
 pyproject.toml       # metadados e script `controlegastos`
-PROMPTS.md           # histórico de prompts/instruções do usuário
 AGENTS.md            # este arquivo
 ```
 
@@ -97,7 +96,7 @@ Em investimentos:
 
 ## Regras para agentes de IA
 
-1. **Sempre leia PROMPTS.md** antes de alterar o repositório — ele registra o histórico de instruções do usuário.
+1. **Documentação é a fonte de verdade** — siga este `AGENTS.md`; o histórico de instruções do usuário (`PROMPTS.md`) é mantido apenas localmente, fora do versionamento.
 2. **Nunca commite sem pedido explícito** do usuário.
 3. Valores monetários devem ser **Decimal**, nunca float. Evitar pontos flutuantes.
 4. Ao mudar o esquema de dados, atualize **loader.py**, **exemplo.json** e **AGENTS.md** juntos.
