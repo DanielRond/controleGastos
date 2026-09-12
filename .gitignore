@@ -13,3 +13,7 @@ saida/
 
 # Dados pessoais — não versionar (mantidos apenas localmente)
 data/entradas/20*.json
+
+# Ferramentas locais (SpecKit/Specify e skills de agentes)
+.specify/
+.github/skills/
