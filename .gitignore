@@ -10,3 +10,6 @@ __pycache__/
 # Artefatos gerados
 saida/
 *.xlsx
+
+# Dados pessoais — não versionar (mantidos apenas localmente)
+data/entradas/20*.json
