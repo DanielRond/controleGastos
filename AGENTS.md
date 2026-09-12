@@ -27,6 +27,9 @@ uv run controlegastos gerar data/entradas/exemplo.json -o saida/planilha.xlsx -v
 # Adicionar nova dependência
 uv add <pacote>
 
+# Rodar os testes automatizados
+uv run pytest
+
 # Rodar checagens de estilo
 uv run ruff check .
 ```
