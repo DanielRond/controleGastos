@@ -17,7 +17,7 @@ def test_gera_planilha_com_abas_esperadas(tmp_path: Path) -> None:
 
     assert destino.exists()
     workbook = load_workbook(destino)
-    assert workbook.sheetnames == ["Resumo Geral", "2025-01", "2025-02"]
+    assert workbook.sheetnames == ["Resumo Geral", "2025-01", "2025-02", "Gráficos"]
 
 
 def test_resumo_geral_tem_cabecalho(tmp_path: Path) -> None:
@@ -44,3 +44,13 @@ def test_aba_do_mes_tem_linha_saldo_livre(tmp_path: Path) -> None:
             saldo_celula = linha[3]
     assert saldo_celula is not None
     assert round(float(saldo_celula), 2) == 2470.00
+
+
+def test_aba_graficos_tem_graficos(tmp_path: Path) -> None:
+    livros = carregar_json(EXEMPLO)
+    destino = gerar_planilha(livros, tmp_path / "planilha.xlsx")
+
+    workbook = load_workbook(destino)
+    graficos = workbook["Gráficos"]
+    assert graficos._charts, "esperava ao menos um gráfico na aba Gráficos"
+    assert len(graficos._charts) >= 2

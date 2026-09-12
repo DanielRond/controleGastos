@@ -13,6 +13,9 @@ from decimal import Decimal
 from pathlib import Path
 
 from openpyxl import Workbook
+from openpyxl.chart import BarChart, PieChart, Reference
+from openpyxl.chart.label import DataLabelList
+from openpyxl.chart.series import DataPoint
 from openpyxl.styles import Alignment, Font, PatternFill
 
 from .modelo import LivroCaixa, Mes
@@ -32,6 +35,16 @@ _TIPO_LABEL = {
     "cripto": "Criptomoedas",
     "criptomoedas": "Criptomoedas",
 }
+
+_TIPO_COR = {
+    "renda_fixa": "1F4E79",
+    "fii": "2E75B6",
+    "fiis": "2E75B6",
+    "cripto": "C00000",
+    "criptomoedas": "C00000",
+}
+
+_COR_FALLBACK = "808080"
 
 
 def _configurar_colunas(sheet) -> None:
@@ -71,12 +84,17 @@ def _linha_total(sheet, linha: int, rotulo: str, valor: Decimal) -> None:
     celula.number_format = "#,##0.00"
 
 
-def _renderizar_investimentos(sheet, linha: int, mes: Mes) -> int:
-    total = mes.total_investimentos
+def _agrupar_por_tipo(mes: Mes) -> dict[str, Decimal]:
     por_tipo: dict[str, Decimal] = {}
     for item in mes.investimentos:
         chave = item.tipo or item.categoria
         por_tipo[chave] = por_tipo.get(chave, Decimal(0)) + item.valor
+    return por_tipo
+
+
+def _renderizar_investimentos(sheet, linha: int, mes: Mes) -> int:
+    total = mes.total_investimentos
+    por_tipo = _agrupar_por_tipo(mes)
 
     for item in sorted(mes.investimentos, key=lambda t: (t.tipo, t.data, t.descricao)):
         coluna_categoria = item.ativo or _TIPO_LABEL.get(item.tipo or "", item.tipo or item.categoria)
@@ -180,6 +198,101 @@ def _renderizar_resumo(sheet, livros: LivroCaixa) -> None:
         linha += 2
 
 
+def _dados_mensais(livros: LivroCaixa) -> list[tuple[str, float, float, float, float]]:
+    dados = []
+    for numero_ano in sorted(livros.anos):
+        ano = livros.anos[numero_ano]
+        for numero_mes in sorted(ano.meses):
+            mes = ano.meses[numero_mes]
+            dados.append(
+                (
+                    f"{numero_ano}-{numero_mes:02d}",
+                    float(mes.total_receitas),
+                    float(mes.total_despesas),
+                    float(mes.total_investimentos),
+                    float(mes.saldo_livre),
+                )
+            )
+    return dados
+
+
+def _classe_agregada(livros: LivroCaixa) -> dict[str, Decimal]:
+    totais: dict[str, Decimal] = {}
+    for ano in livros.anos.values():
+        for mes in ano.meses.values():
+            for tipo, subtotal in _agrupar_por_tipo(mes).items():
+                totais[tipo] = totais.get(tipo, Decimal(0)) + subtotal
+    return totais
+
+
+def _renderizar_graficos(workbook: Workbook, livros: LivroCaixa) -> None:
+    """Cria a aba "Gráficos" com pizza por classe de investimento e barras mensais.
+
+    Os valores reais ficam em tabelas de apoio (colunas à direita); os gráficos
+    apontam para elas, então refletem fielmente os dados das abas anteriores.
+    """
+    mensais = _dados_mensais(livros)
+    por_classe = _classe_agregada(livros)
+    if not mensais:
+        return
+
+    planilha = workbook.create_sheet("Gráficos")
+    planilha.column_dimensions["A"].width = 2
+    planilha.column_dimensions["B"].width = 16
+    planilha.column_dimensions["P"].width = 2
+    planilha.column_dimensions["Q"].width = 12
+    planilha.column_dimensions["R"].width = 14
+    planilha.column_dimensions["S"].width = 14
+    planilha.column_dimensions["T"].width = 14
+    planilha.column_dimensions["U"].width = 14
+
+    col_mes = 17
+    cabecalho = ["Mês", "Receitas", "Despesas", "Investimentos", "Saldo Livre"]
+    for i, nome in enumerate(cabecalho, start=col_mes):
+        planilha.cell(row=1, column=i, value=nome)
+    for i, (mes, receitas, despesas, investimentos, saldo) in enumerate(mensais, start=2):
+        planilha.cell(row=i, column=col_mes, value=mes)
+        for j, valor in enumerate([receitas, despesas, investimentos, saldo], start=col_mes + 1):
+            celula = planilha.cell(row=i, column=j, value=valor)
+            celula.number_format = "#,##0.00"
+
+    if por_classe:
+        linha_inicial = len(mensais) + 3
+        planilha.cell(row=linha_inicial, column=col_mes, value="Tipo")
+        planilha.cell(row=linha_inicial, column=col_mes + 1, value="Valor")
+        for i, (tipo, subtotal) in enumerate(sorted(por_classe.items()), start=linha_inicial + 1):
+            planilha.cell(row=i, column=col_mes, value=_TIPO_LABEL.get(tipo, tipo))
+            celula = planilha.cell(row=i, column=col_mes + 1, value=float(subtotal))
+            celula.number_format = "#,##0.00"
+
+        pie = PieChart()
+        pie.title = "Investimentos por Classe (total do período)"
+        labels = Reference(planilha, min_col=col_mes, min_row=linha_inicial + 1, max_row=linha_inicial + len(por_classe))
+        dados_pie = Reference(planilha, min_col=col_mes + 1, min_row=linha_inicial, max_row=linha_inicial + len(por_classe))
+        pie.add_data(dados_pie, titles_from_data=True)
+        pie.set_categories(labels)
+        pie.dataLabels = DataLabelList()
+        pie.dataLabels.showPercent = True
+        serie = pie.series[0]
+        for idx, (tipo, _) in enumerate(sorted(por_classe.items())):
+            ponto = DataPoint(idx=idx)
+            ponto.graphicalProperties.solidFill = _TIPO_COR.get(tipo, _COR_FALLBACK)
+            serie.data_points.append(ponto)
+        planilha.add_chart(pie, "A2")
+
+    bar = BarChart()
+    bar.type = "col"
+    bar.grouping = "clustered"
+    bar.title = "Por Mês: Receitas, Despesas, Investimentos e Saldo Livre"
+    bar.x_axis.title = "Mês"
+    bar.y_axis.title = "Valor"
+    dados_bar = Reference(planilha, min_col=col_mes + 1, min_row=1, max_col=col_mes + 4, max_row=len(mensais) + 1)
+    bar.add_data(dados_bar, titles_from_data=True)
+    categorias = Reference(planilha, min_col=col_mes, min_row=2, max_row=len(mensais) + 1)
+    bar.set_categories(categorias)
+    planilha.add_chart(bar, "A22")
+
+
 def gerar_planilha(livros: LivroCaixa, destino: str | Path) -> Path:
     destino = Path(destino)
     destino.parent.mkdir(parents=True, exist_ok=True)
@@ -199,6 +312,7 @@ def gerar_planilha(livros: LivroCaixa, destino: str | Path) -> Path:
             planilha = workbook.create_sheet(nome)
             _renderizar_mes(planilha, mes)
 
+    _renderizar_graficos(workbook, livros)
     workbook.save(destino)
     logger.info("Planilha gerada em %s", destino)
     return destino
