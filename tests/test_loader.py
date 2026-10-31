@@ -67,3 +67,41 @@ def test_mes_sem_salario_e_meta(tmp_path: Path) -> None:
     assert mes.total_receitas == Decimal(0)
     assert mes.meta_investimento == Decimal(0)
     assert mes.total_despesas == Decimal("100.00")
+
+
+def test_erro_de_validacao_traz_todos_os_erros() -> None:
+    import pytest
+
+    from controlegastos.loader import ErroDeValidacaoJSON, carregar_dados
+
+    dados = {
+        "anos": [
+            {
+                "ano": 2025,
+                "meses": [
+                    {
+                        "mes": 13,
+                        "despesas": [{"descricao": "x", "valor": "abc", "dia": 1}],
+                    },
+                    {"mes": 1, "salario": True},
+                ],
+            }
+        ]
+    }
+    with pytest.raises(ErroDeValidacaoJSON) as info:
+        carregar_dados(dados)
+
+    caminhos = {e.caminho for e in info.value.erros}
+    assert "anos[0].meses[0].mes" in caminhos
+    assert "anos[0].meses[0].despesas[0].valor" in caminhos
+    assert "anos[0].meses[1].salario" in caminhos
+    assert isinstance(info.value, ValueError)
+
+
+def test_json_ilegivel_gera_mensagem_em_portugues(tmp_path: Path) -> None:
+    import pytest
+
+    arquivo = tmp_path / "quebrado.json"
+    arquivo.write_text("{ nao e json", encoding="utf-8")
+    with pytest.raises(ValueError, match="JSON inválido na linha 1"):
+        carregar_json(arquivo)

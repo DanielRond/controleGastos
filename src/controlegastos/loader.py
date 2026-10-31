@@ -36,6 +36,15 @@ from decimal import Decimal
 from pathlib import Path
 
 from .modelo import Despesa, Investimento, LivroCaixa, Receita
+from .validador import ErroDeValidacao, validar
+
+
+class ErroDeValidacaoJSON(ValueError):
+    """Levantada quando o JSON de entrada tem um ou mais erros de schema."""
+
+    def __init__(self, erros: list[ErroDeValidacao]) -> None:
+        self.erros = erros
+        super().__init__(f"{len(erros)} erro(s) de validação")
 
 
 def _dia_para_data(ancora: date, dia: int) -> date:
@@ -51,9 +60,29 @@ def _link(ancora: date, item: dict) -> tuple[str, Decimal, date, str]:
 
 
 def carregar_json(caminho: str | Path) -> LivroCaixa:
+    """Lê o arquivo JSON, valida o schema e constrói o LivroCaixa."""
     caminho = Path(caminho)
-    dados = json.loads(caminho.read_text(encoding="utf-8"))
+    try:
+        dados = json.loads(caminho.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as erro:
+        raise ValueError(
+            f"JSON inválido na linha {erro.lineno}, coluna {erro.colno}: {erro.msg}"
+        ) from erro
+    return carregar_dados(dados)
 
+
+def carregar_dados(dados: object) -> LivroCaixa:
+    """Valida o dicionário bruto e constrói o LivroCaixa.
+
+    Levanta ErroDeValidacaoJSON com todos os erros encontrados, sem construir nada.
+    """
+    erros = validar(dados)
+    if erros:
+        raise ErroDeValidacaoJSON(erros)
+    return _construir_livro(dados)
+
+
+def _construir_livro(dados: dict) -> LivroCaixa:
     livros = LivroCaixa(moeda=dados.get("moeda", "BRL"))
 
     for ano_dados in dados.get("anos", []):

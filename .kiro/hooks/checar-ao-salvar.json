@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Checagens ao salvar",
+      "trigger": "PostFileSave",
+      "description": "Roda ruff e pytest quando um arquivo .py em src/ ou tests/ é salvo, exibindo a saída em caso de falha.",
+      "matcher": "(^|[\\\\/])(src|tests)[\\\\/].*\\.py$",
+      "action": {
+        "type": "command",
+        "command": "uv run ruff check . ; if ($LASTEXITCODE -ne 0) { exit 1 } ; uv run pytest -q ; if ($LASTEXITCODE -ne 0) { exit 1 }",
+        "timeout": 180
+      }
+    }
+  ]
+}
