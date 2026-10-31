@@ -2,9 +2,9 @@
 
 ## Overview
 
-Este documento descreve o design técnico para organizar o controleGastos para desenvolvimento assistido por IA no Kiro e para implementar as features do roadmap: (A) validação de schema, (B) exportação CSV, (C) interface web e (E) gráficos extras. A importação de extratos bancários está **fora do escopo** desta fase.
+Este documento descreve o design técnico para organizar o controleGastos para desenvolvimento assistido por IA no Kiro e para implementar as features do roadmap: (A) validação de schema, (B) exportação CSV e (E) gráficos extras. Importação de extratos bancários e **interface web estão fora do escopo** (adiadas; o Streamlit foi descartado). A numeração de requisitos e propriedades foi mantida porque os testes a citam.
 
-O design foi escrito a partir da leitura do código real em `controleGastos-main/src/controlegastos` (`cli.py`, `loader.py`, `modelo.py`, `generator.py`), dos testes em `tests/` e do `AGENTS.md`. Fatos relevantes do código atual que condicionam as decisões:
+O design foi escrito a partir da leitura do código real em `src/controlegastos` (`cli.py`, `loader.py`, `modelo.py`, `generator.py`), dos testes em `tests/` e do `AGENTS.md`. Fatos relevantes do código atual que condicionam as decisões:
 
 - `loader.carregar_json(caminho)` lê o arquivo e constrói o `LivroCaixa` com `Decimal(str(valor))`; `dia` assume `1` e `categoria` assume `"geral"` quando ausentes; `date(ano, mes, dia)` levanta `ValueError` para dia inválido.
 - `cli.main()` captura `(FileNotFoundError, KeyError, ValueError, TypeError)`, registra via `logger.error` e retorna `1`. Só existe o subcomando `gerar` com `entrada`, `-o/--saida` (padrão `saida/planilha.xlsx`) e `-v`.
@@ -16,10 +16,8 @@ Decisões principais:
 
 1. O Validador opera sobre o dicionário bruto do JSON (antes de construir o `LivroCaixa`) e devolve uma lista de erros, sem lançar na primeira falha.
 2. O Loader ganha uma função `carregar_dados(dados)` que valida e constrói; `carregar_json` passa a ler o arquivo e delegar para ela. A assinatura pública de `carregar_json` não muda.
-3. O Servico_Core concentra a lógica usada pela Interface_Web e não importa o framework de UI. A CLI e a UI compartilham as mesmas funções de geração e exportação.
-4. A UI usa Streamlit como dependência opcional (extra `ui`).
-5. Os gráficos novos reutilizam a Area_de_Apoio estendida para a direita (colunas `W` em diante), sem alterar as tabelas e os gráficos existentes.
-6. O conjunto de arquivos de IA (steering, agentes e hooks) é só documentação e configuração. O formato exato de agentes e hooks deve ser conferido na execução, porque o suporte do Kiro pode variar por versão.
+3. Os gráficos novos reutilizam a Area_de_Apoio estendida para a direita (colunas `W` em diante), sem alterar as tabelas e os gráficos existentes.
+4. O contexto para IA é o `AGENTS.md` (fonte única, curto). Agentes e hooks são só configuração; os hooks chamam `scripts/checar.py` para serem portáveis entre Windows e Linux.
 
 ## Architecture
 
@@ -29,13 +27,10 @@ Decisões principais:
 flowchart TD
     subgraph Entrada
         JSON[JSON_de_Entrada]
-        FORM[Formulário da UI]
     end
 
     subgraph Pacote["src/controlegastos"]
         CLI[cli.py]
-        UI[interface_web.py - Streamlit]
-        SVC[servico.py - Servico_Core]
         LDR[loader.py]
         VAL[validador.py]
         MOD[modelo.py]
@@ -47,20 +42,12 @@ flowchart TD
         XLSX[.xlsx]
         CSV1[CSV de lançamentos]
         CSV2[CSV de resumo mensal]
-        SAVED[data/entradas/*.json]
     end
 
     JSON --> CLI
     CLI --> LDR
     CLI --> GEN
     CLI --> CSV
-    CLI -->|subcomando ui| UI
-    FORM --> UI
-    UI --> SVC
-    SVC --> LDR
-    SVC --> VAL
-    SVC --> GEN
-    SVC --> CSV
     LDR --> VAL
     LDR --> MOD
     GEN --> MOD
@@ -68,21 +55,18 @@ flowchart TD
     GEN --> XLSX
     CSV --> CSV1
     CSV --> CSV2
-    SVC --> SAVED
 ```
 
 Regras de dependência:
 
 - `validador.py` não importa nenhum outro módulo do pacote e usa só a biblioteca padrão (Requirement 8.1).
 - `modelo.py` permanece sem mudanças.
-- `servico.py` não importa `streamlit` nem `interface_web.py` (Requirement 10.11). Somente `interface_web.py` importa `streamlit`.
-- `cli.py` importa `interface_web.py` apenas dentro do subcomando `ui` e apenas depois de verificar a dependência, para que a CLI padrão não dependa do extra.
 
 ### Fluxo de dados
 
 ```mermaid
 flowchart LR
-    A[Arquivo JSON ou bytes enviados] --> B[json.loads]
+    A[Arquivo JSON] --> B[json.loads]
     B -->|JSON ilegível| E1[Erro de leitura em português]
     B --> C[validar dados]
     C -->|lista de erros não vazia| E2[ErroDeValidacaoJSON com todos os erros]
@@ -92,7 +76,6 @@ flowchart LR
     G --> X[.xlsx]
     H --> Y[2 arquivos CSV]
     E2 --> F[CLI imprime cada erro e retorna 1]
-    E2 --> I[UI exibe tabela de erros e bloqueia salvar e gerar]
 ```
 
 ### Fluxo do subcomando gerar
@@ -209,9 +192,6 @@ Mudanças:
 # subcomando gerar
 gerar.add_argument("--formato", choices=["xlsx", "csv", "ambos"], default="xlsx",
                    help="Formato de saída: xlsx (padrão), csv ou ambos.")
-
-# novo subcomando
-subparsers.add_parser("ui", help="Inicia a interface web (requer o extra 'ui').")
 ```
 
 Tratamento de erros em `main()`:
@@ -232,11 +212,6 @@ except (FileNotFoundError, KeyError, ValueError, TypeError) as erro:
 - Nenhum arquivo é escrito quando há erros de validação, porque a geração só começa depois do carregamento (Requirement 8.11, 8.12).
 - `--formato` com valor inválido: o `argparse` já encerra com código `2` e mensagem de uso. Para atender o Requirement 9.11 (mensagem em português), o parser usa `choices` e `ArgumentParser` com mensagem localizada via subclasse que sobrescreve `error()` para prefixar `Valor inválido para --formato. Use: xlsx, csv ou ambos.`. O código de saída `2` satisfaz "diferente de 0".
 - Formato `xlsx` (padrão) mantém o comportamento atual e a saída `Planilha disponível em: ...` (Requirement 9.2). Para `csv` e `ambos`, o CLI imprime uma linha `Arquivo disponível em: <caminho>` por arquivo gerado (Requirement 9.12).
-- Subcomando `ui`:
-  1. Verifica `importlib.util.find_spec("streamlit")`.
-  2. Se ausente, imprime `A interface web requer a dependência opcional 'streamlit'. Instale com: uv sync --extra ui` e retorna `1` (Requirement 10.4).
-  3. Se presente, executa `subprocess.run([sys.executable, "-m", "streamlit", "run", <caminho de interface_web.py>])` e retorna o código de saída do processo. A UI roda em subprocesso, e `cli.py` e os testes nunca importam `streamlit`.
-
 ### exportador_csv.py
 
 ```python
@@ -286,75 +261,6 @@ Codificação e formato de arquivo:
 
 - Escrita com `open(..., "w", encoding="utf-8", newline="")` e `csv.writer(..., lineterminator="\n")`. Sem BOM e com vírgula como delimitador, porque o requisito fixa ponto decimal. O Excel em pt-BR pode exigir importação com delimitador explícito; isso é uma limitação conhecida e documentada no README, não um defeito.
 
-### servico.py (Servico_Core)
-
-Camada de lógica sem dependência de UI. Todas as funções são puras ou só tocam o sistema de arquivos em pastas informadas pelo chamador.
-
-```python
-@dataclass(slots=True)
-class ResultadoCarga:
-    dados: dict | None                 # JSON bruto validado (None se falhou)
-    livro: LivroCaixa | None
-    erros: list[ErroDeValidacao]       # erros de schema
-    erro_leitura: str | None           # mensagem em português se o JSON for ilegível
-
-def carregar_de_bytes(conteudo: bytes) -> ResultadoCarga
-def validar_dados(dados: object) -> list[ErroDeValidacao]
-def adicionar_lancamento(dados: dict, *, ano: int, mes: int, tipo: str, lancamento: dict) -> dict
-def novo_documento(moeda: str = "BRL") -> dict
-def salvar_json(dados: dict, nome: str, pasta: Path = Path("data/entradas"),
-                sobrescrever: bool = False) -> Path
-def gerar_arquivos(dados: dict, pasta_saida: Path, nome_base: str,
-                   formato: str = "ambos") -> list[Path]
-def gerar_em_memoria(dados: dict) -> dict[str, bytes]   # {"planilha.xlsx": ..., "lancamentos.csv": ..., "resumo-mensal.csv": ...}
-```
-
-Contrato:
-
-- `adicionar_lancamento` devolve **novo** dicionário (cópia profunda). Cria ano e mês se não existirem. `tipo` é `receita`, `despesa` ou `investimento` e mapeia para `receitas`, `despesas` e `investimentos`. O resultado não é validado automaticamente; a UI chama `validar_dados` em seguida, para exibir todos os erros (Requirement 10.7).
-- `carregar_de_bytes` decodifica UTF-8 e faz `json.loads`. Falha de decodificação ou de JSON gera `erro_leitura` em português e `dados=None`, sem lançar exceção (Requirement 10.13). A UI mantém o estado anterior da sessão quando `erro_leitura` não é `None`.
-- `salvar_json` e `gerar_arquivos` chamam `validar` e levantam `ErroDeValidacaoJSON` se houver erros, sem escrever nada (Requirement 10.9). Isso torna a regra impossível de contornar pela UI.
-- `salvar_json` sanitiza `nome` com `^[A-Za-z0-9_-]+$` (extensão `.json` adicionada pelo serviço) para impedir travessia de diretório. Se o arquivo existe e `sobrescrever=False`, levanta `FileExistsError` com mensagem em português. Grava com `json.dumps(dados, ensure_ascii=False, indent=2)` em UTF-8.
-- `gerar_em_memoria` usa um diretório temporário e devolve os bytes para `st.download_button`, assim a UI não precisa gravar em disco para oferecer o download (Requirement 10.10).
-- A CLI usa as mesmas funções `gerar_planilha` e `exportar_csv` diretamente; não é obrigatório que a CLI passe por `servico.py`, mas ambos compartilham a lógica de nomes via `caminhos_csv`.
-
-### interface_web.py (camada de UI, Streamlit)
-
-Único módulo que importa `streamlit`. Responsabilidades:
-
-- `st.file_uploader` para o JSON, com chamada a `servico.carregar_de_bytes`. Em erro de leitura, `st.error` e o `st.session_state["dados"]` anterior é preservado.
-- Formulário (`st.form`) de novo lançamento: ano, mês, tipo, descrição, valor, dia, categoria e, para investimentos, tipo de investimento e ativo. Ao confirmar, chama `adicionar_lancamento`, atualiza `session_state["dados"]` e revalida.
-- Tabela de erros: uma linha por `ErroDeValidacao` com colunas Caminho e Mensagem.
-- Botões `Salvar` e `Gerar` desabilitados enquanto houver erros. Mesmo que o estado fosse contornado, o Servico_Core recusa a operação.
-- Após `Gerar`, três `st.download_button` (xlsx e dois CSV).
-- O módulo mantém só a lógica de apresentação. Valores `Decimal` não passam pelo widget `number_input` como `float` para o modelo: o valor digitado vira número JSON e a conversão para `Decimal` continua no Loader.
-
-### Escolha do framework da interface web
-
-| Critério | Streamlit | NiceGUI | Flask + HTML | Gradio |
-|---|---|---|---|---|
-| Esforço para formulário, upload e download | Muito baixo | Baixo | Alto | Baixo |
-| Dependências transitivas | Muitas (pandas, numpy, pyarrow) | Médias | Poucas | Muitas |
-| Estado de sessão pronto | Sim | Sim | Manual | Sim |
-| Fit para ferramenta local de uso pessoal | Alto | Alto | Médio | Médio |
-
-**Decisão: Streamlit**, conforme a sugestão do Requirement 10.3. Motivos: upload, formulário, tabela e download exigem poucas linhas; o fluxo "recarrega o script a cada interação" combina com um estado único (`session_state["dados"]`); e a lógica fica no Servico_Core, então trocar de framework no futuro custa só `interface_web.py`.
-
-**Riscos e mitigação:**
-
-- **Python 3.14**: o projeto exige `>=3.14`. O Streamlit depende de bibliotecas com extensões nativas (como numpy e pyarrow), cujas rodas para 3.14 podem não existir ou ficar atrás da versão do interpretador. Não verifiquei a compatibilidade nesta fase. A primeira tarefa da UI deve rodar `uv sync --extra ui` e `uv run streamlit hello` em 3.14 antes de qualquer código de UI. Se falhar, o plano de contingência é (a) fixar uma versão mais nova do Streamlit que suporte 3.14, ou (b) trocar para NiceGUI ou uma UI mínima com `http.server`, mantendo o Servico_Core intacto.
-- **Tamanho de instalação**: por ser extra opcional, a instalação padrão da CLI não é afetada (Requirement 10.2).
-- **Versão pinada**: no `pyproject.toml` usar limite inferior e superior (`streamlit>=X,<Y`) com `X` e `Y` definidos após o teste acima, e `uv.lock` versionado.
-
-### pyproject.toml
-
-```toml
-[project.optional-dependencies]
-ui = ["streamlit>=<X>,<<Y>"]   # X e Y definidos após validar em Python 3.14
-```
-
-`dependencies` continua com apenas `openpyxl`. A instalação opcional é `uv sync --extra ui`. Sem ela, `controlegastos ui` mostra a mensagem em português descrita acima.
-
 ### generator.py: gráficos extras
 
 A função `_renderizar_graficos` continua criando a aba `Gráficos` somente quando há meses. Ela passa a chamar três funções auxiliares depois de criar os gráficos existentes (que não mudam: pizza em `A2` e barras mensais em `A22`).
@@ -401,56 +307,27 @@ Decisões:
 
 ### Organização para IA (.kiro)
 
-Todos os artefatos abaixo são Markdown ou JSON de configuração. Não há código de produto.
+Só Markdown e JSON de configuração; nenhum código de produto além de `scripts/checar.py`.
 
-#### Steering (`.kiro/steering/`)
+- **Contexto**: `AGENTS.md` (~100 linhas) é a fonte única e o Kiro o carrega sozinho. Os antigos steerings `produto`, `tech`, `estrutura` e `convencoes` foram removidos por duplicarem o AGENTS.md. Resta o steering manual `revisar-documentacao.md`.
+- **Agentes** (`.kiro/agents/*.md`, front matter com `permissions.rules`):
 
-| Arquivo | Conteúdo |
-|---|---|
-| `produto.md` | Propósito (controle de gastos pessoais, planilhas .xlsx a partir de JSON), público-alvo (pessoa que mantém as próprias finanças e prefere editar dados em JSON ou usar a UI), saída principal .xlsx com CSV e interface web como complementos, roadmap com ordem de prioridade A (validação), B (CSV), C (interface web), E (gráficos extras), e declaração de que a importação de extratos bancários está fora do escopo desta fase. |
-| `tech.md` | Python >= 3.14, uv, openpyxl, pytest, ruff; comandos `uv sync`, `uv run pytest`, `uv run ruff check .`; nota sobre extra opcional `ui` (Streamlit). |
-| `estrutura.md` | Responsabilidade de `cli.py`, `loader.py`, `modelo.py`, `generator.py` e dos novos `validador.py`, `exportador_csv.py`, `servico.py`, `interface_web.py`; papel de `tests/`, `data/entradas/`, `docs/media/` e `saida/`. |
-| `convencoes.md` | Valores monetários em Decimal, nunca float; nenhum commit sem pedido explícito; ao mudar o esquema atualizar `loader.py`, `validador.py`, `exemplo.json` e `AGENTS.md` juntos; código em inglês, documentação e mensagens ao usuário em português; `saldo_livre = receitas - despesas - investimentos`. |
+| Agente | Escreve em | Observação |
+|---|---|---|
+| `planejador` | `.kiro/specs/**` | Não altera código |
+| `implementador` | tudo, exceto `.kiro/**`, `.github/**` e `AGENTS.md` | Sem `git commit/add/push`; o commit é do agente principal |
+| `qa` | `tests/**` | Roda ruff e pytest e relata |
+| `documentacao` | `README.md`, `AGENTS.md`, `docs/**` | Mantém o AGENTS.md curto |
 
-Regras de manutenção:
-
-- Os quatro arquivos usam inclusão sempre ativa (padrão do steering do Kiro).
-- Em conflito entre steering e `AGENTS.md`, o `AGENTS.md` prevalece e o steering é corrigido (Requirement 5.8). Para reduzir divergência, os steerings **resumem** e apontam para o `AGENTS.md` em vez de copiar o esquema JSON inteiro.
-- Observação sobre linguagem: o `AGENTS.md` pede nomes de identificadores em inglês, mas o código existente usa português (`LivroCaixa`, `carregar_json`). O `convencoes.md` deve registrar que **novos módulos seguem o padrão já existente do pacote** (nomes em português), para não gerar inconsistência. Essa divergência pré-existente deve ser sinalizada ao usuário e não corrigida nesta fase.
-
-#### Agentes por papel
-
-Formato proposto: um arquivo JSON por agente em `.kiro/agents/<nome>.json` com `name`, `description`, `prompt` e `resources` apontando para `file://.kiro/steering/*.md`. **O formato exato (pasta, campos e suporte a restrição de ferramentas) deve ser conferido na documentação do Kiro durante a execução**, pois pode variar por versão. Se o formato de agentes não for suportado na versão instalada, o fallback é um arquivo Markdown por papel em `.kiro/steering/agentes/` com inclusão manual.
-
-| Agente | Papel | Regras específicas | Requisito |
-|---|---|---|---|
-| `planejador` | Cria e refina specs em `.kiro/specs/` | Não altera nada em `src/`; só escreve em `.kiro/specs/` | 6.2 |
-| `implementador` | Implementa tarefas dos specs | Lê os 4 arquivos de steering e o `tasks.md` do spec antes de alterar código | 6.3 |
-| `qa` | Verifica qualidade | Executa `uv run pytest` e `uv run ruff check .` e relata os resultados; não altera código de produto sem pedido | 6.4 |
-| `documentacao` | Mantém documentação | Atua só em `README.md`, `AGENTS.md`, `docs/` e `.kiro/steering/` | 6.5 |
-
-Todos os quatro prompts incluem: "Nunca crie commits sem pedido explícito do usuário" (Requirement 6.6) e "Valores monetários usam Decimal" (Requirement 6.7).
-
-#### Hooks (`.kiro/hooks/`)
-
-Formato proposto (JSON `version: "v1"` com lista `hooks`, como o criado pela ferramenta de hooks do Kiro). **O formato e os gatilhos disponíveis devem ser conferidos na execução**.
-
-| Hook | Arquivo | Gatilho | Ação |
-|---|---|---|---|
-| Checagens ao salvar | `checar-ao-salvar.json` | `PostFileSave`, `matcher` casando `src/` ou `tests/` com extensão `.py` | `command`: `uv run ruff check . && uv run pytest`. Em falha, o comando devolve código diferente de zero e exibe a saída (Requirement 7.5). |
-| Lembrete de esquema | `lembrete-esquema.json` | `PostFileSave`, `matcher` casando `loader.py`, `validador.py` e `exemplo*.json` | `agent`: lembrete de atualizar `loader.py`, `validador.py`, `exemplo.json` e `AGENTS.md` juntos. |
-| Revisar documentação | `revisar-documentacao.json` | Acionamento manual | `agent`: prompt pedindo revisão de `README.md`, `AGENTS.md` e steering contra o código atual. |
-
-Pontos de atenção:
-
-- O conjunto de gatilhos do formato `v1` pode não incluir acionamento manual. Se não incluir, o hook manual usa o formato legado de arquivo `.kiro.hook` com gatilho `userTriggered`. Isso será confirmado na execução (Requirement 7.3).
-- O shell padrão no Windows pode ser PowerShell 5.1, que não aceita `&&`. Se for o caso, o comando deve usar `cmd /c "uv run ruff check . && uv run pytest"` ou `;` com checagem de `$?`.
-- Executar a suíte inteira a cada salvamento pode ser lento. É aceitável no tamanho atual do projeto; se ficar lento, restringir o hook ao `ruff` e deixar o `pytest` para o agente QA.
+- **Hooks** (`.kiro/hooks/*.json`, `version: "v1"`):
+  - `checar-ao-salvar`: `PostFileSave` em `.py` de `src/` ou `tests/`; executa `uv run python scripts/checar.py` (ruff em tudo, pytest só do módulo alterado, ou suíte inteira se o arquivo não for identificado). Sem `&&`, `;` ou `$LASTEXITCODE`, logo funciona em qualquer shell.
+  - `lembrete-esquema`: `PostFileSave` em `loader.py`, `validador.py` e `exemplo*.json`; lembra de atualizar o esquema em conjunto.
+- A revisão de documentação não é hook (o Kiro não tem gatilho manual); é o steering manual `/revisar-documentacao`.
+- Risco conhecido: não foi confirmado que o Kiro aplica `permissions.rules` dos agentes; o `AGENTS.md` repete as regras como defesa.
 
 ### CI (`.github/workflows/ci.yml`)
 
-- O job principal permanece com `uv sync`, `uv run ruff check .` e `uv run pytest`. Como nenhum teste inicia a UI ou importa `streamlit`, os testes dos módulos novos (`validador`, `exportador_csv`, `servico`) rodam sem o extra. Isso atende o Requirement 12.3 no sentido de instalar o que for necessário: nenhuma dependência opcional é necessária para os testes.
-- Um job adicional `ui-import` roda `uv sync --extra ui` seguido de `uv run python -c "import streamlit"`, com `continue-on-error: true`. Ele serve como alerta antecipado de incompatibilidade com Python 3.14 sem quebrar o CI principal.
+- Um único job com `uv sync`, `uv run ruff check .` e `uv run pytest` em Python 3.14. Não há dependências opcionais.
 - `ruff check .` já cobre os módulos novos por estar no diretório raiz.
 
 ## Data Models
@@ -465,13 +342,6 @@ class ErroDeValidacao:           # validador.py
 
 class ErroDeValidacaoJSON(ValueError):   # loader.py
     erros: list[ErroDeValidacao]
-
-@dataclass(slots=True)
-class ResultadoCarga:            # servico.py
-    dados: dict | None
-    livro: LivroCaixa | None
-    erros: list[ErroDeValidacao]
-    erro_leitura: str | None
 ```
 
 Esquema do JSON de entrada: sem mudança em relação ao `AGENTS.md`. O que muda é que as regras antes implícitas (campos obrigatórios, tipos, intervalos) agora são verificadas e documentadas.
@@ -493,67 +363,6 @@ ano,mes,receitas,despesas,investimentos,saldo_livre
 ```
 
 (Os valores do exemplo seguem os totais afirmados em `tests/test_loader.py` para `exemplo.json` em janeiro de 2025. Os lançamentos individuais acima são ilustrativos.)
-
-## Fluxo das tarefas operacionais de ambiente
-
-Estas tarefas são executadas por um agente com ferramentas de terminal. Cada etapa verifica o estado antes de agir e é idempotente quando possível.
-
-```mermaid
-flowchart TD
-    S[Início] --> P1[Etapa 1: pré-checagem de conflitos]
-    P1 -->|conflito| X1[Interrompe e lista os conflitos ao usuário]
-    P1 -->|sem conflito| P2[Etapa 2: mover conteúdo para a raiz]
-    P2 --> P3[Etapa 3: verificar integridade e remover pasta vazia]
-    P3 --> P4[Etapa 4: detectar ferramentas]
-    P4 -->|ferramenta ausente| Q[Perguntar ao usuário por ferramenta]
-    Q -->|sim| I[winget install e verificar versão]
-    Q -->|não| PEND[Registrar como pendente]
-    I -->|falha| PEND
-    P4 -->|presentes| P5
-    I --> P5[Etapa 5: git init e remote sem commits]
-    PEND --> P5
-    P5 --> P6[Etapa 6: linha de base]
-    P6 -->|alguma falha| R[Relatar comando e saída; não iniciar implementação]
-    P6 -->|tudo ok| F[Fim]
-```
-
-### Etapa 1 e 2: mover `controleGastos-main` para a raiz (Requirements 1.1 a 1.5)
-
-1. Listar os itens de primeiro nível de `controleGastos-main` (`.github`, `.gitignore`, `.python-version`, `AGENTS.md`, `data`, `docs`, `LICENSE`, `pyproject.toml`, `README.md`, `src`, `tests`, `uv.lock`).
-2. **Pré-checagem de conflitos**: para cada item, verificar se já existe um item de mesmo nome na raiz. Se existir qualquer um, interromper **antes de mover qualquer coisa** e informar a lista de conflitos (Requirement 1.4). A raiz hoje só tem `.kiro` e `controleGastos-main`, e `.kiro` não existe na origem, então o conflito esperado é nulo. `.kiro/` nunca é movida nem sobrescrita (Requirement 1.5).
-3. Gerar um manifesto de integridade: caminho relativo e hash SHA-256 de cada arquivo de `controleGastos-main` (`Get-FileHash`).
-4. Mover cada item de primeiro nível com `Move-Item` (mesma unidade de disco, então é renomeação e não cópia). Sem `-Force`, para que uma colisão inesperada falhe em vez de sobrescrever.
-5. Se algum `Move-Item` falhar no meio do caminho, parar, listar o que já foi movido e o que falta, e perguntar ao usuário como seguir. Não há rollback automático; a operação de retomada é mover os itens restantes.
-6. Recalcular os hashes na raiz e comparar com o manifesto (Requirement 1.2).
-7. Remover `controleGastos-main` com `Remove-Item` **sem `-Recurse`**: se a pasta ainda tiver conteúdo, o comando falha em vez de apagar (Requirement 1.3).
-8. Observação: após o movimento, `data/entradas/*.json` e `pyproject.toml` mantêm os mesmos caminhos relativos; os testes usam `Path(__file__).parent.parent`, então não dependem da pasta-pai.
-
-### Etapa 4: ferramentas (Requirements 2.1 a 2.5)
-
-| Ferramenta | Detecção | Instalação via winget (com confirmação) | Verificação |
-|---|---|---|---|
-| git | `Get-Command git` | `winget install --id Git.Git -e` | `git --version` |
-| uv | `Get-Command uv` | `winget install --id astral-sh.uv -e` | `uv --version` |
-| Python 3.14 | `uv python list` ou `py -3.14 --version` | `winget install --id Python.Python.3.14 -e` | `python --version` com 3.14 |
-
-Regras:
-
-- Uma confirmação do usuário **por ferramenta**, nunca em lote (Requirement 2.2). Recusa registra a ferramenta como pendente e pula só as etapas que dependem dela (Requirement 2.3).
-- Ferramenta já presente é pulada (Requirement 2.4).
-- Depois da instalação, o `PATH` da sessão atual pode não incluir a ferramenta. A verificação tenta primeiro o comando; se falhar, recarrega o `PATH` a partir do registro (máquina e usuário) e tenta de novo; se ainda falhar, procura o executável no caminho de instalação padrão e, por fim, avisa que pode ser necessário reabrir o terminal.
-- Os IDs do winget e o ID do Python 3.14 devem ser conferidos com `winget search` na execução, pois os pacotes podem mudar de nome.
-- **Instalação do git iniciada mas não confirmada**: antes de usar o git, o fluxo verifica a instalação em vez de assumir sucesso. Passos: (1) `git --version`; (2) se falhar, `winget list --id Git.Git`; (3) verificar se o instalador ainda está em execução (processo do instalador ativo) e, se estiver, aguardar sua conclusão; (4) procurar `git.exe` no caminho padrão e recarregar o `PATH`; (5) se continuar ausente, tratar o git como pendente e perguntar ao usuário se deve reinstalar. Nenhuma etapa de git (`init`, `remote`) roda antes de `git --version` ter sucesso.
-
-### Etapa 5: git sem commits (Requirements 3.1 a 3.4)
-
-1. Se não existe `.git` na raiz, `git init`. Se já existe, não reinicializa.
-2. Se o usuário informou uma URL, `git remote add origin <url>`; se `origin` já existe com URL diferente, mostrar a diferença e perguntar antes de executar `git remote set-url`. A URL é passada como argumento único (sem interpolação em string de shell).
-3. Confirmar que `.gitignore` existe na raiz; se faltar, informar e não criar sem pedido.
-4. Nunca executar `git commit`, `git push` ou `git add` nesta fase. Somente `git status` para relatar o estado.
-
-### Etapa 6: linha de base (Requirements 4.1 a 4.3)
-
-Executar, nesta ordem e na raiz: `uv sync`, `uv run ruff check .`, `uv run pytest`. Registrar para cada comando sucesso ou falha e, para o `pytest`, testes aprovados e reprovados. Se qualquer comando falhar, interromper, relatar o comando e a saída de erro e não iniciar a implementação. A execução só ocorre se uv e Python 3.14 estiverem disponíveis; caso contrário, a linha de base fica pendente e é relatada como tal.
 
 ## Correctness Properties
 
@@ -597,23 +406,9 @@ As propriedades abaixo foram derivadas das regras testáveis dos Requirements 8 
 
 **Validates: Requirements 9.4, 9.9**
 
-### Property 7: Salvar e recarregar preserva o documento
+### Properties 7 a 9 (suspensas)
 
-*For any* documento válido, `salvar_json` seguido de `carregar_json` no arquivo salvo produz um `LivroCaixa` igual ao obtido de `carregar_dados` sobre o documento original.
-
-**Validates: Requirements 10.5, 10.8**
-
-### Property 8: Dados inválidos nunca geram nem salvam arquivos
-
-*For any* documento com ao menos um erro de schema, `salvar_json` e `gerar_arquivos` levantam `ErroDeValidacaoJSON` e nenhum arquivo é criado nas pastas de destino.
-
-**Validates: Requirements 10.7, 10.9**
-
-### Property 9: Conteúdo ilegível não altera a sessão
-
-*For any* sequência de bytes que não seja um JSON UTF-8 válido, `carregar_de_bytes` devolve `erro_leitura` não vazio e `dados` igual a `None`, sem lançar exceção, de modo que o estado anterior da sessão permanece o mesmo.
-
-**Validates: Requirements 10.13**
+Eram da interface web (salvar e recarregar, dados inválidos nunca geram arquivos, conteúdo ilegível não altera a sessão). Os números ficam reservados.
 
 ### Property 10: Ranking de despesas ordenado, completo e com rótulo padrão
 
@@ -638,17 +433,13 @@ As propriedades abaixo foram derivadas das regras testáveis dos Requirements 8 
 | Situação | Detecção | Tratamento | Saída ao usuário |
 |---|---|---|---|
 | Arquivo de entrada inexistente | `FileNotFoundError` em `carregar_json` | CLI captura, retorna 1 | `Falha ao processar os dados: ...` |
-| JSON malformado | `json.JSONDecodeError` (`ValueError`) | CLI captura, retorna 1; serviço devolve `erro_leitura` | Mensagem em português com linha e coluna |
+| JSON malformado | `json.JSONDecodeError` (`ValueError`) | CLI captura, retorna 1 | Mensagem em português com linha e coluna |
 | Raiz do JSON não é objeto | `validar` | Erro com caminho `(raiz)` | Lista de erros |
-| Erros de schema | `validar` | `ErroDeValidacaoJSON`; CLI imprime todos e retorna 1; UI mostra tabela e bloqueia ações | Um erro por linha com Caminho_do_Erro |
+| Erros de schema | `validar` | `ErroDeValidacaoJSON`; CLI imprime todos e retorna 1 | Um erro por linha com Caminho_do_Erro |
 | `--formato` inválido | `argparse` `choices` | Mensagem em português, código 2 | `Valor inválido para --formato. Use: xlsx, csv ou ambos.` |
 | Diretório de destino inexistente | `exportador_csv` e `gerar_planilha` | `mkdir(parents=True, exist_ok=True)` | Nenhuma |
 | Erro de escrita (permissão, arquivo aberto no Excel) | `OSError` na gravação | A CLI passa a capturar `OSError` junto aos tipos atuais e retorna 1; os dois CSV são gravados de forma que falha no segundo não deixa a CLI reportar sucesso | `Falha ao gravar o arquivo: ...` |
-| Dependência `streamlit` ausente | `importlib.util.find_spec` | Mensagem e retorno 1 | `uv sync --extra ui` |
-| Nome de arquivo inseguro ao salvar na UI | Regex em `salvar_json` | `ValueError` com mensagem em português | Mensagem na UI |
-| Arquivo já existe ao salvar | `salvar_json` | `FileExistsError`; a UI pede confirmação para sobrescrever | Mensagem e botão de confirmação |
 | Dados insuficientes para gráfico | Condição de dados no gerador | Gráfico omitido, sem erro | Nenhuma |
-| Falha em etapa operacional (mover, instalar, git, linha de base) | Código de saída do comando | Interromper a etapa, relatar o comando e a saída, perguntar como seguir | Relato ao usuário |
 
 Princípios: mensagens ao usuário em português; nunca engolir erro em silêncio; nenhuma gravação parcial depois de falha de validação, porque a validação ocorre antes de qualquer escrita.
 
@@ -656,21 +447,16 @@ Princípios: mensagens ao usuário em português; nunca engolir erro em silênci
 
 | Risco | Impacto | Mitigação |
 |---|---|---|
-| Compatibilidade do Streamlit (e de suas dependências nativas) com Python 3.14 | A UI pode não instalar | Validar `uv sync --extra ui` como primeira tarefa da UI; versão com limites no `pyproject.toml`; job de CI não bloqueante; Servico_Core independente permite trocar de framework |
-| Dependência opcional no CI | Quebrar o CI principal ou deixar a UI sem cobertura | Testes não importam `streamlit`; job `ui-import` separado e não bloqueante |
 | `exemplo.json` ou `exemplo-completo.json` podem não satisfazer as novas regras (por exemplo, itens sem `dia`, que o Loader tolera hoje) | Requirement 8.13 falharia | Primeiro teste da tarefa de validação roda o Validador nos dois exemplos; se falhar, corrigir os exemplos na mesma mudança (regra de atualização conjunta) |
 | Validação mais estrita que o Loader atual (strings numéricas, `dia` obrigatório) | Entradas antes aceitas passam a ser rejeitadas | Mensagens claras com caminho; registrar a mudança no `AGENTS.md` e no `README.md` |
 | Categoria padrão `geral` do Loader versus rótulo `Sem categoria` | Categoria literal `geral` aparece como `Sem categoria` | Decisão documentada acima; revisitar se o usuário quiser mudar o padrão do Loader |
 | Âncoras dos gráficos novos sobrepondo conteúdo | Gráficos ilegíveis | Âncoras `A42`, `A62`, `A82` abaixo dos existentes e longe da Area_de_Apoio (colunas `Q` em diante); conferir visualmente ao regenerar `docs/media` |
-| Formato de agentes e hooks do Kiro diferente do proposto | Arquivos ignorados pelo Kiro | Conferir a documentação na execução; fallback descrito em cada seção |
-| PowerShell 5.1 sem `&&` nos hooks | Hook de checagem falha | Usar `cmd /c` ou `;` conforme o shell detectado |
+| Kiro ignorar `permissions.rules` dos agentes ou o formato dos hooks | Regras não aplicadas | Regras repetidas no `AGENTS.md`; hooks sem sintaxe de shell |
 | Excel pt-BR abre CSV com vírgula e ponto de forma diferente | Dados aparecem em uma coluna só | Documentar no README a importação com delimitador explícito; formato fixado pelo requisito |
-| Instalação do git iniciada e não confirmada | Etapas de git falhando | Verificação explícita descrita na Etapa 4 antes de qualquer comando git |
-| Mover arquivos com perda ou sobrescrita | Perda de dados | Pré-checagem de conflitos, `Move-Item` sem `-Force`, manifesto de hashes, `Remove-Item` sem `-Recurse` |
 
 ## Testing Strategy
 
-Abordagem dupla: testes unitários (exemplos, bordas e integração) e testes de propriedades (entradas geradas). Os dois são complementares. Nenhum teste inicia a UI nem importa `streamlit` (Requirement 10.12).
+Abordagem dupla: testes unitários (exemplos, bordas e integração) e testes de propriedades (entradas geradas). Os dois são complementares. Testes são determinísticos e não dependem de rede nem de dados pessoais.
 
 **Biblioteca de propriedades**: `hypothesis`, adicionada ao grupo `dev` do `pyproject.toml` (`uv add --dev hypothesis`, com versão pinada). Cada teste de propriedade usa no mínimo 100 exemplos (`@settings(max_examples=100)`) e traz o comentário `# Feature: controlegastos-agentes-ia, Property N: <título>`. Cada propriedade da seção anterior é implementada por **um** teste.
 
@@ -686,17 +472,15 @@ Abordagem dupla: testes unitários (exemplos, bordas e integração) e testes de
 |---|---|
 | `validador` | Um caso válido e um inválido por regra dos critérios 8.2 a 8.7; 29/02 em 2024 (válido) e 2025 (inválido); `exemplo.json` e `exemplo-completo.json` sem erros; raiz que não é objeto; booleano em `valor` |
 | `loader` | `carregar_json` continua passando nos testes existentes; `ErroDeValidacaoJSON` carrega todos os erros |
-| `cli` | `--formato` padrão gera só o xlsx; `csv` gera os dois CSV; `ambos` imprime 3 caminhos; valor inválido de `--formato` sai com código diferente de 0; entrada inválida retorna 1 e imprime todas as mensagens (usando `caplog`); `ui` sem `streamlit` (simulado com `monkeypatch` em `find_spec`) retorna diferente de 0 e mostra o comando de instalação |
+| `cli` | `--formato` padrão gera só o xlsx; `csv` gera os dois CSV; `ambos` imprime 3 caminhos; valor inválido de `--formato` sai com código diferente de 0; entrada inválida retorna 1 e imprime todas as mensagens (usando `caplog`) |
 | `exportador_csv` | Cabeçalhos exatos; `Decimal("1200")` vira `1200.00`; arredondamento half-up; diretório criado; arquivo decodifica como UTF-8; derivação dos nomes a partir de `-o` |
-| `servico` | `adicionar_lancamento` não altera o original; `salvar_json` recusa nomes como `../x` e sobrescrita sem confirmação; `gerar_em_memoria` retorna três arquivos; importar `servico` não carrega `streamlit` (verificar `sys.modules`) |
 | `generator` | Para `exemplo-completo.json`, a aba `Gráficos` tem 5 gráficos; para livro com um mês, tem somente pizza e barras; testes existentes permanecem verdes |
 
 **Testes por propriedade** (Properties 1 a 12): implementados com Hypothesis conforme descrito acima. A Property 6 gera a planilha em `tmp_path`, lê o Resumo Geral com `openpyxl` e compara o saldo arredondado a duas casas. As Properties 10 e 11 testam as funções puras `_ranking_despesas` e `_patrimonio_acumulado`.
 
 **Verificações fora do pytest**:
 
-- Steering, agentes e hooks: conferência manual guiada por checklist (existência dos 4 arquivos de steering, 4 agentes e 3 hooks, e presença das regras obrigatórias).
-- Fluxo operacional de ambiente: executado e relatado pelo agente; sem testes automatizados.
+- Agentes e hooks: conferência manual (4 agentes, 2 hooks, `scripts/checar.py` exercitado com entradas simuladas).
 - Fechamento: `uv run pytest`, `uv run ruff check .` e geração ponta a ponta `uv run controlegastos gerar data/entradas/exemplo-completo.json -o saida/planilha.xlsx --formato ambos`, com verificação de existência do `.xlsx` e dos dois CSV.
 
-**Fora de escopo**: importação de extratos bancários; testes que iniciem a UI; rendimentos de investimentos no gráfico de patrimônio.
+**Fora de escopo**: importação de extratos bancários; interface web; rendimentos de investimentos no gráfico de patrimônio.
