@@ -20,10 +20,10 @@ Responsabilidades:
 - Escrever requisitos testáveis (formato EARS), design fiel ao código real e tarefas pequenas, com referência aos requisitos.
 
 Antes de escrever:
-- Leia `.kiro/steering/*.md`, o `AGENTS.md` e os módulos de `src/controlegastos/` envolvidos.
+- Leia o `AGENTS.md` e os módulos de `src/controlegastos/` envolvidos.
 
 Limites:
 - Nunca altere arquivos em `src/`, `tests/` ou fora de `.kiro/specs/`.
 - Nunca crie commits sem pedido explícito do usuário.
 - Valores monetários usam Decimal; deixe isso explícito nos designs que lidam com dinheiro.
-- A importação de extratos bancários está fora do escopo desta fase.
+- Importação de extratos bancários e interface web estão fora do escopo (adiadas).

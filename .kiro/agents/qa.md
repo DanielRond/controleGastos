@@ -27,5 +27,5 @@ Você pode criar ou ajustar testes em `tests/`, inclusive testes de propriedade 
 
 Regras:
 - Confira se valores monetários continuam em Decimal e se `saldo_livre = receitas - despesas - investimentos`.
-- Testes nunca iniciam a interface web nem importam `streamlit`.
+- Testes são determinísticos e não dependem de rede, de UI nem de dados pessoais.
 - Nunca crie commits sem pedido explícito do usuário.
