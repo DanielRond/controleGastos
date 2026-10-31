@@ -3,15 +3,12 @@
 Uso:
     uv run controlegastos gerar data/entradas/exemplo.json -o saida/planilha.xlsx
     uv run controlegastos gerar data/entradas/exemplo.json -o saida/planilha.xlsx --formato ambos
-    uv run controlegastos ui
 """
 
 from __future__ import annotations
 
 import argparse
-import importlib.util
 import logging
-import subprocess
 import sys
 from pathlib import Path
 
@@ -22,11 +19,6 @@ from .loader import ErroDeValidacaoJSON, carregar_json
 logger = logging.getLogger(__name__)
 
 FORMATOS = ("xlsx", "csv", "ambos")
-
-MENSAGEM_UI_AUSENTE = (
-    "A interface web requer a dependência opcional 'streamlit'. "
-    "Instale com: uv sync --extra ui"
-)
 
 
 class _Parser(argparse.ArgumentParser):
@@ -56,7 +48,6 @@ def _montar_parser() -> argparse.ArgumentParser:
     )
     gerar.add_argument("-v", "--verbose", action="store_true", help="Habilita log detalhado.")
 
-    subparsers.add_parser("ui", help="Inicia a interface web (requer o extra 'ui').")
     return parser
 
 
@@ -91,14 +82,6 @@ def _executar_gerar(args: argparse.Namespace) -> int:
     return 0
 
 
-def _executar_ui() -> int:
-    if importlib.util.find_spec("streamlit") is None:
-        print(MENSAGEM_UI_AUSENTE, file=sys.stderr)
-        return 1
-    app = Path(__file__).with_name("interface_web.py")
-    return subprocess.run([sys.executable, "-m", "streamlit", "run", str(app)], check=False).returncode
-
-
 def main() -> int:
     parser = _montar_parser()
     args = parser.parse_args()
@@ -108,8 +91,6 @@ def main() -> int:
         format="%(levelname)s %(message)s",
     )
 
-    if args.comando == "ui":
-        return _executar_ui()
     return _executar_gerar(args)
 
 

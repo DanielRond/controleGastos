@@ -101,16 +101,3 @@ def test_formato_invalido_mensagem_em_portugues(tmp_path, monkeypatch, capsys) -
         _rodar(monkeypatch, "gerar", str(EXEMPLO), "-o", str(tmp_path / "p.xlsx"), "--formato", "pdf")
     assert info.value.code != 0
     assert "Valor inválido para --formato" in capsys.readouterr().err
-
-
-def test_ui_sem_streamlit_orienta_instalacao(monkeypatch, capsys) -> None:
-    import importlib.util
-
-    original = importlib.util.find_spec
-    monkeypatch.setattr(
-        importlib.util,
-        "find_spec",
-        lambda nome, *a, **k: None if nome == "streamlit" else original(nome, *a, **k),
-    )
-    assert _rodar(monkeypatch, "ui") != 0
-    assert "uv sync --extra ui" in capsys.readouterr().err
