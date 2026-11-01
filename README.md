@@ -103,9 +103,10 @@ Concluído:
 
 Fora de escopo por ora (sem prazo):
 
-- **Interface web** para registrar lançamentos.
+- **Interface web** para registrar lançamentos (objetivo principal; ver [specs/interface-web](specs/interface-web/spec.md)).
 - **Importação de extratos bancários** (OFX/CSV de banco).
 
 ## Documentação para máquinas/agentes
 
 - [AGENTS.md](AGENTS.md) — guia de desenvolvimento para agentes de IA.
+- [specs/](specs/README.md) — o que o sistema faz, por capacidade, com requisitos rastreados por testes (e o rascunho da futura interface web).

@@ -6,7 +6,7 @@ Guia para agentes de IA (e humanos) trabalhando neste repositório. É a **fonte
 
 Ferramenta de **controle de gastos pessoais** que gera planilhas Excel (.xlsx) e CSV a partir de arquivos JSON, organizando receitas, despesas e investimentos por mês e por ano. Simples e auditável: dados em texto versionável, mesmos critérios de totalização sempre.
 
-Fora de escopo: importação de extratos bancários e interface web (adiadas, sem prazo).
+Próximo grande passo: **interface web** (a CLI foi o ponto de partida; ver `specs/interface-web`). Fora de escopo por ora: importação de extratos bancários.
 
 ## Stack
 
@@ -39,10 +39,11 @@ src/controlegastos/
   loader.py          # lê JSON, valida (ErroDeValidacaoJSON) e constrói LivroCaixa
   generator.py       # gera .xlsx: Resumo Geral, abas AAAA-MM e Gráficos (área de apoio nas colunas Q+)
   exportador_csv.py  # CSV de lançamentos e CSV de resumo mensal (UTF-8, vírgula, ponto decimal)
-tests/               # pytest: unitários e propriedades (hypothesis); nada de testes que dependam de UI
-scripts/checar.py    # ruff + testes do módulo alterado; usado pelo hook de salvar (portável)
+tests/               # pytest: unitários e propriedades (hypothesis); cada teste cita o ID do spec (`# Spec: VAL-03`)
+specs/               # specs por capacidade (lancamentos, validacao, exportacao, planilha, interface-web); ver specs/README.md
+scripts/             # checar.py (hook), conferir_specs.py (spec↔teste), sincronizar_agentes.py (Kiro→Claude)
 docs/media/          # capturas da planilha usadas no README (só dados fictícios)
-.kiro/               # agentes, hooks, steering manual e specs (ver abaixo)
+.kiro/               # agentes, hooks e steering manual; .claude/ e CLAUDE.md para o Claude Code
 .github/workflows/   # CI: uv sync, ruff, pytest em Python 3.14
 ```
 
@@ -91,11 +92,12 @@ docs/media/          # capturas da planilha usadas no README (só dados fictíci
 4. Ao mudar o esquema, atualize **juntos**: `loader.py`, `validador.py`, `data/entradas/exemplo.json` e este arquivo.
 5. Nomes de identificadores seguem o padrão já existente do pacote (português: `LivroCaixa`, `carregar_json`); documentação e mensagens ao usuário em português. Migrar para inglês só se o usuário pedir, em mudança separada.
 6. Após mexer em dependências, rode `uv sync` e valide com uma geração de planilha.
-7. Toda mudança de código passa por `uv run ruff check .` e `uv run pytest` antes de ser dada como pronta.
+7. Toda mudança de código passa por `uv run ruff check .` e `uv run pytest` (inclui a conferência de specs) antes de ser dada como pronta.
+8. **Spec primeiro**: comportamento novo ou alterado entra em `specs/<capacidade>/spec.md` (IDs novos, nunca renumerar) e o usuário aprova antes de codar. Agentes de implementação não editam `spec.md`.
 
 ## Fluxo com IA (Kiro e Claude Code)
 
-- **Specs** em `.kiro/specs/<feature>/` (requirements, design, tasks): enxutos; ao concluir, o que for permanente vai para este arquivo e o spec fica como histórico. O Claude Code lê os mesmos arquivos (`CLAUDE.md` importa este arquivo).
-- **Agentes**: a fonte é `.kiro/agents/`; `.claude/agents/` é gerado por `uv run python scripts/sincronizar_agentes.py` (um teste falha se defasado). Papéis: `planejador` (só `.kiro/specs/`), `implementador` (código e testes; não escreve em `.kiro/`, `.github/`, `AGENTS.md`; sem commit), `qa` (só `tests/`), `documentacao` (README, este arquivo, `docs/`). No Kiro as restrições são impostas por `permissions.rules`; no Claude Code valem como instrução.
+- **Specs** em `specs/<capacidade>/spec.md`, neutros entre Kiro e Claude Code, em pt-BR com IDs estáveis; permanecem depois de prontos e o código responde a eles (fluxo em `specs/README.md`). `design.md`/`tasks.md` só em mudanças grandes.
+- **Agentes**: a fonte é `.kiro/agents/`; `.claude/agents/` é gerado por `uv run python scripts/sincronizar_agentes.py` (um teste falha se defasado). Papéis: `planejador` (só `specs/`), `implementador` (código e testes; não escreve em `.kiro/`, `.github/`, `AGENTS.md` nem `spec.md`; sem commit), `qa` (só `tests/`), `documentacao` (README, este arquivo, `docs/`). No Kiro as restrições são impostas por `permissions.rules`; no Claude Code valem como instrução.
 - **Hooks**: `scripts/checar.py` roda ruff e os testes do módulo editado (Kiro: `.kiro/hooks/`, Claude Code: `.claude/settings.json`). No Kiro o hook de salvar só dispara quando o **agente** edita um arquivo, não quando você salva no editor.
 - **Steering** só manual: `/revisar-documentacao` compara README e este arquivo com o código.
