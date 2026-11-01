@@ -19,6 +19,7 @@ def _mes() -> Mes:
     )
 
 
+# Spec: LAN-03
 def test_mes_totais() -> None:
     mes = _mes()
     assert mes.total_receitas == Decimal("3000.00")
@@ -27,6 +28,7 @@ def test_mes_totais() -> None:
     assert mes.saldo_livre == Decimal("1500.00")
 
 
+# Spec: LAN-03
 def test_mes_vazio() -> None:
     mes = Mes(numero=1, ano=2025)
     assert mes.total_receitas == Decimal(0)
@@ -35,6 +37,7 @@ def test_mes_vazio() -> None:
     assert mes.saldo_livre == Decimal(0)
 
 
+# Spec: LAN-03
 def test_ano_totais_somam_meses() -> None:
     jan = Mes(numero=1, ano=2025)
     jan.receitas.append(Receita("Salário", Decimal("1000.00"), date(2025, 1, 1), "salario"))
@@ -50,6 +53,7 @@ def test_ano_totais_somam_meses() -> None:
     assert ano.total_investimentos == Decimal(0)
 
 
+# Spec: LAN-06
 def test_ano_mes_cria_quando_ausente() -> None:
     ano = Ano(numero=2025)
     mes = ano.mes(7)
@@ -58,6 +62,7 @@ def test_ano_mes_cria_quando_ausente() -> None:
     assert ano.mes(7) is mes
 
 
+# Spec: LAN-06
 def test_livro_caixa_ano_cria_quando_ausente() -> None:
     livros = LivroCaixa()
     ano = livros.ano(2030)

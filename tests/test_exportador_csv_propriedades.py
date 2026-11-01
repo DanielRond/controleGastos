@@ -79,7 +79,7 @@ def _ler(caminho: Path) -> list[list[str]]:
         return list(csv.reader(arquivo))
 
 
-# Feature: controlegastos-agentes-ia, Property 5: Round trip do CSV de lançamentos
+# Spec: EXP-11, EXP-05 (propriedade: Round trip do CSV de lançamentos)
 @settings(max_examples=100, deadline=None)
 @given(livro=_livros())
 def test_round_trip_csv_de_lancamentos(livro):
@@ -119,7 +119,7 @@ def test_round_trip_csv_de_lancamentos(livro):
         assert Decimal(linha[5]) == valor
 
 
-# Feature: controlegastos-agentes-ia, Property 6: Totais do CSV de resumo coincidem com o modelo e com o Resumo Geral
+# Spec: EXP-08, EXP-04 (propriedade: Totais do CSV de resumo coincidem com o modelo e com o Resumo Geral)
 @settings(max_examples=100, deadline=None)
 @given(livro=_livros(_valores_finos, _textos_simples))
 def test_totais_do_resumo_coincidem_com_modelo_e_resumo_geral(livro):

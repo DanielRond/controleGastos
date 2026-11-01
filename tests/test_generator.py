@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+import pytest
 from openpyxl import load_workbook
 
 from controlegastos.generator import gerar_planilha
@@ -11,6 +12,7 @@ RAIZ = Path(__file__).resolve().parent.parent
 EXEMPLO = RAIZ / "data" / "entradas" / "exemplo.json"
 
 
+# Spec: PLN-01
 def test_gera_planilha_com_abas_esperadas(tmp_path: Path) -> None:
     livros = carregar_json(EXEMPLO)
     destino = gerar_planilha(livros, tmp_path / "planilha.xlsx")
@@ -20,6 +22,7 @@ def test_gera_planilha_com_abas_esperadas(tmp_path: Path) -> None:
     assert workbook.sheetnames == ["Resumo Geral", "2025-01", "2025-02", "Gráficos"]
 
 
+# Spec: PLN-02
 def test_resumo_geral_tem_cabecalho(tmp_path: Path) -> None:
     livros = carregar_json(EXEMPLO)
     destino = gerar_planilha(livros, tmp_path / "planilha.xlsx")
@@ -30,6 +33,7 @@ def test_resumo_geral_tem_cabecalho(tmp_path: Path) -> None:
     assert resumo["B1"].value == "Mês"
 
 
+# Spec: PLN-03
 def test_aba_do_mes_tem_linha_saldo_livre(tmp_path: Path) -> None:
     livros = carregar_json(EXEMPLO)
     destino = gerar_planilha(livros, tmp_path / "planilha.xlsx")
@@ -46,6 +50,7 @@ def test_aba_do_mes_tem_linha_saldo_livre(tmp_path: Path) -> None:
     assert round(float(saldo_celula), 2) == 2470.00
 
 
+# Spec: PLN-05
 def test_aba_graficos_tem_graficos(tmp_path: Path) -> None:
     livros = carregar_json(EXEMPLO)
     destino = gerar_planilha(livros, tmp_path / "planilha.xlsx")
@@ -72,6 +77,7 @@ def _livro_um_mes(com_investimento: bool):
     return livro
 
 
+# Spec: PLN-05, PLN-06, PLN-07, PLN-08
 def test_exemplo_completo_gera_cinco_graficos(tmp_path: Path) -> None:
     livros = carregar_json(RAIZ / "data" / "entradas" / "exemplo-completo.json")
     destino = gerar_planilha(livros, tmp_path / "planilha.xlsx")
@@ -80,6 +86,7 @@ def test_exemplo_completo_gera_cinco_graficos(tmp_path: Path) -> None:
     assert len(graficos._charts) == 5
 
 
+# Spec: PLN-10
 def test_graficos_com_eixos_visiveis_e_rotulos_do_comparativo_abaixo(tmp_path: Path) -> None:
     livros = carregar_json(RAIZ / "data" / "entradas" / "exemplo-completo.json")
     graficos = load_workbook(gerar_planilha(livros, tmp_path / "p.xlsx"))["Gráficos"]
@@ -90,6 +97,7 @@ def test_graficos_com_eixos_visiveis_e_rotulos_do_comparativo_abaixo(tmp_path: P
     assert comparativo.x_axis.tickLblPos == "low"
 
 
+# Spec: PLN-05, PLN-09
 def test_um_mes_com_investimento_gera_so_pizza_e_barras_mensais_e_ranking(tmp_path: Path) -> None:
     destino = gerar_planilha(_livro_um_mes(True), tmp_path / "p.xlsx")
     graficos = load_workbook(destino)["Gráficos"]
@@ -98,12 +106,14 @@ def test_um_mes_com_investimento_gera_so_pizza_e_barras_mensais_e_ranking(tmp_pa
     assert tipos == ["BarChart", "BarChart", "PieChart"]
 
 
+# Spec: PLN-09
 def test_um_mes_sem_investimento_gera_barras_e_ranking(tmp_path: Path) -> None:
     destino = gerar_planilha(_livro_um_mes(False), tmp_path / "p.xlsx")
     graficos = load_workbook(destino)["Gráficos"]
     assert sorted(type(c).__name__ for c in graficos._charts) == ["BarChart", "BarChart"]
 
 
+# Spec: PLN-07
 def test_ranking_despesas_usa_sem_categoria() -> None:
     from datetime import date
     from decimal import Decimal
@@ -126,3 +136,28 @@ def test_ranking_despesas_usa_sem_categoria() -> None:
         ("Moradia", Decimal(10)),
         ("Sem categoria", Decimal(10)),
     ]
+
+
+# Spec: PLN-04
+def test_aba_do_mes_mostra_ativo_percentuais_por_classe_e_meta(tmp_path: Path) -> None:
+    livros = carregar_json(RAIZ / "data" / "entradas" / "exemplo-completo.json")
+    aba = load_workbook(gerar_planilha(livros, tmp_path / "p.xlsx"))["2025-01"]
+    linhas = [v for v in ([c.value for c in linha if c.value is not None] for linha in aba.iter_rows()) if v]
+
+    btc = next(v for v in linhas if "BTC" in v and "Janeiro: BTC" in v)
+    assert btc[-1] == pytest.approx(10.47, abs=0.01)  # ativo na coluna Categoria e % do total
+    por_classe = {v[0].split(" (")[0]: v[-1] for v in linhas if str(v[0]).endswith(("(cripto)", "(fii)", "(renda_fixa)"))}
+    assert por_classe == pytest.approx(
+        {"Criptomoedas": 14.95, "Fundos Imobiliários": 25.20, "Renda Fixa": 59.85}, abs=0.01
+    )
+    meta = next(v for v in linhas if v[0] == "Meta de Investimento")
+    falta = next(v for v in linhas if str(v[0]).startswith("Falta investir"))
+    assert meta[-1] == pytest.approx(850.00)
+    assert falta[-1] == pytest.approx(105.22, abs=0.01)
+
+
+# Spec: PLN-11
+def test_graficos_sao_alimentados_por_area_de_apoio_a_partir_da_coluna_q(tmp_path: Path) -> None:
+    graficos = load_workbook(gerar_planilha(carregar_json(EXEMPLO), tmp_path / "p.xlsx"))["Gráficos"]
+    cabecalho = [graficos.cell(1, coluna).value for coluna in range(17, 22)]
+    assert cabecalho == ["Mês", "Receitas", "Despesas", "Investimentos", "Saldo Livre"]

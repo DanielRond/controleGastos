@@ -40,7 +40,7 @@ def _todos_meses(livro):
     return [livro.anos[a].meses[m] for a in sorted(livro.anos) for m in sorted(livro.anos[a].meses)]
 
 
-# Feature: controlegastos-agentes-ia, Property 10: Ranking de despesas ordenado, completo e com rótulo padrão
+# Spec: PLN-07 (propriedade: Ranking de despesas ordenado, completo e com rótulo padrão)
 @settings(max_examples=100, deadline=None)
 @given(livros())
 def test_ranking_ordenado_completo_e_rotulo_padrao(livro) -> None:
@@ -54,7 +54,7 @@ def test_ranking_ordenado_completo_e_rotulo_padrao(livro) -> None:
     assert not {"", "   ", "geral"} & set(nomes)
 
 
-# Feature: controlegastos-agentes-ia, Property 11: Patrimônio acumulado é a soma cumulativa dos aportes
+# Spec: PLN-06 (propriedade: Patrimônio acumulado é a soma cumulativa dos aportes)
 @settings(max_examples=100, deadline=None)
 @given(livros())
 def test_patrimonio_e_soma_cumulativa(livro) -> None:
@@ -79,6 +79,7 @@ def test_patrimonio_e_soma_cumulativa(livro) -> None:
         livros(investimentos=False),
     )
 )
+# Spec: PLN-09
 def test_gerar_planilha_nunca_falha_com_dados_insuficientes(livro) -> None:
     with tempfile.TemporaryDirectory() as pasta:
         destino = gerar_planilha(livro, Path(pasta) / "p.xlsx")

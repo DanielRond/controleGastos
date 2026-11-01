@@ -30,6 +30,7 @@ def _ler(caminho: Path) -> list[list[str]]:
         return list(csv.reader(arquivo))
 
 
+# Spec: EXP-03, EXP-04
 def test_cabecalhos_exatos(tmp_path):
     lancamentos, resumo = exportar_csv(carregar_json(EXEMPLO), tmp_path / "p.xlsx")
     assert _ler(lancamentos)[0] == ["data", "tipo", "descricao", "categoria", "ativo", "valor"]
@@ -45,6 +46,7 @@ def test_cabecalhos_exatos(tmp_path):
     assert CABECALHO_RESUMO == _ler(resumo)[0]
 
 
+# Spec: EXP-05
 def test_formatar_decimal_duas_casas():
     assert formatar_decimal(Decimal(1200)) == "1200.00"
     assert formatar_decimal(Decimal("1234.5")) == "1234.50"
@@ -52,12 +54,14 @@ def test_formatar_decimal_duas_casas():
     assert formatar_decimal(Decimal(1000000)) == "1000000.00"
 
 
+# Spec: EXP-05
 def test_formatar_decimal_arredonda_half_up():
     assert formatar_decimal(Decimal("0.005")) == "0.01"
     assert formatar_decimal(Decimal("0.004")) == "0.00"
     assert formatar_decimal(Decimal("2.675")) == "2.68"
 
 
+# Spec: EXP-06
 def test_cria_diretorio_de_destino(tmp_path):
     destino = tmp_path / "a" / "b" / "p.xlsx"
     lancamentos, resumo = exportar_csv(LivroCaixa(), destino)
@@ -65,6 +69,7 @@ def test_cria_diretorio_de_destino(tmp_path):
     assert resumo.exists()
 
 
+# Spec: EXP-06
 def test_utf8_com_acentos_sem_bom(tmp_path):
     livro = LivroCaixa()
     mes = livro.ano(2025).mes(1)
@@ -77,6 +82,7 @@ def test_utf8_com_acentos_sem_bom(tmp_path):
     assert linhas[1] == ["2025-01-02", "despesa", "Pão, café e açaí", "alimentação", "", "10.00"]
 
 
+# Spec: EXP-03
 def test_ativo_so_para_investimentos_e_ordem(tmp_path):
     livro = LivroCaixa()
     mes = livro.ano(2025).mes(1)
@@ -90,6 +96,7 @@ def test_ativo_so_para_investimentos_e_ordem(tmp_path):
     assert [x[4] for x in linhas] == ["", "", "KNSC11"]
 
 
+# Spec: EXP-07
 def test_nomes_derivados_de_o():
     assert caminhos_csv("saida/planilha.xlsx") == (
         Path("saida/planilha-lancamentos.csv"),
@@ -101,6 +108,7 @@ def test_nomes_derivados_de_o():
     )
 
 
+# Spec: EXP-04
 def test_resumo_do_exemplo_coincide_com_modelo():
     livro = carregar_json(EXEMPLO)
     linhas = linhas_resumo(livro)
@@ -121,6 +129,7 @@ def test_resumo_do_exemplo_coincide_com_modelo():
     assert linhas == esperado
 
 
+# Spec: EXP-08
 def test_saldo_do_csv_igual_ao_resumo_geral_do_xlsx(tmp_path):
     livro = carregar_json(EXEMPLO)
     planilha = gerar_planilha(livro, tmp_path / "p.xlsx")

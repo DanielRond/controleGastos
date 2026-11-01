@@ -34,7 +34,7 @@ def documentos_invalidos(draw):
     return {"anos": [{"ano": 2025, "meses": [mes]}]}
 
 
-# Feature: controlegastos-agentes-ia, Property 4: Entrada inválida é rejeitada antes da construção e o CLI retorna 1
+# Spec: VAL-10, VAL-11 (propriedade: Entrada inválida é rejeitada antes da construção e o CLI retorna 1)
 @settings(max_examples=100, deadline=None)
 @given(documentos_invalidos(), st.sampled_from(["xlsx", "csv", "ambos"]))
 def test_entrada_invalida_rejeitada_e_cli_retorna_1(dados, formato) -> None:

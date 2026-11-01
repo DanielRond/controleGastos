@@ -115,14 +115,14 @@ def _independentes(violacoes: list) -> list:
     return list(vistos.items())
 
 
-# Feature: controlegastos-agentes-ia, Property 1: Documentos válidos não geram erros
+# Spec: VAL-09, VAL-12 (propriedade: Documentos válidos não geram erros)
 @settings(max_examples=100)
 @given(documentos_validos())
 def test_propriedade_1_documentos_validos_sem_erros(doc):
     assert validar(doc) == []
 
 
-# Feature: controlegastos-agentes-ia, Property 2: Uma violação injetada é reportada no caminho correto
+# Spec: VAL-09 (propriedade: Uma violação injetada é reportada no caminho correto)
 @settings(max_examples=100)
 @given(st.data())
 def test_propriedade_2_violacao_injetada_no_caminho_correto(data):
@@ -135,6 +135,7 @@ def test_propriedade_2_violacao_injetada_no_caminho_correto(data):
     assert all(e.mensagem for e in erros)
 
 
+# Spec: VAL-04
 def test_propriedade_2_dia_29_fevereiro_nao_bissexto():
     doc = {
         "anos": [
@@ -147,7 +148,7 @@ def test_propriedade_2_dia_29_fevereiro_nao_bissexto():
     assert "anos[0].meses[0].despesas[0].dia" in [e.caminho for e in validar(doc)]
 
 
-# Feature: controlegastos-agentes-ia, Property 3: Todos os erros são reportados em uma única execução
+# Spec: VAL-09 (propriedade: Todos os erros são reportados em uma única execução)
 @settings(max_examples=100)
 @given(st.data())
 def test_propriedade_3_todos_os_erros_em_uma_execucao(data):
