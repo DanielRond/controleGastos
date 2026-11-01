@@ -8,7 +8,7 @@ permissions:
       match: [".kiro/**", ".github/**", "AGENTS.md"]
       effect: deny
     - capability: shell
-      match: ["git commit*", "git push*", "git add*", "git reset --hard*", "git clean*"]
+      match: ["git commit *", "git push *", "git add *", "git reset --hard *", "git clean *"]
       effect: deny
 ---
 
