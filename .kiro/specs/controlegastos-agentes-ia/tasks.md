@@ -135,14 +135,14 @@ Regras que valem para todas as tarefas:
     - **Property 12: Gerar a planilha nunca falha por dados insuficientes**
     - **Validates: Requirements 11.3, 11.7, 11.8**
 
-  - [ ] 10.7 Atualizar as imagens em `docs/media`
+  - [x] 10.7 Atualizar as imagens em `docs/media`
     - Gerar a planilha a partir de `data/entradas/exemplo-completo.json` (dados fictícios) e atualizar as imagens para incluir os novos gráficos; se não for possível renderizar as imagens no ambiente, relatar ao usuário como pendência manual
     - Atenção: o `exemplo-completo.json` do working tree do usuário pode conter dados pessoais; usar a versão do git (`git show HEAD:data/entradas/exemplo-completo.json`)
     - _Requisitos: 11.10_
 
 - [x] 11. Checkpoint - Gráficos extras
 
-- [ ] 12. Fechamento da fase
+- [x] 12. Fechamento da fase
   - [x] 12.1 Atualizar o `README.md` (módulos, `--formato`, gráficos extras, limitação do CSV no Excel pt-BR, roadmap, fora de escopo)
     - _Requisitos: 12.1, 12.8_
   - [x] 12.2 Atualizar o `AGENTS.md` (feito junto com a consolidação do contexto)
@@ -156,7 +156,7 @@ Regras que valem para todas as tarefas:
   - [x] 12.6 Marcar o Roadmap no `README.md`
     - _Requisitos: 12.2, 12.7_
 
-- [ ] 13. Checkpoint final: CI verde no PR e `10.7` resolvido ou registrado como pendência manual
+- [x] 13. Checkpoint final: CI verde no PR
 
 ## Notes
 

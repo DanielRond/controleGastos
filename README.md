@@ -30,6 +30,18 @@ Distribuição do total investido por classe de ativo.
 
 Receitas, despesas, investimentos e saldo livre por mês.
 
+![Evolução do patrimônio](docs/media/GraficoPatrimonio.jpeg)
+
+Aportes acumulados ao longo dos meses.
+
+![Ranking de categorias de despesa](docs/media/GraficoRanking.jpeg)
+
+Categorias de despesa em ordem decrescente de valor.
+
+![Comparativo entre meses](docs/media/GraficoComparativo.jpeg)
+
+Variação do saldo livre de um mês para o outro.
+
 ## Como funciona
 
 ```text
