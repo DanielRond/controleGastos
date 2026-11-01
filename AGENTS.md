@@ -93,9 +93,9 @@ docs/media/          # capturas da planilha usadas no README (só dados fictíci
 6. Após mexer em dependências, rode `uv sync` e valide com uma geração de planilha.
 7. Toda mudança de código passa por `uv run ruff check .` e `uv run pytest` antes de ser dada como pronta.
 
-## Fluxo com IA (Kiro)
+## Fluxo com IA (Kiro e Claude Code)
 
-- **Specs** em `.kiro/specs/<feature>/` (requirements, design, tasks): um spec por feature, enxuto; ao concluir, o que for permanente vai para este arquivo e o spec fica como histórico.
-- **Agentes** em `.kiro/agents/`: `planejador` (só escreve em `.kiro/specs/`), `implementador` (código e testes; não escreve em `.kiro/` nem `.github/`; não faz commit), `qa` (só escreve em `tests/`), `documentacao` (README, este arquivo, `docs/`).
-- **Hooks** em `.kiro/hooks/`: checagens ao salvar (`scripts/checar.py`) e lembrete do esquema.
+- **Specs** em `.kiro/specs/<feature>/` (requirements, design, tasks): enxutos; ao concluir, o que for permanente vai para este arquivo e o spec fica como histórico. O Claude Code lê os mesmos arquivos (`CLAUDE.md` importa este arquivo).
+- **Agentes**: a fonte é `.kiro/agents/`; `.claude/agents/` é gerado por `uv run python scripts/sincronizar_agentes.py` (um teste falha se defasado). Papéis: `planejador` (só `.kiro/specs/`), `implementador` (código e testes; não escreve em `.kiro/`, `.github/`, `AGENTS.md`; sem commit), `qa` (só `tests/`), `documentacao` (README, este arquivo, `docs/`). No Kiro as restrições são impostas por `permissions.rules`; no Claude Code valem como instrução.
+- **Hooks**: `scripts/checar.py` roda ruff e os testes do módulo editado (Kiro: `.kiro/hooks/`, Claude Code: `.claude/settings.json`). No Kiro o hook de salvar só dispara quando o **agente** edita um arquivo, não quando você salva no editor.
 - **Steering** só manual: `/revisar-documentacao` compara README e este arquivo com o código.
