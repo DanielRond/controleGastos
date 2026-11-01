@@ -279,6 +279,12 @@ def _gravar_bloco(planilha, coluna: int, cabecalho: list[str], linhas: list[tupl
         planilha.cell(row=r, column=coluna + 1, value=float(valor)).number_format = "#,##0.00"
 
 
+def _mostrar_eixos(grafico) -> None:
+    """Garante eixos visíveis no Excel (openpyxl >= 3.1 os omite por padrão)."""
+    grafico.x_axis.delete = False
+    grafico.y_axis.delete = False
+
+
 def _renderizar_graficos_extras(planilha, livros: LivroCaixa) -> None:
     """Blocos de apoio em W:X, Z:AA e AC:AD e os três gráficos extras."""
     for letra, largura in (("V", 2), ("W", 12), ("X", 22), ("Y", 2), ("Z", 24), ("AA", 14),
@@ -296,6 +302,7 @@ def _renderizar_graficos_extras(planilha, livros: LivroCaixa) -> None:
     if len(patrimonio) >= 2 and total_investido > 0:
         linha = LineChart()
         linha.title = "Evolução do patrimônio (aportes acumulados)"
+        _mostrar_eixos(linha)
         linha.add_data(Reference(planilha, min_col=24, min_row=1, max_row=len(patrimonio) + 1), titles_from_data=True)
         linha.set_categories(Reference(planilha, min_col=23, min_row=2, max_row=len(patrimonio) + 1))
         planilha.add_chart(linha, "A42")
@@ -306,6 +313,7 @@ def _renderizar_graficos_extras(planilha, livros: LivroCaixa) -> None:
         barras.type = "bar"
         barras.title = "Ranking de categorias de despesa"
         barras.x_axis.scaling.orientation = "maxMin"
+        _mostrar_eixos(barras)
         barras.add_data(Reference(planilha, min_col=27, min_row=1, max_row=topo + 1), titles_from_data=True)
         barras.set_categories(Reference(planilha, min_col=26, min_row=2, max_row=topo + 1))
         planilha.add_chart(barras, "A62")
@@ -314,6 +322,8 @@ def _renderizar_graficos_extras(planilha, livros: LivroCaixa) -> None:
         comparativo = BarChart()
         comparativo.type = "col"
         comparativo.title = "Comparativo entre meses: variação do saldo livre"
+        _mostrar_eixos(comparativo)
+        comparativo.x_axis.tickLblPos = "low"  # rótulos abaixo das barras negativas
         comparativo.add_data(Reference(planilha, min_col=30, min_row=1, max_row=len(variacao) + 1), titles_from_data=True)
         comparativo.set_categories(Reference(planilha, min_col=29, min_row=2, max_row=len(variacao) + 1))
         planilha.add_chart(comparativo, "A82")
@@ -378,6 +388,7 @@ def _renderizar_graficos(workbook: Workbook, livros: LivroCaixa) -> None:
     bar.type = "col"
     bar.grouping = "clustered"
     bar.title = "Por Mês: Receitas, Despesas, Investimentos e Saldo Livre"
+    _mostrar_eixos(bar)
     bar.x_axis.title = "Mês"
     bar.y_axis.title = "Valor"
     dados_bar = Reference(planilha, min_col=col_mes + 1, min_row=1, max_col=col_mes + 4, max_row=len(mensais) + 1)

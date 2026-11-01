@@ -80,6 +80,16 @@ def test_exemplo_completo_gera_cinco_graficos(tmp_path: Path) -> None:
     assert len(graficos._charts) == 5
 
 
+def test_graficos_com_eixos_visiveis_e_rotulos_do_comparativo_abaixo(tmp_path: Path) -> None:
+    livros = carregar_json(RAIZ / "data" / "entradas" / "exemplo-completo.json")
+    graficos = load_workbook(gerar_planilha(livros, tmp_path / "p.xlsx"))["Gráficos"]
+    com_eixos = [c for c in graficos._charts if type(c).__name__ != "PieChart"]
+    assert len(com_eixos) == 4
+    assert all(c.x_axis.delete is False and c.y_axis.delete is False for c in com_eixos)
+    comparativo = next(c for c in com_eixos if "Comparativo" in str(c.title.tx.rich.p[0].r[0].t))
+    assert comparativo.x_axis.tickLblPos == "low"
+
+
 def test_um_mes_com_investimento_gera_so_pizza_e_barras_mensais_e_ranking(tmp_path: Path) -> None:
     destino = gerar_planilha(_livro_um_mes(True), tmp_path / "p.xlsx")
     graficos = load_workbook(destino)["Gráficos"]
