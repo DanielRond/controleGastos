@@ -1,5 +1,6 @@
 """Testes da interface de linha de comando (cli.py)."""
 
+import json
 import sys
 from pathlib import Path
 
@@ -118,3 +119,33 @@ def test_falha_de_escrita_retorna_1_sem_reportar_sucesso(tmp_path: Path, monkeyp
     monkeypatch.setattr("controlegastos.servico.gerar_planilha", falhar)
     assert _rodar(monkeypatch, "gerar", str(EXEMPLO), "-o", str(tmp_path / "p.xlsx")) == 1
     assert "disponível em" not in capsys.readouterr().out
+
+
+# Spec: STO-07
+def test_banco_atualizar_cria_o_esquema_e_pode_rodar_de_novo(tmp_path: Path, monkeypatch, capsys) -> None:
+    import sqlalchemy as sa
+
+    banco = tmp_path / "dados" / "c.db"
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{banco}")
+
+    assert _rodar(monkeypatch, "banco", "atualizar") == 0
+    assert _rodar(monkeypatch, "banco", "atualizar") == 0
+    assert "Banco atualizado" in capsys.readouterr().out
+
+    motor = sa.create_engine(f"sqlite:///{banco}")
+    assert {"usuario", "mes", "lancamento"} <= set(sa.inspect(motor).get_table_names())
+    motor.dispose()
+
+
+# Spec: VAL-13
+def test_cli_rejeita_mais_de_duas_casas_decimais_sem_gerar_arquivo(tmp_path: Path, monkeypatch, caplog) -> None:
+    entrada = tmp_path / "e.json"
+    entrada.write_text(
+        json.dumps({"anos": [{"ano": 2025, "meses": [{"mes": 1, "despesas": [{"descricao": "x", "valor": 1.234, "dia": 1}]}]}]}),
+        encoding="utf-8",
+    )
+    saida = tmp_path / "p.xlsx"
+
+    assert _rodar(monkeypatch, "gerar", str(entrada), "-o", str(saida)) == 1
+    assert "no máximo 2 casas decimais" in caplog.text
+    assert not saida.exists()

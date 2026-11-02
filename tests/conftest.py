@@ -14,3 +14,41 @@ settings.register_profile(
     suppress_health_check=[HealthCheck.too_slow],
 )
 settings.load_profile("controlegastos")
+
+
+# --- Fixtures do armazenamento (exigem o extra `web`) --------------------------------------
+import pytest
+
+
+@pytest.fixture
+def engine():
+    """Banco SQLite em memória, já migrado pelo Alembic (as migrações fazem parte do teste)."""
+    pytest.importorskip("sqlalchemy")
+    from controlegastos.armazenamento import aplicar_migracoes, criar_engine
+
+    motor = criar_engine("sqlite://")
+    aplicar_migracoes(motor)
+    yield motor
+    motor.dispose()
+
+
+@pytest.fixture
+def sessao(engine):
+    from controlegastos.armazenamento import criar_sessao
+
+    with criar_sessao(engine) as s:
+        yield s
+
+
+@pytest.fixture
+def repo(sessao):
+    from controlegastos.armazenamento import Repositorio, criar_usuario
+
+    return Repositorio(sessao, criar_usuario(sessao, "ana", "hash-ana"))
+
+
+@pytest.fixture
+def repo_outro(sessao):
+    from controlegastos.armazenamento import Repositorio, criar_usuario
+
+    return Repositorio(sessao, criar_usuario(sessao, "beto", "hash-beto"))

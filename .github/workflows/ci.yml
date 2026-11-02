@@ -18,7 +18,7 @@ jobs:
           python-version: "3.14"
 
       - name: Sincroniza dependências
-        run: uv sync
+        run: uv sync --extra web
 
       - name: Lint (ruff)
         run: uv run ruff check .

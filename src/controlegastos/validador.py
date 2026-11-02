@@ -1,11 +1,13 @@
 """Validação do esquema do JSON de entrada.
 
 Usa apenas a biblioteca padrão e não importa outros módulos do pacote.
+Dinheiro no JSON tem no máximo duas casas decimais (VAL-13).
 """
 
 import calendar
 import math
 from dataclasses import dataclass
+from decimal import Decimal
 
 TIPOS_DE_INVESTIMENTO_CONHECIDOS: frozenset[str] = frozenset({"renda_fixa", "fii", "cripto"})
 
@@ -39,12 +41,31 @@ def _junta(base: str, campo: str) -> str:
     return f"{base}.{campo}" if base else campo
 
 
+def casas_decimais(valor: float | Decimal) -> int:
+    """Quantidade de casas decimais significativas (sem contar zeros à direita): 1.500 -> 1."""
+    _, digitos, expoente = Decimal(str(valor)).as_tuple()
+    if not isinstance(expoente, int) or expoente >= 0:
+        return 0
+    zeros = 0
+    for digito in reversed(digitos):
+        if digito != 0 or zeros >= -expoente:
+            break
+        zeros += 1
+    return -expoente - zeros
+
+
 def _validar_numero(obj: dict, campo: str, base: str, erros: list[ErroDeValidacao]) -> None:
-    if campo in obj and not _numero_finito(obj[campo]):
+    if campo not in obj:
+        return
+    if not _numero_finito(obj[campo]):
         erros.append(
             ErroDeValidacao(
                 _junta(base, campo), f"{campo} deve ser numérico finito (não booleano)"
             )
+        )
+    elif casas_decimais(obj[campo]) > 2:
+        erros.append(
+            ErroDeValidacao(_junta(base, campo), f"{campo} deve ter no máximo 2 casas decimais")
         )
 
 
