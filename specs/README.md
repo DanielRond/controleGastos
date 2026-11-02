@@ -24,10 +24,10 @@ Lido da mesma forma pelo Kiro, pelo Claude Code e por pessoas. Idioma: pt-BR (o 
 ## Fluxo de uma mudança
 
 1. **Levantar**: conversa curta para entender a intenção; dúvidas viram "Perguntas abertas" no spec.
-2. **Spec primeiro**: edite o `spec.md` (novos IDs, nunca renumerar) em um commit só dele (o agente commita sozinho, em branch). O humano aprova no PR antes de a implementação começar a valer.
-3. **Plano curto** no chat ou na descrição do PR; aprovado antes de codar. Mudança grande ganha `design.md` e `tasks.md` na pasta da capacidade.
+2. **Spec primeiro**: edite o `spec.md` (novos IDs, nunca renumerar) em um commit só dele (o agente commita sozinho, em branch). Sem aprovação prévia quando decorre de decisões já registradas; se contrariar uma decisão registrada ou criar escopo novo, o agente pergunta ao usuário.
+3. **Plano curto** no chat ou na descrição do PR. Mudança grande ganha `design.md` e `tasks.md` na pasta da capacidade.
 4. **Testes primeiro**, citando os IDs; depois a implementação.
 5. **Filtros automáticos**: hook de edição (`scripts/checar.py`) e CI (ruff, pytest, conferência de specs).
-6. **Revisão humana** do PR, incluindo o diff do spec. Nenhum agente faz merge.
+6. **Merge**: o agente mescla o próprio PR com o CI verde; o usuário pode revisar depois, e o histórico (commits de spec separados) permite desfazer.
 
 Modelo para uma nova capacidade: [_modelo.md](_modelo.md).

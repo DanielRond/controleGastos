@@ -1,5 +1,16 @@
 # Plano: interface web
 
+## Retomada (para qualquer agente ou provedor)
+
+Atualize esta seção a cada passo concluído, junto do commit.
+
+- **Estado**: Fase 2 em andamento.
+- **Branch atual**: `main` (nada em andamento).
+- **Último passo concluído**: política de autonomia (merge pelo agente) registrada.
+- **Próximo passo**: Fase 2, tarefa 2.1 (instalar a stack web em Python 3.14, promover `armazenamento` a `vigente`).
+- **Como retomar**: `git checkout main && git pull`; ler `AGENTS.md`, este arquivo, `design.md` e os specs; criar a branch da tarefa; spec primeiro, testes antes do código, `uv run ruff check . --no-cache`, `uv run pytest` e `uv run python scripts/conferir_specs.py` verdes antes de cada commit; abrir PR e mesclar com o CI verde.
+- **Ambiente**: Python 3.14 via uv; Docker disponível; Node 18 no sistema (a Fase 4 exige Node 20+, instalar com fnm).
+
 Cada fase é um PR pequeno, com spec primeiro, testes antes do código e revisão humana. Os status `rascunho` passam a `vigente` quando a fase correspondente começar (aí o CI exige um teste por requisito).
 
 - [x] **Fase 0 — Decisões**: perguntas abertas respondidas e specs aprovados pelo usuário.
