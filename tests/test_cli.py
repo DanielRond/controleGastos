@@ -115,6 +115,6 @@ def test_falha_de_escrita_retorna_1_sem_reportar_sucesso(tmp_path: Path, monkeyp
     def falhar(*_args, **_kwargs):
         raise PermissionError("arquivo aberto no Excel")
 
-    monkeypatch.setattr("controlegastos.cli.gerar_planilha", falhar)
+    monkeypatch.setattr("controlegastos.servico.gerar_planilha", falhar)
     assert _rodar(monkeypatch, "gerar", str(EXEMPLO), "-o", str(tmp_path / "p.xlsx")) == 1
     assert "disponível em" not in capsys.readouterr().out

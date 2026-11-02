@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import csv
 from decimal import ROUND_HALF_UP, Decimal
+from io import StringIO
 from pathlib import Path
 
 from .modelo import LivroCaixa
@@ -100,17 +101,28 @@ def linhas_resumo(livros: LivroCaixa) -> list[list[str]]:
     return linhas
 
 
-def _gravar(caminho: Path, cabecalho: list[str], linhas: list[list[str]]) -> None:
-    with open(caminho, "w", encoding="utf-8", newline="") as arquivo:
-        escritor = csv.writer(arquivo, lineterminator="\n")
-        escritor.writerow(cabecalho)
-        escritor.writerows(linhas)
+def _serializar(cabecalho: list[str], linhas: list[list[str]]) -> bytes:
+    """CSV em UTF-8 (sem BOM), vírgula, fim de linha \\n; mesmo formato em arquivo e em memória."""
+    texto = StringIO(newline="")
+    escritor = csv.writer(texto, lineterminator="\n")
+    escritor.writerow(cabecalho)
+    escritor.writerows(linhas)
+    return texto.getvalue().encode("utf-8")
+
+
+def exportar_csv_bytes(livros: LivroCaixa) -> tuple[bytes, bytes]:
+    """Os dois CSV (lançamentos e resumo mensal) em memória, sem tocar o disco."""
+    return (
+        _serializar(CABECALHO_LANCAMENTOS, linhas_lancamentos(livros)),
+        _serializar(CABECALHO_RESUMO, linhas_resumo(livros)),
+    )
 
 
 def exportar_csv(livros: LivroCaixa, destino_base: str | Path) -> tuple[Path, Path]:
     """Cria o diretório se necessário e grava os dois CSV em UTF-8. Retorna os caminhos."""
     lancamentos, resumo = caminhos_csv(destino_base)
     lancamentos.parent.mkdir(parents=True, exist_ok=True)
-    _gravar(lancamentos, CABECALHO_LANCAMENTOS, linhas_lancamentos(livros))
-    _gravar(resumo, CABECALHO_RESUMO, linhas_resumo(livros))
+    conteudo_lancamentos, conteudo_resumo = exportar_csv_bytes(livros)
+    lancamentos.write_bytes(conteudo_lancamentos)
+    resumo.write_bytes(conteudo_resumo)
     return lancamentos, resumo

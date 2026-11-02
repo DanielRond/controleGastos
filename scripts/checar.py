@@ -83,7 +83,7 @@ def main() -> int:
     if tipo == "ignorar":
         return 0
     alvos = alvos_de_teste(caminho) if caminho else []
-    for comando in (["uv", "run", "ruff", "check", "."], ["uv", "run", "pytest", "-q", *alvos]):
+    for comando in (["uv", "run", "ruff", "check", "--no-cache", "."], ["uv", "run", "pytest", "-q", *alvos]):
         codigo, saida = _rodar(comando)
         if codigo != 0:
             print(saida, file=sys.stderr)

@@ -18,5 +18,7 @@ def test_conversao_mapeia_ferramentas_e_restricoes() -> None:
     claude = sincronizar.converter(kiro)
     assert "tools: Read, Grep, Glob, Write, Edit, Bash" in claude
     assert "Escreva somente em: `tests/**`." in claude
-    assert "Nunca execute: `git commit *`" in claude
+    assert "Nunca execute: `git push *`" in claude
+    assert "git commit --no-verify *" in claude
+    assert "`git commit *`" not in claude  # commits são permitidos
     assert "permissions:" not in claude

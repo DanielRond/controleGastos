@@ -24,7 +24,7 @@ Lido da mesma forma pelo Kiro, pelo Claude Code e por pessoas. Idioma: pt-BR (o 
 ## Fluxo de uma mudança
 
 1. **Levantar**: conversa curta para entender a intenção; dúvidas viram "Perguntas abertas" no spec.
-2. **Spec primeiro**: edite o `spec.md` (novos IDs, nunca renumerar) em um commit só dele. O humano aprova.
+2. **Spec primeiro**: edite o `spec.md` (novos IDs, nunca renumerar) em um commit só dele (o agente commita sozinho, em branch). O humano aprova no PR antes de a implementação começar a valer.
 3. **Plano curto** no chat ou na descrição do PR; aprovado antes de codar. Mudança grande ganha `design.md` e `tasks.md` na pasta da capacidade.
 4. **Testes primeiro**, citando os IDs; depois a implementação.
 5. **Filtros automáticos**: hook de edição (`scripts/checar.py`) e CI (ruff, pytest, conferência de specs).

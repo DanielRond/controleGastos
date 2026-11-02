@@ -23,6 +23,8 @@ Gerar um `.xlsx` legível para acompanhar o mês e a evolução: resumo geral, u
 - **PLN-09** Dados insuficientes omitem apenas o gráfico afetado; gerar a planilha nunca falha por isso, inclusive com livro vazio.
 - **PLN-10** Eixos visíveis nos gráficos com eixos; no comparativo, os rótulos dos meses ficam abaixo das barras negativas.
 - **PLN-11** Gráficos são alimentados por uma área de apoio na própria aba `Gráficos` (colunas `Q` em diante), sem dependências além do openpyxl.
+- **PLN-12** Planilha em memória: `gerar_planilha_bytes(livros)` devolve os bytes de um `.xlsx` válido com as mesmas abas, células (valores e formatos) e gráficos que `gerar_planilha` grava em arquivo para o mesmo livro, sem escrever em disco.
+- **PLN-13** Os dados dos gráficos são públicos e independentes do openpyxl, em `resumo.py`: `patrimonio_acumulado`, `ranking_despesas` e `variacao_saldo`, todos em `Decimal`. São os mesmos dados que alimentam a planilha e valem as regras de PLN-06 a PLN-08.
 
 ## Valores de referência
 
@@ -35,8 +37,8 @@ Para `exemplo-completo.json`: a aba `Gráficos` tem 5 gráficos (pizza, barras m
 
 ## Perguntas abertas
 
-- A interface web exibirá os gráficos no navegador? Se sim, os dados (`_patrimonio_acumulado`, `_ranking_despesas`, `_variacao_saldo`) deveriam ser públicos e independentes do openpyxl.
+Nenhuma pendente.
 
 ## Rastreabilidade
 
-`generator.py`; testes `test_generator*.py`. Capturas em `docs/media/`.
+`generator.py`, `resumo.py`; testes `test_generator*.py`. Capturas em `docs/media/`.

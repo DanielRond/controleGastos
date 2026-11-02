@@ -143,3 +143,31 @@ def test_saldo_do_csv_igual_ao_resumo_geral_do_xlsx(tmp_path):
     ]
     saldos_csv = [Decimal(x[5]) for x in _ler(resumo)[1:]]
     assert saldos_csv == saldos_xlsx
+
+
+# Spec: EXP-12
+def test_csv_em_memoria_e_identico_byte_a_byte_ao_gravado(tmp_path):
+    from controlegastos.exportador_csv import exportar_csv_bytes
+
+    livros = carregar_json(EXEMPLO)
+    lancamentos, resumo = exportar_csv(livros, tmp_path / "p.xlsx")
+    em_memoria_lancamentos, em_memoria_resumo = exportar_csv_bytes(livros)
+
+    assert em_memoria_lancamentos == lancamentos.read_bytes()
+    assert em_memoria_resumo == resumo.read_bytes()
+    assert not em_memoria_lancamentos.startswith(b"\xef\xbb\xbf")  # sem BOM
+
+
+# Spec: EXP-12
+def test_csv_em_memoria_preserva_acentos_virgulas_e_quebras_de_linha(tmp_path):
+    from controlegastos.exportador_csv import exportar_csv_bytes
+
+    livro = LivroCaixa()
+    livro.ano(2025).mes(1).despesas.append(
+        Despesa('Pão, "café"\nação', Decimal(10), date(2025, 1, 2), "alimentação")
+    )
+    lancamentos, _ = exportar_csv_bytes(livro)
+    gravado, _ = exportar_csv(livro, tmp_path / "p.xlsx")
+
+    assert lancamentos == gravado.read_bytes()
+    assert lancamentos.decode("utf-8").splitlines()[0] == "data,tipo,descricao,categoria,ativo,valor"

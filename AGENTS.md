@@ -37,8 +37,10 @@ src/controlegastos/
   modelo.py          # dataclasses Receita, Despesa, Investimento, Mes, Ano, LivroCaixa (totais em Decimal)
   validador.py       # valida o JSON bruto e devolve todos os erros com caminho (só biblioteca padrão)
   loader.py          # lê JSON, valida (ErroDeValidacaoJSON) e constrói LivroCaixa
-  generator.py       # gera .xlsx: Resumo Geral, abas AAAA-MM e Gráficos (área de apoio nas colunas Q+)
+  generator.py       # gera .xlsx (arquivo ou bytes): Resumo Geral, abas AAAA-MM e Gráficos (área de apoio nas colunas Q+)
+  resumo.py          # dados dos gráficos (patrimônio, ranking, variação do saldo) em Decimal, sem openpyxl
   exportador_csv.py  # CSV de lançamentos e CSV de resumo mensal (UTF-8, vírgula, ponto decimal)
+  servico.py         # casos de uso (carregar, gerar, exportar; em arquivo ou em memória); a CLI só chama este módulo
 tests/               # pytest: unitários e propriedades (hypothesis); cada teste cita o ID do spec (`# Spec: VAL-03`)
 specs/               # specs por capacidade (lancamentos, validacao, exportacao, planilha, interface-web); ver specs/README.md
 scripts/             # checar.py (hook), conferir_specs.py (spec↔teste), sincronizar_agentes.py (Kiro→Claude)
@@ -87,7 +89,7 @@ docs/media/          # capturas da planilha usadas no README (só dados fictíci
 ## Regras para agentes de IA
 
 1. **Documentação é a fonte de verdade**: siga este arquivo. `PROMPTS.md` é local e não versionado.
-2. **Commits só quando o usuário pedir ou autorizar** a versionar. Nunca `push` na `main`; nunca versionar dados pessoais (`data/entradas/20*.json`) nem alterações locais que o usuário não pediu.
+2. **Versionamento autônomo**: commite conforme necessário, sem pedir licença, em branch de trabalho (`feat/`, `fix/`, `docs/`, `chore/`), com commits pequenos e temáticos (Conventional Commits em português) e a suíte verde. Nunca commite ou dê `push` na `main`, nunca `push --force` nem `--no-verify`, nunca versione dados pessoais (`data/entradas/20*.json`) nem alterações locais que não são suas. Merge de PR é do usuário.
 3. Valores monetários são **Decimal**, nunca float (float só ao gravar células do openpyxl).
 4. Ao mudar o esquema, atualize **juntos**: `loader.py`, `validador.py`, `data/entradas/exemplo.json` e este arquivo.
 5. Nomes de identificadores seguem o padrão já existente do pacote (português: `LivroCaixa`, `carregar_json`); documentação e mensagens ao usuário em português. Migrar para inglês só se o usuário pedir, em mudança separada.
@@ -98,6 +100,6 @@ docs/media/          # capturas da planilha usadas no README (só dados fictíci
 ## Fluxo com IA (Kiro e Claude Code)
 
 - **Specs** em `specs/<capacidade>/spec.md`, neutros entre Kiro e Claude Code, em pt-BR com IDs estáveis; permanecem depois de prontos e o código responde a eles (fluxo em `specs/README.md`). `design.md`/`tasks.md` só em mudanças grandes.
-- **Agentes**: a fonte é `.kiro/agents/`; `.claude/agents/` é gerado por `uv run python scripts/sincronizar_agentes.py` (um teste falha se defasado). Papéis: `planejador` (só `specs/`), `implementador` (código e testes; não escreve em `.kiro/`, `.github/`, `AGENTS.md` nem `spec.md`; sem commit), `qa` (só `tests/`), `documentacao` (README, este arquivo, `docs/`). No Kiro as restrições são impostas por `permissions.rules`; no Claude Code valem como instrução.
+- **Agentes**: a fonte é `.kiro/agents/`; `.claude/agents/` é gerado por `uv run python scripts/sincronizar_agentes.py` (um teste falha se defasado). Papéis: `planejador` (só `specs/`), `implementador` (código e testes; não escreve em `.kiro/`, `.github/`, `AGENTS.md` nem `spec.md`; pode commitar, não faz push), `qa` (só `tests/`; pode commitar, não faz push), `documentacao` (README, este arquivo, `docs/`). No Kiro as restrições são impostas por `permissions.rules`; no Claude Code valem como instrução.
 - **Hooks**: `scripts/checar.py` roda ruff e os testes do módulo editado (Kiro: `.kiro/hooks/`, Claude Code: `.claude/settings.json`). No Kiro o hook de salvar só dispara quando o **agente** edita um arquivo, não quando você salva no editor.
 - **Steering** só manual: `/revisar-documentacao` compara README e este arquivo com o código.

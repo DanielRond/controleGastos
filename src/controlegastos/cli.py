@@ -12,13 +12,10 @@ import logging
 import sys
 from pathlib import Path
 
-from .exportador_csv import exportar_csv
-from .generator import gerar_planilha
-from .loader import ErroDeValidacaoJSON, carregar_json
+from . import servico
+from .servico import FORMATOS, ErroDeValidacaoJSON
 
 logger = logging.getLogger(__name__)
-
-FORMATOS = ("xlsx", "csv", "ambos")
 
 
 class _Parser(argparse.ArgumentParser):
@@ -53,7 +50,7 @@ def _montar_parser() -> argparse.ArgumentParser:
 
 def _executar_gerar(args: argparse.Namespace) -> int:
     try:
-        livros = carregar_json(args.entrada)
+        livros = servico.carregar_arquivo(args.entrada)
     except ErroDeValidacaoJSON as erro:
         logger.error("O arquivo de entrada tem %d erro(s):", len(erro.erros))
         for item in erro.erros:
@@ -64,21 +61,14 @@ def _executar_gerar(args: argparse.Namespace) -> int:
         return 1
 
     try:
-        if args.formato == "xlsx":
-            destino = gerar_planilha(livros, args.saida)
-            print(f"Planilha disponível em: {destino}")
-            return 0
-
-        gerados: list[Path] = []
-        if args.formato == "ambos":
-            gerados.append(gerar_planilha(livros, args.saida))
-        gerados.extend(exportar_csv(livros, args.saida))
+        gerados = servico.gerar_arquivos(livros, args.saida, args.formato)
     except OSError as erro:
         logger.error("Falha ao gravar os arquivos: %s", erro)
         return 1
 
+    rotulo = "Planilha disponível em" if args.formato == "xlsx" else "Arquivo disponível em"
     for caminho in gerados:
-        print(f"Arquivo disponível em: {caminho}")
+        print(f"{rotulo}: {caminho}")
     return 0
 
 
