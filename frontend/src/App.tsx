@@ -2,7 +2,9 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "./componentes/Layout";
 import { RotaProtegida } from "./componentes/RotaProtegida";
 import { mesAtual } from "./formato";
-import { EmConstrucao } from "./paginas/EmConstrucao";
+import { Ano } from "./paginas/Ano";
+import { Arquivos } from "./paginas/Arquivos";
+import { Lixeira } from "./paginas/Lixeira";
 import { Login } from "./paginas/Login";
 import { Mes } from "./paginas/Mes";
 
@@ -19,9 +21,9 @@ export function App() {
         <Route element={<Layout />}>
           <Route index element={<InicioDoMes />} />
           <Route path="/mes/:ano/:mes" element={<Mes />} />
-          <Route path="/ano/:ano" element={<EmConstrucao titulo="Ano" />} />
-          <Route path="/lixeira" element={<EmConstrucao titulo="Lixeira" />} />
-          <Route path="/arquivos" element={<EmConstrucao titulo="Arquivos" />} />
+          <Route path="/ano/:ano" element={<Ano />} />
+          <Route path="/lixeira" element={<Lixeira />} />
+          <Route path="/arquivos" element={<Arquivos />} />
           <Route path="*" element={<InicioDoMes />} />
         </Route>
       </Route>
