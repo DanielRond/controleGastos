@@ -92,13 +92,14 @@ docs/media/          # capturas da planilha usadas no README (só dados fictíci
 ## Regras para agentes de IA
 
 1. **Documentação é a fonte de verdade**: siga este arquivo.
-2. **Versionamento autônomo**: commite conforme necessário, sem pedir licença, em branch de trabalho (`feat/`, `fix/`, `docs/`, `chore/`), com commits pequenos e temáticos (Conventional Commits em português) e a suíte verde. Nunca commite ou dê `push` na `main`, nunca `push --force` nem `--no-verify`, nunca versione dados pessoais (`data/entradas/20*.json`) nem alterações locais que não são suas. Merge de PR é do usuário.
+2. **Versionamento autônomo**: commite conforme necessário, sem pedir licença, em branch de trabalho (`feat/`, `fix/`, `docs/`, `chore/`), com commits pequenos e temáticos (Conventional Commits em português) e a suíte verde. Nunca commite ou dê `push` na `main`, nunca `push --force` nem `--no-verify`, nunca versione dados pessoais (`data/entradas/20*.json`) nem alterações locais que não são suas. **Merge**: o agente abre o PR e o mescla (merge commit, apagando a branch) assim que o CI estiver verde, sem esperar revisão do usuário; nunca mescla com CI vermelho. **Instalações** de ferramentas e dependências necessárias ao projeto (Node via fnm, Playwright, pacotes) são autorizadas.
 3. Valores monetários são **Decimal**, nunca float (float só ao gravar células do openpyxl).
 4. Ao mudar o esquema, atualize **juntos**: `loader.py`, `validador.py`, `data/entradas/exemplo.json`, `specs/validacao/spec.md` e este arquivo.
 5. Nomes de identificadores seguem o padrão já existente do pacote (português: `LivroCaixa`, `carregar_json`); documentação e mensagens ao usuário em português. Migrar para inglês só se o usuário pedir, em mudança separada.
 6. Após mexer em dependências, rode `uv sync` e valide com uma geração de planilha.
 7. Toda mudança de código passa por `uv run ruff check .` e `uv run pytest` (inclui a conferência de specs) antes de ser dada como pronta.
-8. **Spec primeiro**: comportamento novo ou alterado entra em `specs/<capacidade>/spec.md` (IDs novos, nunca renumerar) e o usuário aprova antes de codar. Agentes de implementação não editam `spec.md`.
+8. **Spec primeiro**: comportamento novo ou alterado entra em `specs/<capacidade>/spec.md` (IDs novos, nunca renumerar), em commit próprio antes do código. Não precisa de aprovação do usuário quando decorre das decisões já registradas nos specs; se contrariar uma decisão registrada ou criar escopo novo, pergunte. Subagentes de implementação não editam `spec.md`.
+9. **Retomada**: o progresso fica em `specs/interface-web/tasks.md` (checkboxes e a seção "Retomada"). Commite e dê push a cada passo concluído e atualize essa seção (branch, último passo, próximo passo), para qualquer agente ou provedor continuar de onde parou.
 
 ## Fluxo com IA (Kiro e Claude Code)
 
