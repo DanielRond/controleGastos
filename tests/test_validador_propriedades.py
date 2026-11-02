@@ -7,7 +7,7 @@ from hypothesis import strategies as st
 from controlegastos.validador import TIPOS_DE_INVESTIMENTO_CONHECIDOS, validar
 
 _texto = st.text(max_size=8)
-_valor = st.floats(min_value=0, max_value=1_000_000, allow_nan=False, allow_infinity=False)
+_valor = st.decimals(min_value=0, max_value=1_000_000, places=2).map(float)  # VAL-13: até 2 casas
 _numero = st.one_of(st.integers(min_value=0, max_value=100_000), _valor)
 
 

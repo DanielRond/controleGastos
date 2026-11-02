@@ -6,8 +6,8 @@ Atualize esta seção a cada passo concluído, junto do commit.
 
 - **Estado**: Fase 2 em andamento (STO-* e VAL-13 vigentes, ainda sem testes: nesta branch o conferidor de specs falha até eles existirem; o PR só é mesclado verde).
 - **Branch atual**: `feat/fase2-armazenamento`.
-- **Último passo concluído**: 2.1 (stack instalada e verificada em Python 3.14; extra `web` no `pyproject.toml` e no CI) e commit de spec.
-- **Próximo passo**: testes primeiro (centavos, repositório, lixeira, importação, migração), depois `armazenamento/` e VAL-13.
+- **Último passo concluído**: 2.1 (stack instalada e verificada), commit de spec e testes escritos (test_centavos, test_armazenamento, test_armazenamento_propriedades, VAL-13 em test_validador, banco atualizar em test_cli).
+- **Próximo passo**: implementar `src/controlegastos/armazenamento/` (centavos, modelos, banco, migrações Alembic, repositório) e `casas_decimais`/VAL-13 no validador, até os testes (já commitados, vermelhos) passarem; depois o comando `controlegastos banco atualizar`.
 - **Como retomar**: `git checkout main && git pull`; ler `AGENTS.md`, este arquivo, `design.md` e os specs; criar a branch da tarefa; spec primeiro, testes antes do código, `uv run ruff check . --no-cache`, `uv run pytest` e `uv run python scripts/conferir_specs.py` verdes antes de cada commit; abrir PR e mesclar com o CI verde.
 - **Ambiente**: Python 3.14 via uv; Docker disponível; Node 18 no sistema (a Fase 4 exige Node 20+, instalar com fnm).
 

@@ -280,3 +280,43 @@ def test_arquivos_de_exemplo_validos(nome):
     caminho = RAIZ_PROJETO / "data" / "entradas" / nome
     dados = json.loads(caminho.read_text(encoding="utf-8"))
     assert validar(dados) == []
+
+
+# Spec: VAL-13
+@pytest.mark.parametrize("valor", [10, 10.5, 10.55, 0.01, 1200.0, 1.50, 1e15, 0])
+def test_ate_duas_casas_decimais_e_valido(valor) -> None:
+    doc = {"anos": [{"ano": 2025, "meses": [{"mes": 1, "despesas": [{"descricao": "x", "valor": valor, "dia": 1}]}]}]}
+    assert validar(doc) == []
+
+
+# Spec: VAL-13
+@pytest.mark.parametrize("valor", [10.123, 0.001, 1e-05, 99.999, 5.555555])
+def test_mais_de_duas_casas_decimais_e_erro_no_caminho_do_campo(valor) -> None:
+    doc = {"anos": [{"ano": 2025, "meses": [{"mes": 1, "despesas": [{"descricao": "x", "valor": valor, "dia": 1}]}]}]}
+    erros = validar(doc)
+    assert [(e.caminho, e.mensagem) for e in erros] == [
+        ("anos[0].meses[0].despesas[0].valor", "valor deve ter no máximo 2 casas decimais")
+    ]
+
+
+# Spec: VAL-13
+def test_salario_e_meta_tambem_tem_no_maximo_duas_casas() -> None:
+    doc = {"anos": [{"ano": 2025, "meses": [{"mes": 1, "salario": 100.001, "meta_investimento": 5.555}]}]}
+    caminhos = sorted(e.caminho for e in validar(doc))
+    assert caminhos == ["anos[0].meses[0].meta_investimento", "anos[0].meses[0].salario"]
+
+
+# Spec: VAL-13
+def test_casas_decimais_nao_conta_zeros_a_direita_e_nao_sobrepoe_o_erro_de_tipo() -> None:
+    from decimal import Decimal
+
+    from controlegastos.validador import casas_decimais
+
+    assert casas_decimais(1.5) == 1
+    assert casas_decimais(Decimal("1.500")) == 1
+    assert casas_decimais(100) == 0
+    assert casas_decimais(Decimal("1E+2")) == 0
+    assert casas_decimais(0.001) == 3
+    # texto não numérico continua sendo erro de tipo (VAL-05), sem erro de casas
+    doc = {"anos": [{"ano": 2025, "meses": [{"mes": 1, "despesas": [{"descricao": "x", "valor": "1.234", "dia": 1}]}]}]}
+    assert [e.mensagem for e in validar(doc)] == ["valor deve ser numérico finito (não booleano)"]
