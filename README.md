@@ -2,7 +2,7 @@
 
 ![CI](https://github.com/DanielRond/controleGastos/actions/workflows/ci.yml/badge.svg)
 
-Ferramenta de linha de comando para **controle de gastos pessoais**, que gera planilhas Excel (.xlsx) organizando **receitas**, **despesas** e **investimentos** por mês e por ano.
+Ferramenta de **controle de gastos pessoais** que gera planilhas Excel (.xlsx) e arquivos CSV organizando **receitas**, **despesas** e **investimentos** por mês e por ano. Hoje funciona por linha de comando; uma **interface web** está em desenvolvimento (veja o [Roadmap](#roadmap)).
 
 ## Demonstração
 
@@ -51,7 +51,6 @@ JSON (data/entradas/*.json)  →  validação  →  controlegastos gerar  →  p
 1. Você descreve os lançamentos em um arquivo JSON: salário, receitas, despesas e investimentos, cada um com dia, descrição, valor e categoria.
 2. O comando `controlegastos gerar` valida o arquivo — se houver erros, mostra todos com o caminho (ex.: `anos[0].meses[2].despesas[1].valor`) e não gera nada — e então monta a planilha.
 3. A planilha vem com o **Resumo Geral** (totais por mês/ano), uma **aba por mês** (lançamentos detalhados) e a aba **Gráficos**.
-4. Convenção: `saldo_livre = receitas - despesas - investimentos`.
 
 ## Motivação
 
@@ -89,9 +88,19 @@ Planilha `.xlsx` com:
 - **Aba por mês** (ex.: `2025-01`) — lançamentos de receitas, despesas e investimentos com totais e saldo livre.
 - **Gráficos** — pizza por classe de investimento, barras mensais, evolução do patrimônio (aportes acumulados), ranking de categorias de despesa e variação do saldo livre entre meses.
 
-Com `--formato csv` ou `ambos`, também saem `<nome>-lancamentos.csv` e `<nome>-resumo-mensal.csv` (UTF-8, vírgula como delimitador e ponto decimal). No Excel em português, importe-os em *Dados → Obter dados → De texto/CSV* escolhendo o delimitador vírgula, pois abrir com duplo clique pode juntar tudo em uma coluna.
+Com `--formato csv` saem só os CSV; com `--formato ambos`, a planilha e os CSV. Os arquivos são `<nome>-lancamentos.csv` e `<nome>-resumo-mensal.csv` (UTF-8, vírgula como delimitador e ponto decimal). No Excel em português, importe-os em *Dados → Obter dados → De texto/CSV* escolhendo o delimitador vírgula, pois abrir com duplo clique pode juntar tudo em uma coluna.
 
 Convenção: `saldo_livre = receitas - despesas - investimentos`.
+
+## Desenvolvimento
+
+```bash
+uv run pytest                           # testes (inclui a conferência spec ↔ teste)
+uv run ruff check .                     # estilo
+uv run python scripts/conferir_specs.py # todo requisito vigente tem teste
+```
+
+O projeto é feito com agentes de IA (Kiro e Claude Code) em torno de specs por capacidade. Regras, estrutura e fluxo estão no [AGENTS.md](AGENTS.md); o contrato do que o sistema faz, em [specs/](specs/README.md).
 
 ## Roadmap
 
@@ -100,13 +109,19 @@ Concluído:
 - [x] **Validação de schema** — erros claros, todos de uma vez, com o caminho do campo.
 - [x] **Exportação CSV** — além do `.xlsx`.
 - [x] **Gráficos extras** — evolução do patrimônio, ranking de categorias, comparativo entre meses.
+- [x] **Camada de serviço** — planilha e CSV também em memória, base da interface web.
 
-Fora de escopo por ora (sem prazo):
+Em andamento — **interface web** (login, lançamentos, painéis do mês e do ano, downloads; FastAPI + React/TypeScript, SQLite; roda local e hospedada). Plano em fases em [specs/interface-web](specs/interface-web/tasks.md):
 
-- **Interface web** para registrar lançamentos (objetivo principal; ver [specs/interface-web](specs/interface-web/spec.md)).
-- **Importação de extratos bancários** (OFX/CSV de banco).
+- [x] Fase 1 — camada de serviço
+- [ ] Fase 2 — armazenamento (SQLite, valores em centavos, usuários, lixeira)
+- [ ] Fase 3 — API e autenticação
+- [ ] Fase 4 — front-end
+- [ ] Fase 5 — execução local e hospedada
+
+Depois da interface web: **importação de extratos bancários** (OFX/CSV de banco), com tela de revisão.
 
 ## Documentação para máquinas/agentes
 
-- [AGENTS.md](AGENTS.md) — guia de desenvolvimento para agentes de IA.
-- [specs/](specs/README.md) — o que o sistema faz, por capacidade, com requisitos rastreados por testes (e o rascunho da futura interface web).
+- [AGENTS.md](AGENTS.md) — guia de desenvolvimento para agentes de IA (Kiro e Claude Code, este via `CLAUDE.md`).
+- [specs/](specs/README.md) — o que o sistema faz, por capacidade, com requisitos rastreados por testes; inclui o plano da interface web.

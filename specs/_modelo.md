@@ -1,7 +1,7 @@
 ---
 capacidade: nome-da-capacidade
 codigo: ABC
-status: rascunho   # vigente | rascunho | adiado
+status: rascunho   # vigente (exige testes) | rascunho | adiado
 ---
 
 # Capacidade: nome

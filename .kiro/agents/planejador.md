@@ -29,4 +29,4 @@ Limites:
 - Spec novo ou alterado só vale depois da aprovação do usuário; sinalize isso ao entregar.
 - Esta ferramenta não executa comandos; quem commita é o agente principal, conforme o `AGENTS.md`.
 - Valores monetários usam Decimal; deixe isso explícito nos requisitos que lidam com dinheiro.
-- A interface web é o objetivo de longo prazo (`specs/interface-web`); importação de extratos está fora do escopo por ora.
+- A interface web é o próximo grande passo, em fases (`specs/interface-web/tasks.md`); a importação de extratos fica para depois dela.
