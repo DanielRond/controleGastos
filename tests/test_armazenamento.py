@@ -12,6 +12,7 @@ import pytest
 pytest.importorskip("sqlalchemy")
 
 import sqlalchemy as sa
+
 from controlegastos.armazenamento import (
     LancamentoInexistente,
     MesJaExiste,
@@ -22,7 +23,6 @@ from controlegastos.armazenamento import (
     criar_usuario,
     url_do_banco,
 )
-
 from controlegastos.exportador_csv import exportar_csv_bytes
 from controlegastos.generator import gerar_planilha_bytes
 from controlegastos.loader import (
@@ -259,6 +259,7 @@ def test_migracao_cria_o_esquema_e_e_idempotente_sem_perder_dados(tmp_path) -> N
 def test_esquema_migrado_e_igual_aos_modelos(engine) -> None:
     from alembic.autogenerate import compare_metadata
     from alembic.migration import MigrationContext
+
     from controlegastos.armazenamento.modelos import Base
 
     with engine.connect() as conexao:

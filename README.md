@@ -106,7 +106,7 @@ O projeto é feito com agentes de IA (Kiro e Claude Code) em torno de specs por 
 
 Concluído:
 
-- [x] **Validação de schema** — erros claros, todos de uma vez, com o caminho do campo.
+- [x] **Validação de schema** — erros claros, todos de uma vez, com o caminho do campo; dinheiro com no máximo 2 casas decimais.
 - [x] **Exportação CSV** — além do `.xlsx`.
 - [x] **Gráficos extras** — evolução do patrimônio, ranking de categorias, comparativo entre meses.
 - [x] **Camada de serviço** — planilha e CSV também em memória, base da interface web.
@@ -114,7 +114,7 @@ Concluído:
 Em andamento — **interface web** (login, lançamentos, painéis do mês e do ano, downloads; FastAPI + React/TypeScript, SQLite; roda local e hospedada). Plano em fases em [specs/interface-web](specs/interface-web/tasks.md):
 
 - [x] Fase 1 — camada de serviço
-- [ ] Fase 2 — armazenamento (SQLite, valores em centavos, usuários, lixeira)
+- [x] Fase 2 — armazenamento (SQLite, valores em centavos, usuários, lixeira, importar/exportar JSON)
 - [ ] Fase 3 — API e autenticação
 - [ ] Fase 4 — front-end
 - [ ] Fase 5 — execução local e hospedada

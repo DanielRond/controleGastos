@@ -21,6 +21,7 @@ uv sync                                                              # instala d
 uv run controlegastos gerar data/entradas/exemplo.json -o saida/planilha.xlsx
 uv run controlegastos gerar data/entradas/exemplo.json -o saida/planilha.xlsx --formato ambos  # xlsx | csv | ambos
 uv run controlegastos gerar ... -v                                   # log detalhado
+uv run controlegastos banco atualizar                                # cria/atualiza o banco SQLite (extra web; DATABASE_URL ou dados/)
 uv run pytest                                                        # testes
 uv run ruff check .                                                  # estilo (use --no-cache ao criar módulos novos)
 uv run python scripts/conferir_specs.py                              # todo requisito vigente tem teste
@@ -34,6 +35,7 @@ No Windows (PowerShell) use `;` em vez de `&&`. Hooks e scripts do projeto não 
 
 ```
 data/entradas/       # JSONs. exemplo*.json são fictícios e públicos; 20*.json são pessoais (não versionar)
+dados/               # banco SQLite local (dados pessoais; ignorado pelo git)
 saida/               # Planilhas e CSV gerados (ignorado pelo git)
 src/controlegastos/
   cli.py             # argparse: subcomando `gerar` (-o, --formato, -v)
@@ -43,6 +45,7 @@ src/controlegastos/
   generator.py       # gera .xlsx (arquivo ou bytes): Resumo Geral, abas AAAA-MM e Gráficos (área de apoio nas colunas Q+)
   resumo.py          # dados dos gráficos (patrimônio, ranking, variação do saldo) em Decimal, sem openpyxl
   exportador_csv.py  # CSV de lançamentos e CSV de resumo mensal (UTF-8, vírgula, ponto decimal)
+  armazenamento/     # banco (extra web): modelos SQLAlchemy, migrações Alembic, repositório por usuário, centavos, lixeira
   servico.py         # casos de uso (carregar, gerar, exportar; em arquivo ou em memória); a CLI só chama este módulo
 tests/               # pytest: unitários e propriedades (hypothesis); cada teste cita o ID do spec (`# Spec: VAL-03`)
 specs/               # specs por capacidade (lancamentos, validacao, exportacao, planilha, armazenamento, interface-web); ver specs/README.md
@@ -93,7 +96,7 @@ docs/media/          # capturas da planilha usadas no README (só dados fictíci
 
 1. **Documentação é a fonte de verdade**: siga este arquivo.
 2. **Versionamento autônomo**: commite conforme necessário, sem pedir licença, em branch de trabalho (`feat/`, `fix/`, `docs/`, `chore/`), com commits pequenos e temáticos (Conventional Commits em português) e a suíte verde. Nunca commite ou dê `push` na `main`, nunca `push --force` nem `--no-verify`, nunca versione dados pessoais (`data/entradas/20*.json`) nem alterações locais que não são suas. **Merge**: o agente abre o PR e o mescla (merge commit, apagando a branch) assim que o CI estiver verde, sem esperar revisão do usuário; nunca mescla com CI vermelho. **Instalações** de ferramentas e dependências necessárias ao projeto (Node via fnm, Playwright, pacotes) são autorizadas.
-3. Valores monetários são **Decimal**, nunca float (float só ao gravar células do openpyxl).
+3. Valores monetários são **Decimal**, nunca float (float só ao gravar células do openpyxl); no banco, centavos inteiros. No JSON, no máximo 2 casas decimais (VAL-13).
 4. Ao mudar o esquema, atualize **juntos**: `loader.py`, `validador.py`, `data/entradas/exemplo.json`, `specs/validacao/spec.md` e este arquivo.
 5. Nomes de identificadores seguem o padrão já existente do pacote (português: `LivroCaixa`, `carregar_json`); documentação e mensagens ao usuário em português. Migrar para inglês só se o usuário pedir, em mudança separada.
 6. Após mexer em dependências, rode `uv sync` e valide com uma geração de planilha.

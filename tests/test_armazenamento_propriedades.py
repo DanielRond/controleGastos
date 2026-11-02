@@ -1,5 +1,7 @@
 """Propriedades do armazenamento: centavos, ida e volta do JSON e lixeira."""
 
+import csv
+import io
 from decimal import Decimal
 
 import pytest
@@ -7,6 +9,8 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 pytest.importorskip("sqlalchemy")
+
+from test_validador_propriedades import documentos_validos
 
 from controlegastos.armazenamento import (
     Repositorio,
@@ -19,8 +23,6 @@ from controlegastos.armazenamento.centavos import (
     de_centavos,
     para_centavos,
 )
-from test_validador_propriedades import documentos_validos
-
 from controlegastos.exportador_csv import exportar_csv_bytes
 from controlegastos.loader import carregar_dados
 
@@ -104,7 +106,8 @@ def test_apagar_tira_dos_totais_e_restaurar_devolve(doc: dict, dados) -> None:
                 assert atual.total_receitas == mes.total_receitas - tirado["receita"]
                 assert atual.total_despesas == mes.total_despesas - tirado["despesa"]
                 assert atual.total_investimentos == mes.total_investimentos - tirado["investimento"]
-        linhas_csv = exportar_csv_bytes(livro)[0].decode("utf-8").count("\n") - 1
+        registros_csv = list(csv.reader(io.StringIO(exportar_csv_bytes(livro)[0].decode("utf-8"), newline="")))
+        linhas_csv = len(registros_csv) - 1  # sem o cabeçalho; campos podem ter quebra de linha
         assert linhas_csv == sum(len(m.receitas) + len(m.despesas) + len(m.investimentos) for a in livro.anos.values() for m in a.meses.values())
 
         for _, _, item in escolhidos:

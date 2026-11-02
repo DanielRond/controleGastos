@@ -3,6 +3,7 @@
 Uso:
     uv run controlegastos gerar data/entradas/exemplo.json -o saida/planilha.xlsx
     uv run controlegastos gerar data/entradas/exemplo.json -o saida/planilha.xlsx --formato ambos
+    uv run controlegastos banco atualizar   # requer o extra web
 """
 
 from __future__ import annotations
@@ -45,6 +46,10 @@ def _montar_parser() -> argparse.ArgumentParser:
     )
     gerar.add_argument("-v", "--verbose", action="store_true", help="Habilita log detalhado.")
 
+
+    banco = subparsers.add_parser("banco", help="Comandos do banco de dados (requer o extra 'web').")
+    acoes = banco.add_subparsers(dest="acao", required=True, parser_class=_Parser)
+    acoes.add_parser("atualizar", help="Cria ou atualiza o esquema do banco (migrações).")
     return parser
 
 
@@ -72,6 +77,22 @@ def _executar_gerar(args: argparse.Namespace) -> int:
     return 0
 
 
+def _executar_banco(args: argparse.Namespace) -> int:
+    logging.getLogger("alembic").setLevel(logging.WARNING)  # sem o ruído interno das migrações
+    try:
+        from .armazenamento import atualizar_banco
+    except ImportError:
+        logger.error("Os comandos de banco exigem o extra web. Instale com: uv sync --extra web")
+        return 1
+    try:
+        destino = atualizar_banco()
+    except Exception as erro:  # noqa: BLE001 - qualquer falha de conexão/migração vira mensagem
+        logger.error("Falha ao atualizar o banco: %s", erro)
+        return 1
+    print(f"Banco atualizado: {destino}")
+    return 0
+
+
 def main() -> int:
     parser = _montar_parser()
     args = parser.parse_args()
@@ -81,6 +102,8 @@ def main() -> int:
         format="%(levelname)s %(message)s",
     )
 
+    if args.comando == "banco":
+        return _executar_banco(args)
     return _executar_gerar(args)
 
 

@@ -4,10 +4,10 @@
 
 Atualize esta seção a cada passo concluído, junto do commit.
 
-- **Estado**: Fase 2 em andamento (STO-* e VAL-13 vigentes, ainda sem testes: nesta branch o conferidor de specs falha até eles existirem; o PR só é mesclado verde).
-- **Branch atual**: `feat/fase2-armazenamento`.
-- **Último passo concluído**: 2.1 (stack instalada e verificada), commit de spec e testes escritos (test_centavos, test_armazenamento, test_armazenamento_propriedades, VAL-13 em test_validador, banco atualizar em test_cli).
-- **Próximo passo**: implementar `src/controlegastos/armazenamento/` (centavos, modelos, banco, migrações Alembic, repositório) e `casas_decimais`/VAL-13 no validador, até os testes (já commitados, vermelhos) passarem; depois o comando `controlegastos banco atualizar`.
+- **Estado**: Fase 2 concluída no código (STO-01..14 e VAL-13 vigentes, 223 testes verdes); falta só abrir/mesclar o PR e começar a Fase 3.
+- **Branch atual**: `feat/fase2-armazenamento` (aguardando PR).
+- **Último passo concluído**: Fase 2 inteira: `src/controlegastos/armazenamento/` (centavos, modelos, banco, migração 0001, repositório com lixeira e importação), VAL-13, comando `banco atualizar`.
+- **Próximo passo**: Fase 3, tarefa 3.1 (app FastAPI em `src/controlegastos/web/`, sessão por cookie, login Argon2 via `pwdlib`, CSRF, limite de tentativas, `controlegastos usuario criar`). Spec primeiro: promover os requisitos WEB-01 a 04 a `vigente` (ou dividir `interface-web` em `autenticacao` e `api`, se ficar grande).
 - **Como retomar**: `git checkout main && git pull`; ler `AGENTS.md`, este arquivo, `design.md` e os specs; criar a branch da tarefa; spec primeiro, testes antes do código, `uv run ruff check . --no-cache`, `uv run pytest` e `uv run python scripts/conferir_specs.py` verdes antes de cada commit; abrir PR e mesclar com o CI verde.
 - **Ambiente**: Python 3.14 via uv; Docker disponível; Node 18 no sistema (a Fase 4 exige Node 20+, instalar com fnm).
 
@@ -18,11 +18,11 @@ Cada fase é um PR pequeno, com spec primeiro, testes antes do código e revisã
   - [x] 1.1 Extrair `servico.py` e `resumo.py` (dados dos gráficos públicos); CLI chama o serviço
   - [x] 1.2 Geração do `.xlsx` e dos CSV em memória (bytes)
   - Critério cumprido: suíte existente verde; saída idêntica à anterior (CSV byte a byte, `.xlsx` célula a célula).
-- [ ] **Fase 2 — Armazenamento** (STO-01 a STO-14, VAL-13)
+- [x] **Fase 2 — Armazenamento** (STO-01 a STO-14, VAL-13)
   - [x] 2.1 Extra `web` com instalação real da stack em Python 3.14; `armazenamento` vigente
-  - [ ] 2.2 Repositório por usuário, carga para `LivroCaixa`, isolamento (STO-06)
-  - [ ] 2.3 Importar/exportar JSON transacional (recusa mês existente; `substituir` explícito), valor com no máximo 2 casas (STO-11) e `controlegastos banco atualizar`
-  - [ ] 2.4 Exclusão lógica e lixeira no repositório (STO-12, STO-13), com os testes de propriedade do design
+  - [x] 2.2 Repositório por usuário, carga para `LivroCaixa`, isolamento (STO-06)
+  - [x] 2.3 Importar/exportar JSON transacional (recusa mês existente; `substituir` explícito), valor com no máximo 2 casas (STO-11) e `controlegastos banco atualizar`
+  - [x] 2.4 Exclusão lógica e lixeira no repositório (STO-12, STO-13), com os testes de propriedade do design
 - [ ] **Fase 3 — API e autenticação** (WEB-01 a 08, 11, 12, 13, 16, 17, 19)
   - [ ] 3.1 App FastAPI, sessão, login, CSRF, limite de tentativas, `controlegastos usuario criar`
   - [ ] 3.2 Rotas de meses e lançamentos com erros `{caminho, mensagem}`
