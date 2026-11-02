@@ -13,7 +13,7 @@ from decimal import Decimal
 from pathlib import Path
 
 from openpyxl import Workbook
-from openpyxl.chart import BarChart, PieChart, Reference
+from openpyxl.chart import BarChart, LineChart, PieChart, Reference
 from openpyxl.chart.label import DataLabelList
 from openpyxl.chart.series import DataPoint
 from openpyxl.styles import Alignment, Font, PatternFill
@@ -225,6 +225,110 @@ def _classe_agregada(livros: LivroCaixa) -> dict[str, Decimal]:
     return totais
 
 
+_SEM_CATEGORIA = "Sem categoria"
+_TOP_RANKING = 10
+
+
+def _meses_ordenados(livros: LivroCaixa) -> list[tuple[str, Mes]]:
+    """Meses em ordem cronológica, com o rótulo AAAA-MM."""
+    resultado = []
+    for numero_ano in sorted(livros.anos):
+        ano = livros.anos[numero_ano]
+        for numero_mes in sorted(ano.meses):
+            resultado.append((f"{numero_ano}-{numero_mes:02d}", ano.meses[numero_mes]))
+    return resultado
+
+
+def _patrimonio_acumulado(livros: LivroCaixa) -> list[tuple[str, Decimal]]:
+    """Soma acumulada dos aportes (total de investimentos) mês a mês."""
+    acumulado = Decimal(0)
+    resultado = []
+    for rotulo, mes in _meses_ordenados(livros):
+        acumulado += mes.total_investimentos
+        resultado.append((rotulo, acumulado))
+    return resultado
+
+
+def _ranking_despesas(livros: LivroCaixa) -> list[tuple[str, Decimal]]:
+    """Total de despesas por categoria, do maior para o menor (desempate por nome)."""
+    totais: dict[str, Decimal] = {}
+    for _, mes in _meses_ordenados(livros):
+        for despesa in mes.despesas:
+            nome = (despesa.categoria or "").strip()
+            if not nome or nome.lower() == "geral":
+                nome = _SEM_CATEGORIA
+            totais[nome] = totais.get(nome, Decimal(0)) + despesa.valor
+    return sorted(totais.items(), key=lambda item: (-item[1], item[0]))
+
+
+def _variacao_saldo(livros: LivroCaixa) -> list[tuple[str, Decimal]]:
+    """Saldo livre do mês menos o do mês anterior, a partir do segundo mês."""
+    meses = _meses_ordenados(livros)
+    return [
+        (rotulo, mes.saldo_livre - meses[i - 1][1].saldo_livre)
+        for i, (rotulo, mes) in enumerate(meses)
+        if i > 0
+    ]
+
+
+def _gravar_bloco(planilha, coluna: int, cabecalho: list[str], linhas: list[tuple[str, Decimal]]) -> None:
+    for i, nome in enumerate(cabecalho):
+        planilha.cell(row=1, column=coluna + i, value=nome)
+    for r, (rotulo, valor) in enumerate(linhas, start=2):
+        planilha.cell(row=r, column=coluna, value=rotulo)
+        planilha.cell(row=r, column=coluna + 1, value=float(valor)).number_format = "#,##0.00"
+
+
+def _mostrar_eixos(grafico) -> None:
+    """Garante eixos visíveis no Excel (openpyxl >= 3.1 os omite por padrão)."""
+    grafico.x_axis.delete = False
+    grafico.y_axis.delete = False
+
+
+def _renderizar_graficos_extras(planilha, livros: LivroCaixa) -> None:
+    """Blocos de apoio em W:X, Z:AA e AC:AD e os três gráficos extras."""
+    for letra, largura in (("V", 2), ("W", 12), ("X", 22), ("Y", 2), ("Z", 24), ("AA", 14),
+                           ("AB", 2), ("AC", 12), ("AD", 26)):
+        planilha.column_dimensions[letra].width = largura
+
+    patrimonio = _patrimonio_acumulado(livros)
+    ranking = _ranking_despesas(livros)
+    variacao = _variacao_saldo(livros)
+    _gravar_bloco(planilha, 23, ["Mês", "Patrimônio acumulado"], patrimonio)
+    _gravar_bloco(planilha, 26, ["Categoria", "Total"], ranking)
+    _gravar_bloco(planilha, 29, ["Mês", "Variação do saldo livre"], variacao)
+
+    total_investido = sum((m.total_investimentos for _, m in _meses_ordenados(livros)), Decimal(0))
+    if len(patrimonio) >= 2 and total_investido > 0:
+        linha = LineChart()
+        linha.title = "Evolução do patrimônio (aportes acumulados)"
+        _mostrar_eixos(linha)
+        linha.add_data(Reference(planilha, min_col=24, min_row=1, max_row=len(patrimonio) + 1), titles_from_data=True)
+        linha.set_categories(Reference(planilha, min_col=23, min_row=2, max_row=len(patrimonio) + 1))
+        planilha.add_chart(linha, "A42")
+
+    if ranking:
+        topo = min(len(ranking), _TOP_RANKING)
+        barras = BarChart()
+        barras.type = "bar"
+        barras.title = "Ranking de categorias de despesa"
+        barras.x_axis.scaling.orientation = "maxMin"
+        _mostrar_eixos(barras)
+        barras.add_data(Reference(planilha, min_col=27, min_row=1, max_row=topo + 1), titles_from_data=True)
+        barras.set_categories(Reference(planilha, min_col=26, min_row=2, max_row=topo + 1))
+        planilha.add_chart(barras, "A62")
+
+    if len(variacao) >= 1 and len(_meses_ordenados(livros)) >= 2:
+        comparativo = BarChart()
+        comparativo.type = "col"
+        comparativo.title = "Comparativo entre meses: variação do saldo livre"
+        _mostrar_eixos(comparativo)
+        comparativo.x_axis.tickLblPos = "low"  # rótulos abaixo das barras negativas
+        comparativo.add_data(Reference(planilha, min_col=30, min_row=1, max_row=len(variacao) + 1), titles_from_data=True)
+        comparativo.set_categories(Reference(planilha, min_col=29, min_row=2, max_row=len(variacao) + 1))
+        planilha.add_chart(comparativo, "A82")
+
+
 def _renderizar_graficos(workbook: Workbook, livros: LivroCaixa) -> None:
     """Cria a aba "Gráficos" com pizza por classe de investimento e barras mensais.
 
@@ -284,6 +388,7 @@ def _renderizar_graficos(workbook: Workbook, livros: LivroCaixa) -> None:
     bar.type = "col"
     bar.grouping = "clustered"
     bar.title = "Por Mês: Receitas, Despesas, Investimentos e Saldo Livre"
+    _mostrar_eixos(bar)
     bar.x_axis.title = "Mês"
     bar.y_axis.title = "Valor"
     dados_bar = Reference(planilha, min_col=col_mes + 1, min_row=1, max_col=col_mes + 4, max_row=len(mensais) + 1)
@@ -291,6 +396,8 @@ def _renderizar_graficos(workbook: Workbook, livros: LivroCaixa) -> None:
     categorias = Reference(planilha, min_col=col_mes, min_row=2, max_row=len(mensais) + 1)
     bar.set_categories(categorias)
     planilha.add_chart(bar, "A22")
+
+    _renderizar_graficos_extras(planilha, livros)
 
 
 def gerar_planilha(livros: LivroCaixa, destino: str | Path) -> Path:

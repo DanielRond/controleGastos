@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Lembrete de esquema",
+      "trigger": "PostFileSave",
+      "description": "Lembra de atualizar loader.py, validador.py, exemplo.json e AGENTS.md juntos.",
+      "matcher": "[\\\\/](loader\\.py|validador\\.py|exemplo[^\\\\/]*\\.json)$",
+      "action": {
+        "type": "agent",
+        "prompt": "Você alterou um arquivo ligado ao esquema de dados. Se o esquema mudou, atualize na mesma mudança: src/controlegastos/loader.py, src/controlegastos/validador.py, data/entradas/exemplo.json e AGENTS.md."
+      }
+    }
+  ]
+}
