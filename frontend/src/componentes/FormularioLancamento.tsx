@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { api, errosDeValidacao, mensagemDe } from "../api/cliente";
 import type { Lancamento, TipoDeLancamento } from "../api/tipos";
 import { TIPOS_DE_INVESTIMENTO } from "../api/tipos";
@@ -27,6 +27,16 @@ export function FormularioLancamento({ ano, mes, inicial, aoSalvar, aoCancelar }
   const [ativo, setAtivo] = useState(inicial?.ativo ?? "");
   const [erros, setErros] = useState<Erros>({});
   const [enviando, setEnviando] = useState(false);
+  const focarDepois = useRef(false);
+  const campoDia = useRef<HTMLInputElement>(null);
+
+  // Depois de enviar, o foco volta ao primeiro campo para o próximo lançamento (só quando o formulário volta a ficar ativo).
+  useEffect(() => {
+    if (!enviando && focarDepois.current) {
+      focarDepois.current = false;
+      campoDia.current?.focus();
+    }
+  }, [enviando]);
 
   async function enviar(evento: FormEvent) {
     evento.preventDefault();
@@ -54,7 +64,9 @@ export function FormularioLancamento({ ano, mes, inicial, aoSalvar, aoCancelar }
           setDescricao("");
           setValor("");
           setDia("");
+          setCategoria("");
           setAtivo("");
+          focarDepois.current = true;
         }
         return;
       }
@@ -94,6 +106,8 @@ export function FormularioLancamento({ ano, mes, inicial, aoSalvar, aoCancelar }
   return (
     <form onSubmit={enviar} className="cartao formulario" aria-labelledby="titulo-formulario" noValidate>
       <h2 id="titulo-formulario">{editando ? "Editar lançamento" : "Novo lançamento"}</h2>
+      {/* Desabilitado durante o envio: nada digitado nesse intervalo se perde quando a resposta chega. */}
+      <fieldset disabled={enviando} className="sem-borda">
 
       {campoComErro("tipo", "Tipo", (d) => (
         <select id="lanc-tipo" value={tipo} disabled={editando} aria-invalid={!!erros.tipo} aria-describedby={d} onChange={(e) => setTipo(e.target.value as TipoDeLancamento)}>
@@ -103,7 +117,7 @@ export function FormularioLancamento({ ano, mes, inicial, aoSalvar, aoCancelar }
         </select>
       ))}
       {campoComErro("dia", "Dia", (d) => (
-        <input id="lanc-dia" type="number" min={1} max={31} value={dia} aria-invalid={!!erros.dia} aria-describedby={d} onChange={(e) => setDia(e.target.value)} />
+        <input ref={campoDia} id="lanc-dia" type="number" min={1} max={31} value={dia} aria-invalid={!!erros.dia} aria-describedby={d} onChange={(e) => setDia(e.target.value)} />
       ))}
       {campoComErro("descricao", "Descrição", (d) => (
         <input id="lanc-descricao" value={descricao} aria-invalid={!!erros.descricao} aria-describedby={d} onChange={(e) => setDescricao(e.target.value)} />
@@ -148,6 +162,7 @@ export function FormularioLancamento({ ano, mes, inicial, aoSalvar, aoCancelar }
           </button>
         )}
       </div>
+      </fieldset>
     </form>
   );
 }

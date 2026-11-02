@@ -12,7 +12,8 @@ from typing import Annotated, Literal
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -51,6 +52,7 @@ from .seguranca import (
     verificar_hash,
 )
 
+PASTA_DO_FRONT = Path(__file__).parent / "static"  # saída de `npm run build` em frontend/
 NOME_DO_COOKIE = "sessao"
 MIME_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 _MENSAGENS_HTTP = {404: "Recurso não encontrado.", 405: "Método não permitido."}
@@ -181,10 +183,32 @@ def _opcional(valor: Decimal | None) -> str | None:
     return None if valor is None else es.texto_dinheiro(valor)
 
 
+# ---------------------------------------------------------------- front compilado
+
+
+def _servir_front(app: FastAPI, pasta: Path) -> None:
+    """Serve o front compilado na mesma origem da API (WEB-14); rotas do front caem no index.html."""
+    indice = pasta / "index.html"
+    if not indice.is_file():
+        return
+    raiz = pasta.resolve()
+    if (pasta / "assets").is_dir():
+        app.mount("/assets", StaticFiles(directory=pasta / "assets"), name="assets")
+
+    @app.get("/{caminho:path}", include_in_schema=False)
+    def front(caminho: str):
+        if caminho == "api" or caminho.startswith("api/"):
+            raise HTTPException(404)
+        candidato = (pasta / caminho).resolve()
+        if caminho and candidato.is_file() and raiz in candidato.parents:
+            return FileResponse(candidato)
+        return FileResponse(indice)
+
+
 # ---------------------------------------------------------------- aplicação
 
 
-def criar_app(config: Configuracao | None = None) -> FastAPI:
+def criar_app(config: Configuracao | None = None, pasta_front: Path | None = None) -> FastAPI:
     config = config or Configuracao.do_ambiente()
     if not config.chave_secreta:
         if config.cookie_secure:
@@ -409,4 +433,5 @@ def criar_app(config: Configuracao | None = None) -> FastAPI:
     def esvaziar(repo: Escrita):
         return es.Removidos(removidos=repo.esvaziar_lixeira())
 
+    _servir_front(app, PASTA_DO_FRONT if pasta_front is None else pasta_front)
     return app

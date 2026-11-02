@@ -12,7 +12,7 @@ Lido da mesma forma pelo Kiro, pelo Claude Code e por pessoas. Idioma: pt-BR (o 
 | [planilha](planilha/spec.md) | PLN | vigente | `.xlsx`: Resumo Geral, abas por mês, gráficos |
 | [armazenamento](armazenamento/spec.md) | STO | vigente (implementado) | Banco SQLite, centavos, usuários, lixeira, importar/exportar JSON |
 | [api](api/spec.md) | WEB | vigente (implementado) | API HTTP, login/sessão/CSRF, lançamentos, painéis, downloads, lixeira, contrato OpenAPI (Fase 3) |
-| [frontend](frontend/spec.md) | WEB | rascunho | Telas React/TypeScript: login, mês, ano, lixeira, arquivos (Fase 4; vira vigente na última etapa) |
+| [frontend](frontend/spec.md) | WEB | vigente (implementado) | Telas React/TypeScript: login, mês, ano, lixeira, arquivos; testes Vitest e Playwright |
 | [interface-web](interface-web/spec.md) | WEB | rascunho | Execução local e hospedada (`controlegastos web`, Docker) e plano geral (`design.md`, `tasks.md`) |
 
 ## Convenções

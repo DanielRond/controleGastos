@@ -7,6 +7,9 @@ interface Props {
   mes: number;
   salario: string | null;
   meta: string | null;
+  /** Confirmação mostrada pela página: este componente é recriado quando os dados novos chegam. */
+  salvo: boolean;
+  aoAlterar: () => void;
   aoSalvar: () => void;
 }
 
@@ -17,16 +20,14 @@ function paraApi(campo: string): { ok: true; valor: string | null } | { ok: fals
   return leitura.ok ? { ok: true, valor: leitura.valor } : { ok: false, erro: leitura.erro };
 }
 
-export function SalarioEMeta({ ano, mes, salario, meta, aoSalvar }: Props) {
+export function SalarioEMeta({ ano, mes, salario, meta, salvo, aoAlterar, aoSalvar }: Props) {
   const [campoSalario, setCampoSalario] = useState(salario ? paraCampo(salario) : "");
   const [campoMeta, setCampoMeta] = useState(meta ? paraCampo(meta) : "");
   const [erros, setErros] = useState<Record<string, string>>({});
-  const [aviso, setAviso] = useState<string | null>(null);
 
   async function enviar(evento: FormEvent) {
     evento.preventDefault();
     setErros({});
-    setAviso(null);
     const s = paraApi(campoSalario);
     const m = paraApi(campoMeta);
     if (!s.ok || !m.ok) {
@@ -39,7 +40,6 @@ export function SalarioEMeta({ ano, mes, salario, meta, aoSalvar }: Props) {
         body: { salario: s.valor, meta_investimento: m.valor },
       });
       if (!error) {
-        setAviso("Salário e meta salvos.");
         aoSalvar();
         return;
       }
@@ -53,7 +53,10 @@ export function SalarioEMeta({ ano, mes, salario, meta, aoSalvar }: Props) {
   const campo = (id: string, rotulo: string, valor: string, definir: (v: string) => void, chave: string) => (
     <div className="campo">
       <label htmlFor={id}>{rotulo}</label>
-      <input id={id} inputMode="decimal" placeholder="0,00" value={valor} aria-invalid={!!erros[chave]} aria-describedby={erros[chave] ? `erro-${id}` : undefined} onChange={(e) => definir(e.target.value)} />
+      <input id={id} inputMode="decimal" placeholder="0,00" value={valor} aria-invalid={!!erros[chave]} aria-describedby={erros[chave] ? `erro-${id}` : undefined} onChange={(e) => {
+          definir(e.target.value);
+          aoAlterar();
+        }} />
       {erros[chave] && (
         <span id={`erro-${id}`} role="alert" className="erro">
           {erros[chave]}
@@ -73,7 +76,7 @@ export function SalarioEMeta({ ano, mes, salario, meta, aoSalvar }: Props) {
           {erros.geral}
         </p>
       )}
-      {aviso && <p role="status">{aviso}</p>}
+      {salvo && <p role="status">Salário e meta salvos.</p>}
       <button type="submit">Salvar</button>
     </form>
   );

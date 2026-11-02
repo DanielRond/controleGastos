@@ -18,6 +18,7 @@ export function Mes() {
   const clienteDeConsultas = useQueryClient();
   const [editando, setEditando] = useState<Lancamento | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
+  const [metaSalva, setMetaSalva] = useState(false);
 
   const consulta = useQuery({
     queryKey: ["mes", ano, mes],
@@ -93,6 +94,7 @@ export function Mes() {
               aoSalvar={() => {
                 setEditando(null);
                 setAviso(null);
+                setMetaSalva(false);
                 atualizar();
               }}
               aoCancelar={editando ? () => setEditando(null) : undefined}
@@ -103,7 +105,12 @@ export function Mes() {
               mes={mes}
               salario={consulta.data.salario}
               meta={consulta.data.meta_investimento}
-              aoSalvar={atualizar}
+              salvo={metaSalva}
+              aoAlterar={() => setMetaSalva(false)}
+              aoSalvar={() => {
+                setMetaSalva(true);
+                atualizar();
+              }}
             />
           </div>
         </>
