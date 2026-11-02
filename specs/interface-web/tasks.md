@@ -10,7 +10,7 @@ Atualize esta seção a cada passo concluído, junto do commit.
 - **Próximo passo**: nenhum obrigatório. Se o job `imagem` falhar no primeiro CI, corrigir o Dockerfile (ver os logs impressos por `scripts/testar_imagem.py`). Ideias futuras, em ordem: importação de extratos bancários (nova capacidade `extratos`, com tela de revisão e `origem=extrato` já reservada em STO-04); fase de polimento (gráficos mais ricos, tema escuro); limite de tentativas de login compartilhado se houver mais de uma instância.
 - **Node**: o do sistema, versão 24 (ver `.nvmrc`); o front-end exige Node 24+.
 - **Como retomar**: `git checkout main && git pull`; ler `AGENTS.md`, este arquivo, `design.md` e os specs; criar a branch da tarefa; spec primeiro, testes antes do código, `uv run ruff check . --no-cache`, `uv run pytest` e `uv run python scripts/conferir_specs.py` verdes antes de cada commit; abrir PR e mesclar com o CI verde.
-- **Ambiente**: Python 3.14 via uv; Docker disponível; Node 18 no sistema (a Fase 4 exige Node 20+, instalar com fnm).
+- **Ambiente**: Python 3.14 via uv; Docker instalado (o daemon pode exigir `sudo`); Node 24 no sistema.
 
 Cada fase é um PR pequeno, com spec primeiro, testes antes do código e revisão humana. Os status `rascunho` passam a `vigente` quando a fase correspondente começar (aí o CI exige um teste por requisito).
 
