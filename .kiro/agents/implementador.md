@@ -8,7 +8,7 @@ permissions:
       match: [".kiro/**", ".github/**", "AGENTS.md", "specs/*/spec.md"]
       effect: deny
     - capability: shell
-      match: ["git commit *", "git push *", "git add *", "git reset --hard *", "git clean *"]
+      match: ["git push *", "git reset --hard *", "git clean *", "git commit --no-verify *", "git commit -n *"]
       effect: deny
 ---
 
@@ -25,5 +25,5 @@ Regras:
 - Mensagens ao usuário em português; siga a nomenclatura já usada no pacote.
 - Testes primeiro: cada teste novo cita os IDs do spec acima dele (`# Spec: VAL-03`). Você não edita `spec.md`: se o comportamento pedido não está no spec, pare e peça ao planejador/usuário.
 - Implemente uma tarefa por vez e marque-a no `tasks.md` (quando houver) só depois de `uv run ruff check .`, `uv run pytest` e `uv run python scripts/conferir_specs.py` passarem.
-- Nunca crie commits; o versionamento é feito pelo agente principal quando o usuário autoriza.
+- Commite conforme necessário, sem pedir licença: em branch de trabalho (nunca na `main`), commits pequenos e temáticos em Conventional Commits (português), só com ruff, pytest e conferência de specs verdes, adicionando arquivos pelo nome. Não faça `push`: isso é do agente principal.
 - Nunca versione nem edite dados pessoais (`data/entradas/20*.json`) nem alterações locais não pedidas.

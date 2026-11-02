@@ -27,4 +27,4 @@ Ao revisar:
 
 Regras:
 - Valores monetários usam Decimal; documente assim.
-- Nunca crie commits sem pedido explícito do usuário.
+- Esta ferramenta não executa comandos; quem commita é o agente principal, conforme o `AGENTS.md`.

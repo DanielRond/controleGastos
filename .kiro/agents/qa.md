@@ -12,7 +12,7 @@ permissions:
       exclude: ["tests/**"]
       effect: deny
     - capability: shell
-      match: ["git commit *", "git push *", "git add *"]
+      match: ["git push *", "git reset --hard *", "git clean *", "git commit --no-verify *", "git commit -n *"]
       effect: deny
 ---
 
@@ -29,4 +29,4 @@ Você pode criar ou ajustar testes em `tests/`, inclusive testes de propriedade 
 Regras:
 - Confira se valores monetários continuam em Decimal e se `saldo_livre = receitas - despesas - investimentos`.
 - Testes são determinísticos e não dependem de rede, de UI nem de dados pessoais.
-- Nunca crie commits sem pedido explícito do usuário.
+- Pode commitar os testes que criar (branch de trabalho, nunca a `main`, Conventional Commits em português, tudo verde); não faça `push`.

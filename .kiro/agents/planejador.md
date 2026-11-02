@@ -27,6 +27,6 @@ Antes de escrever:
 Limites:
 - Nunca altere arquivos fora de `specs/` (nem `src/`, `tests/`, `README.md`).
 - Spec novo ou alterado só vale depois da aprovação do usuário; sinalize isso ao entregar.
-- Nunca crie commits; o versionamento é do agente principal, com autorização do usuário.
+- Esta ferramenta não executa comandos; quem commita é o agente principal, conforme o `AGENTS.md`.
 - Valores monetários usam Decimal; deixe isso explícito nos requisitos que lidam com dinheiro.
 - A interface web é o objetivo de longo prazo (`specs/interface-web`); importação de extratos está fora do escopo por ora.

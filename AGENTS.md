@@ -87,7 +87,7 @@ docs/media/          # capturas da planilha usadas no README (só dados fictíci
 ## Regras para agentes de IA
 
 1. **Documentação é a fonte de verdade**: siga este arquivo. `PROMPTS.md` é local e não versionado.
-2. **Commits só quando o usuário pedir ou autorizar** a versionar. Nunca `push` na `main`; nunca versionar dados pessoais (`data/entradas/20*.json`) nem alterações locais que o usuário não pediu.
+2. **Versionamento autônomo**: commite conforme necessário, sem pedir licença, em branch de trabalho (`feat/`, `fix/`, `docs/`, `chore/`), com commits pequenos e temáticos (Conventional Commits em português) e a suíte verde. Nunca commite ou dê `push` na `main`, nunca `push --force` nem `--no-verify`, nunca versione dados pessoais (`data/entradas/20*.json`) nem alterações locais que não são suas. Merge de PR é do usuário.
 3. Valores monetários são **Decimal**, nunca float (float só ao gravar células do openpyxl).
 4. Ao mudar o esquema, atualize **juntos**: `loader.py`, `validador.py`, `data/entradas/exemplo.json` e este arquivo.
 5. Nomes de identificadores seguem o padrão já existente do pacote (português: `LivroCaixa`, `carregar_json`); documentação e mensagens ao usuário em português. Migrar para inglês só se o usuário pedir, em mudança separada.
@@ -98,6 +98,6 @@ docs/media/          # capturas da planilha usadas no README (só dados fictíci
 ## Fluxo com IA (Kiro e Claude Code)
 
 - **Specs** em `specs/<capacidade>/spec.md`, neutros entre Kiro e Claude Code, em pt-BR com IDs estáveis; permanecem depois de prontos e o código responde a eles (fluxo em `specs/README.md`). `design.md`/`tasks.md` só em mudanças grandes.
-- **Agentes**: a fonte é `.kiro/agents/`; `.claude/agents/` é gerado por `uv run python scripts/sincronizar_agentes.py` (um teste falha se defasado). Papéis: `planejador` (só `specs/`), `implementador` (código e testes; não escreve em `.kiro/`, `.github/`, `AGENTS.md` nem `spec.md`; sem commit), `qa` (só `tests/`), `documentacao` (README, este arquivo, `docs/`). No Kiro as restrições são impostas por `permissions.rules`; no Claude Code valem como instrução.
+- **Agentes**: a fonte é `.kiro/agents/`; `.claude/agents/` é gerado por `uv run python scripts/sincronizar_agentes.py` (um teste falha se defasado). Papéis: `planejador` (só `specs/`), `implementador` (código e testes; não escreve em `.kiro/`, `.github/`, `AGENTS.md` nem `spec.md`; pode commitar, não faz push), `qa` (só `tests/`; pode commitar, não faz push), `documentacao` (README, este arquivo, `docs/`). No Kiro as restrições são impostas por `permissions.rules`; no Claude Code valem como instrução.
 - **Hooks**: `scripts/checar.py` roda ruff e os testes do módulo editado (Kiro: `.kiro/hooks/`, Claude Code: `.claude/settings.json`). No Kiro o hook de salvar só dispara quando o **agente** edita um arquivo, não quando você salva no editor.
 - **Steering** só manual: `/revisar-documentacao` compara README e este arquivo com o código.
