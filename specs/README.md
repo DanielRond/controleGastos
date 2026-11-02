@@ -13,7 +13,7 @@ Lido da mesma forma pelo Kiro, pelo Claude Code e por pessoas. Idioma: pt-BR (o 
 | [armazenamento](armazenamento/spec.md) | STO | vigente (implementado) | Banco SQLite, centavos, usuários, lixeira, importar/exportar JSON |
 | [api](api/spec.md) | WEB | vigente (implementado) | API HTTP, login/sessão/CSRF, lançamentos, painéis, downloads, lixeira, contrato OpenAPI (Fase 3) |
 | [frontend](frontend/spec.md) | WEB | vigente (implementado) | Telas React/TypeScript: login, mês, ano, lixeira, arquivos; testes Vitest e Playwright |
-| [interface-web](interface-web/spec.md) | WEB | rascunho | Execução local e hospedada (`controlegastos web`, Docker) e plano geral (`design.md`, `tasks.md`) |
+| [interface-web](interface-web/spec.md) | WEB | vigente | Execução local e hospedada (`controlegastos web`, Docker) e plano geral (`design.md`, `tasks.md`) |
 
 ## Convenções
 

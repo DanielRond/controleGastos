@@ -20,7 +20,7 @@ Expor os casos de uso do sistema por HTTP/JSON, com login, para a interface web 
 
 Conta e sessão:
 
-- **WEB-01** `POST /api/auth/login` com `{"nome","senha"}`: sucesso (200) grava a sessão em cookie assinado `HttpOnly` e `SameSite=Lax`, válido por 7 dias, e devolve `{"id","nome","csrf_token"}`. Usuário inexistente e senha errada dão o mesmo 401 e a mesma mensagem. Senhas são guardadas com Argon2. Não há cadastro público: contas só pelo comando `controlegastos usuario criar NOME` (senha pedida sem eco, confirmada duas vezes, com no mínimo 8 caracteres; nome repetido é recusado). `POST /api/auth/logout` encerra a sessão e `GET /api/me` devolve o usuário logado.
+- **WEB-01** `POST /api/auth/login` com `{"nome","senha"}`: sucesso (200) grava a sessão em cookie assinado `HttpOnly` e `SameSite=Lax`, válido por 7 dias, e devolve `{"id","nome","csrf_token"}`. Usuário inexistente e senha errada dão o mesmo 401 e a mesma mensagem. Senhas são guardadas com Argon2. Não há cadastro público: contas só pelo comando `controlegastos usuario criar NOME` (senha pedida sem eco, confirmada duas vezes, com no mínimo 8 caracteres; nome repetido é recusado). Com `--senha-stdin` a senha é lida da entrada padrão, uma vez e sem confirmação, para uso em scripts e contêineres (mesmas regras de tamanho). `POST /api/auth/logout` encerra a sessão e `GET /api/me` devolve o usuário logado.
 - **WEB-02** Toda rota de dados exige sessão válida; sem cookie, ou com cookie adulterado ou expirado, responde 401. Cada usuário só acessa os próprios dados (STO-06): recurso de outro usuário responde 404.
 - **WEB-03** Requisições `POST`, `PUT`, `PATCH` e `DELETE` autenticadas exigem o cabeçalho `X-CSRF-Token` igual ao `csrf_token` da sessão; ausente ou diferente responde 403. No login, 5 falhas em 15 minutos para o mesmo nome e IP bloqueiam novas tentativas por 15 minutos (429 com `Retry-After` e mensagem em português); um login com sucesso zera o contador.
 - **WEB-04** O cookie é `Secure` quando `CONTROLEGASTOS_COOKIE_SECURE=1`. Nesse modo hospedado a chave secreta (`CONTROLEGASTOS_CHAVE_SECRETA`) é obrigatória e o app se recusa a subir sem ela; no modo local, sem chave, gera uma aleatória por processo.
@@ -42,6 +42,7 @@ Arquivos:
 
 - **WEB-12** `GET /api/exportar/xlsx` devolve a planilha e `GET /api/exportar/csv` um `.zip` com os dois CSV; ambos aceitam `?ano=` para limitar a um ano, são gerados em memória e trazem `Content-Disposition` com o nome do arquivo.
 - **WEB-13** `POST /api/importar/json?substituir=false` recebe o documento JSON de entrada e devolve `{"lancamentos_criados","meses":[{"ano","mes"}],"substituidos"}`; erros de validação dão 422 (WEB-08); meses que já existem dão 409 com a lista deles, sem gravar nada, a menos que `substituir=true` (STO-08). `GET /api/exportar/json` devolve o documento do usuário (STO-09).
+- **WEB-28** `GET /api/saude` responde 200 `{"status":"ok"}` sem exigir login e sem tocar dados de usuários; serve para verificações de saúde de contêineres e hospedagem. Com o banco inacessível responde 503.
 - **WEB-19** Lixeira: `GET /api/lixeira` lista; `POST /api/lixeira/{id}/restaurar`; `DELETE /api/lixeira/{id}` exclui definitivamente (204); `DELETE /api/lixeira` esvazia e devolve `{"removidos": n}`. Itens da lixeira nunca aparecem nos totais, painéis ou arquivos.
 
 Contrato:
