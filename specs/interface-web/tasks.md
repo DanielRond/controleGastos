@@ -4,10 +4,10 @@
 
 Atualize esta seção a cada passo concluído, junto do commit.
 
-- **Estado**: Fase 2 concluída no código (STO-01..14 e VAL-13 vigentes, 223 testes verdes); falta só abrir/mesclar o PR e começar a Fase 3.
-- **Branch atual**: `feat/fase2-armazenamento` (aguardando PR).
-- **Último passo concluído**: Fase 2 inteira: `src/controlegastos/armazenamento/` (centavos, modelos, banco, migração 0001, repositório com lixeira e importação), VAL-13, comando `banco atualizar`.
-- **Próximo passo**: Fase 3, tarefa 3.1 (app FastAPI em `src/controlegastos/web/`, sessão por cookie, login Argon2 via `pwdlib`, CSRF, limite de tentativas, `controlegastos usuario criar`). Spec primeiro: promover os requisitos WEB-01 a 04 a `vigente` (ou dividir `interface-web` em `autenticacao` e `api`, se ficar grande).
+- **Estado**: Fases 1, 2 e 3 concluídas no código (283 testes, 75 requisitos vigentes). Falta mesclar o PR da Fase 3 e começar a Fase 4.
+- **Branch atual**: `feat/fase3-api` (PR aberto) ou `main` depois do merge.
+- **Último passo concluído**: Fase 3 inteira: `src/controlegastos/web/` (config, segurança, esquemas, app), `usuario criar`, `scripts/exportar_openapi.py` e `specs/api/openapi.json`.
+- **Próximo passo**: Fase 4, tarefa 4.1. Instalar Node 20+ com `fnm` (o sistema tem Node 18), criar `frontend/` (Vite + React + TypeScript), gerar o cliente TypeScript de `specs/api/openapi.json` (`openapi-typescript`), job `web` no CI (lint, tsc, vitest, build, cliente em dia) e `.nvmrc`. Promover os requisitos de tela (WEB-18) a `vigente` quando houver teste; as telas citam os IDs WEB-05..13 e 19 nos testes de ponta a ponta.
 - **Como retomar**: `git checkout main && git pull`; ler `AGENTS.md`, este arquivo, `design.md` e os specs; criar a branch da tarefa; spec primeiro, testes antes do código, `uv run ruff check . --no-cache`, `uv run pytest` e `uv run python scripts/conferir_specs.py` verdes antes de cada commit; abrir PR e mesclar com o CI verde.
 - **Ambiente**: Python 3.14 via uv; Docker disponível; Node 18 no sistema (a Fase 4 exige Node 20+, instalar com fnm).
 
@@ -23,10 +23,10 @@ Cada fase é um PR pequeno, com spec primeiro, testes antes do código e revisã
   - [x] 2.2 Repositório por usuário, carga para `LivroCaixa`, isolamento (STO-06)
   - [x] 2.3 Importar/exportar JSON transacional (recusa mês existente; `substituir` explícito), valor com no máximo 2 casas (STO-11) e `controlegastos banco atualizar`
   - [x] 2.4 Exclusão lógica e lixeira no repositório (STO-12, STO-13), com os testes de propriedade do design
-- [ ] **Fase 3 — API e autenticação** (WEB-01 a 08, 11, 12, 13, 16, 17, 19)
-  - [ ] 3.1 App FastAPI, sessão, login, CSRF, limite de tentativas, `controlegastos usuario criar`
-  - [ ] 3.2 Rotas de meses e lançamentos com erros `{caminho, mensagem}`
-  - [ ] 3.3 Resumo anual, downloads, importação e rotas da lixeira; OpenAPI exportado
+- [x] **Fase 3 — API e autenticação** (spec `api`: WEB-01 a 13, 16, 17, 19)
+  - [x] 3.1 App FastAPI, sessão, login, CSRF, limite de tentativas, `controlegastos usuario criar`
+  - [x] 3.2 Rotas de meses e lançamentos com erros `{caminho, mensagem}`
+  - [x] 3.3 Resumo anual, downloads, importação e rotas da lixeira; OpenAPI exportado
 - [ ] **Fase 4 — Front-end** (WEB-05 a 10, 18, 19)
   - [ ] 4.1 Scaffold Vite + TS, cliente gerado do OpenAPI, job `web` no CI
   - [ ] 4.2 Login e layout

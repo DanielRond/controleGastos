@@ -24,7 +24,9 @@ from .resumo import (
     TOP_RANKING,
     meses_ordenados,
     patrimonio_acumulado,
+    percentual,
     ranking_despesas,
+    totais_por_classe,
     variacao_saldo,
 )
 
@@ -92,24 +94,16 @@ def _linha_total(sheet, linha: int, rotulo: str, valor: Decimal) -> None:
     celula.number_format = "#,##0.00"
 
 
-def _agrupar_por_tipo(mes: Mes) -> dict[str, Decimal]:
-    por_tipo: dict[str, Decimal] = {}
-    for item in mes.investimentos:
-        chave = item.tipo or item.categoria
-        por_tipo[chave] = por_tipo.get(chave, Decimal(0)) + item.valor
-    return por_tipo
-
-
 def _renderizar_investimentos(sheet, linha: int, mes: Mes) -> int:
     total = mes.total_investimentos
-    por_tipo = _agrupar_por_tipo(mes)
+    por_tipo = totais_por_classe(mes)
 
     for item in sorted(mes.investimentos, key=lambda t: (t.tipo, t.data, t.descricao)):
         coluna_categoria = item.ativo or _TIPO_LABEL.get(item.tipo or "", item.tipo or item.categoria)
         _linha_transacao(sheet, linha, item.data, item.descricao, coluna_categoria, item.valor)
         if total:
-            pct = item.valor * 100 / total
-            sheet.cell(row=linha, column=5, value=float(round(pct, 2))).number_format = "0.00"
+            pct = percentual(item.valor, total)
+            sheet.cell(row=linha, column=5, value=float(pct)).number_format = "0.00"
         linha += 1
 
     _linha_total(sheet, linha, "Total Investimentos", total)
@@ -119,13 +113,13 @@ def _renderizar_investimentos(sheet, linha: int, mes: Mes) -> int:
         if not total:
             continue
         label = _TIPO_LABEL.get(tipo, tipo)
-        pct = subtotal * 100 / total
+        pct = percentual(subtotal, total)
         rotulo = f"{label} ({tipo})"
         sheet.cell(row=linha, column=3, value=rotulo).font = Font(bold=True, italic=True)
         celula = sheet.cell(row=linha, column=4, value=float(subtotal))
         celula.font = Font(bold=True, italic=True)
         celula.number_format = "#,##0.00"
-        pct_celula = sheet.cell(row=linha, column=5, value=float(round(pct, 2)))
+        pct_celula = sheet.cell(row=linha, column=5, value=float(pct))
         pct_celula.font = Font(bold=True, italic=True)
         pct_celula.number_format = "0.00"
         linha += 1
@@ -228,7 +222,7 @@ def _classe_agregada(livros: LivroCaixa) -> dict[str, Decimal]:
     totais: dict[str, Decimal] = {}
     for ano in livros.anos.values():
         for mes in ano.meses.values():
-            for tipo, subtotal in _agrupar_por_tipo(mes).items():
+            for tipo, subtotal in totais_por_classe(mes).items():
                 totais[tipo] = totais.get(tipo, Decimal(0)) + subtotal
     return totais
 

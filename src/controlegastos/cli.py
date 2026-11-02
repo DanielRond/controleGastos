@@ -4,11 +4,13 @@ Uso:
     uv run controlegastos gerar data/entradas/exemplo.json -o saida/planilha.xlsx
     uv run controlegastos gerar data/entradas/exemplo.json -o saida/planilha.xlsx --formato ambos
     uv run controlegastos banco atualizar   # requer o extra web
+    uv run controlegastos usuario criar NOME # requer o extra web
 """
 
 from __future__ import annotations
 
 import argparse
+import getpass
 import logging
 import sys
 from pathlib import Path
@@ -50,6 +52,11 @@ def _montar_parser() -> argparse.ArgumentParser:
     banco = subparsers.add_parser("banco", help="Comandos do banco de dados (requer o extra 'web').")
     acoes = banco.add_subparsers(dest="acao", required=True, parser_class=_Parser)
     acoes.add_parser("atualizar", help="Cria ou atualiza o esquema do banco (migrações).")
+
+    usuario = subparsers.add_parser("usuario", help="Contas de acesso à interface web (requer o extra 'web').")
+    acoes_usuario = usuario.add_subparsers(dest="acao", required=True, parser_class=_Parser)
+    criar = acoes_usuario.add_parser("criar", help="Cria uma conta (a senha é pedida sem eco).")
+    criar.add_argument("nome", help="Nome de usuário (único).")
     return parser
 
 
@@ -93,6 +100,43 @@ def _executar_banco(args: argparse.Namespace) -> int:
     return 0
 
 
+def _executar_usuario(args: argparse.Namespace) -> int:
+    logging.getLogger("alembic").setLevel(logging.WARNING)
+    try:
+        from .armazenamento import (
+            aplicar_migracoes,
+            criar_engine,
+            criar_sessao,
+            criar_usuario,
+        )
+        from .web.seguranca import gerar_hash
+    except ImportError:
+        logger.error("Os comandos de usuário exigem o extra web. Instale com: uv sync --extra web")
+        return 1
+
+    senha = getpass.getpass("Senha: ")
+    confirmacao = getpass.getpass("Repita a senha: ")
+    if senha != confirmacao:
+        logger.error("As senhas não conferem.")
+        return 1
+    if len(senha) < 8:
+        logger.error("A senha deve ter ao menos 8 caracteres.")
+        return 1
+
+    motor = criar_engine()
+    try:
+        aplicar_migracoes(motor)
+        with criar_sessao(motor) as sessao:
+            criar_usuario(sessao, args.nome, gerar_hash(senha))
+    except ValueError as erro:
+        logger.error("%s", erro)
+        return 1
+    finally:
+        motor.dispose()
+    print(f"Usuário criado: {args.nome.strip()}")
+    return 0
+
+
 def main() -> int:
     parser = _montar_parser()
     args = parser.parse_args()
@@ -104,6 +148,8 @@ def main() -> int:
 
     if args.comando == "banco":
         return _executar_banco(args)
+    if args.comando == "usuario":
+        return _executar_usuario(args)
     return _executar_gerar(args)
 
 

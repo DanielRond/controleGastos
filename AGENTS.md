@@ -22,6 +22,8 @@ uv run controlegastos gerar data/entradas/exemplo.json -o saida/planilha.xlsx
 uv run controlegastos gerar data/entradas/exemplo.json -o saida/planilha.xlsx --formato ambos  # xlsx | csv | ambos
 uv run controlegastos gerar ... -v                                   # log detalhado
 uv run controlegastos banco atualizar                                # cria/atualiza o banco SQLite (extra web; DATABASE_URL ou dados/)
+uv run controlegastos usuario criar NOME                             # cria uma conta de acesso à web (senha pedida sem eco)
+uv run python scripts/exportar_openapi.py                            # atualiza specs/api/openapi.json (um teste exige em dia)
 uv run pytest                                                        # testes
 uv run ruff check .                                                  # estilo (use --no-cache ao criar módulos novos)
 uv run python scripts/conferir_specs.py                              # todo requisito vigente tem teste
@@ -46,10 +48,11 @@ src/controlegastos/
   resumo.py          # dados dos gráficos (patrimônio, ranking, variação do saldo) em Decimal, sem openpyxl
   exportador_csv.py  # CSV de lançamentos e CSV de resumo mensal (UTF-8, vírgula, ponto decimal)
   armazenamento/     # banco (extra web): modelos SQLAlchemy, migrações Alembic, repositório por usuário, centavos, lixeira
+  web/               # API FastAPI (extra web): config, segurança (Argon2, sessão, CSRF, limite de login), esquemas, rotas /api
   servico.py         # casos de uso (carregar, gerar, exportar; em arquivo ou em memória); a CLI só chama este módulo
 tests/               # pytest: unitários e propriedades (hypothesis); cada teste cita o ID do spec (`# Spec: VAL-03`)
-specs/               # specs por capacidade (lancamentos, validacao, exportacao, planilha, armazenamento, interface-web); ver specs/README.md
-scripts/             # checar.py (hook), conferir_specs.py (spec↔teste), sincronizar_agentes.py (Kiro→Claude)
+specs/               # specs por capacidade (lancamentos, validacao, exportacao, planilha, armazenamento, api, interface-web); ver specs/README.md
+scripts/             # checar.py (hook), conferir_specs.py (spec↔teste), sincronizar_agentes.py (Kiro→Claude), exportar_openapi.py
 docs/media/          # capturas da planilha usadas no README (só dados fictícios)
 .kiro/               # agentes, hooks e steering manual; .claude/ e CLAUDE.md para o Claude Code
 .github/workflows/   # CI: uv sync, ruff, pytest em Python 3.14

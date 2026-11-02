@@ -115,7 +115,7 @@ Em andamento — **interface web** (login, lançamentos, painéis do mês e do a
 
 - [x] Fase 1 — camada de serviço
 - [x] Fase 2 — armazenamento (SQLite, valores em centavos, usuários, lixeira, importar/exportar JSON)
-- [ ] Fase 3 — API e autenticação
+- [x] Fase 3 — API e autenticação (login, lançamentos, painéis, downloads, lixeira, contrato OpenAPI)
 - [ ] Fase 4 — front-end
 - [ ] Fase 5 — execução local e hospedada
 
