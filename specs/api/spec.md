@@ -8,7 +8,7 @@ status: vigente
 
 ## Objetivo
 
-Expor os casos de uso do sistema por HTTP/JSON, com login, para a interface web (e qualquer cliente) registrar e consultar lançamentos, ver painéis, baixar arquivos e importar/exportar JSON. Os IDs `WEB-xx` são os mesmos de `interface-web` (as partes de tela e de execução ficam lá: WEB-14, WEB-15, WEB-18). Rotas sob `/api`; textos de erro em português.
+Expor os casos de uso do sistema por HTTP/JSON, com login, para a interface web (e qualquer cliente) registrar e consultar lançamentos, ver painéis, baixar arquivos e importar/exportar JSON. Os IDs `WEB-xx` são compartilhados entre os specs da web: as telas ficam em [frontend](../frontend/spec.md) (WEB-18, WEB-20 a 27) e a execução em [interface-web](../interface-web/spec.md) (WEB-14, WEB-15). Rotas sob `/api`; textos de erro em português.
 
 ## Decisões
 

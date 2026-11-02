@@ -26,3 +26,19 @@ def test_spec_em_rascunho_nao_exige_teste() -> None:
     assert "WEB-01" in vigentes  # spec api: vigente
     assert "WEB-14" in definidos  # spec interface-web: rascunho
     assert "WEB-14" not in vigentes
+
+
+def test_citacoes_em_testes_typescript_tambem_contam(tmp_path, monkeypatch) -> None:
+    (tmp_path / "tests").mkdir()
+    (tmp_path / "frontend" / "src" / "paginas").mkdir(parents=True)
+    (tmp_path / "frontend" / "e2e").mkdir()
+    (tmp_path / "frontend" / "node_modules" / "x").mkdir(parents=True)
+    (tmp_path / "frontend" / "src" / "paginas" / "Login.test.tsx").write_text(
+        "// Spec: WEB-20, WEB-21\nit('x', () => {})\n", encoding="utf-8"
+    )
+    (tmp_path / "frontend" / "e2e" / "fluxo.spec.ts").write_text("  // Spec: WEB-22\n", encoding="utf-8")
+    (tmp_path / "frontend" / "node_modules" / "x" / "lixo.test.ts").write_text("// Spec: ZZZ-01\n", encoding="utf-8")
+    (tmp_path / "tests" / "test_a.py").write_text("# Spec: VAL-01\n", encoding="utf-8")
+    monkeypatch.setattr(conferir, "RAIZ", tmp_path)
+
+    assert conferir.ids_citados() == {"VAL-01", "WEB-20", "WEB-21", "WEB-22"}

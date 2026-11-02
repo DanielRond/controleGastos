@@ -21,3 +21,9 @@ PROMPTS.md
 # Banco SQLite local (dados pessoais)
 dados/
 *.db
+
+# Front-end
+frontend/node_modules/
+src/controlegastos/web/static/
+frontend/test-results/
+frontend/playwright-report/

@@ -1,0 +1,24 @@
+:root {
+  --fundo: #f6f7f9; --texto: #1c2430; --suave: #5b6675; --borda: #d5dae1; --marca: #1f4e79;
+  --erro: #a31621; --ok: #1b6e3c; --cartao: #fff; font-family: system-ui, "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--fundo); color: var(--texto); line-height: 1.45; }
+.pular { position: absolute; left: -999px; } .pular:focus { left: 8px; top: 8px; background: #fff; padding: 8px; z-index: 10; }
+:focus-visible { outline: 3px solid #f2a900; outline-offset: 2px; }
+.cabecalho { display: flex; align-items: center; gap: 16px; padding: 10px 20px; background: var(--marca); color: #fff; }
+.cabecalho nav { display: flex; gap: 4px; flex: 1; }
+.cabecalho a { color: #fff; padding: 6px 12px; border-radius: 6px; text-decoration: none; }
+.cabecalho a.active { background: rgba(255,255,255,.2); font-weight: 600; }
+.cabecalho .usuario { opacity: .85; }
+main { max-width: 1100px; margin: 0 auto; padding: 20px; }
+h1 { font-size: 1.5rem; margin: 0 0 16px; } h2 { font-size: 1.15rem; margin: 24px 0 8px; }
+button { font: inherit; padding: 8px 14px; border-radius: 6px; border: 1px solid var(--marca); background: var(--marca); color: #fff; cursor: pointer; }
+button.secundario { background: #fff; color: var(--marca); } button.perigo { background: var(--erro); border-color: var(--erro); }
+button:disabled { opacity: .55; cursor: not-allowed; }
+.login { max-width: 360px; margin-top: 12vh; } .login form, .cartao { background: var(--cartao); border: 1px solid var(--borda); border-radius: 10px; padding: 20px; }
+.campo { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; } .campo label { font-weight: 600; font-size: .9rem; }
+input, select { font: inherit; padding: 8px; border: 1px solid var(--borda); border-radius: 6px; background: #fff; }
+.erro { color: var(--erro); margin: 4px 0 12px; } .aviso { color: var(--suave); }
+table { width: 100%; border-collapse: collapse; background: var(--cartao); } th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--borda); }
+td.valor, th.valor { text-align: right; font-variant-numeric: tabular-nums; }

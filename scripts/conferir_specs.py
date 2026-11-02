@@ -2,7 +2,8 @@
 
 Regras:
 - todo ID definido (`**XXX-NN**`) em `specs/*/spec.md` com `status: vigente`
-  deve ser citado em algum teste (`# Spec: XXX-NN` em `tests/`);
+  deve ser citado em algum teste (`# Spec: XXX-NN` em `tests/`, ou `// Spec: XXX-NN` em
+  `frontend/src/**/*.test.ts(x)` e `frontend/e2e/`);
 - todo ID citado em um teste deve existir em algum spec;
 - IDs não se repetem dentro dos specs.
 
@@ -19,7 +20,7 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parent.parent
 ID = r"[A-Z]{3}-\d{2}"
 DEFINICAO = re.compile(rf"\*\*({ID})\*\*")
-CITACAO = re.compile(r"^\s*#\s*Spec:\s*(.+)$", re.MULTILINE)
+CITACAO = re.compile(r"^\s*(?:#|//)\s*Spec:\s*(.+)$", re.MULTILINE)
 
 
 def ids_definidos() -> tuple[set[str], Counter]:
@@ -35,9 +36,19 @@ def ids_definidos() -> tuple[set[str], Counter]:
     return vigentes, contagem
 
 
+def _arquivos_de_teste() -> list[Path]:
+    """Testes Python e, se existirem, os testes TypeScript do front-end (sem node_modules)."""
+    arquivos = sorted((RAIZ / "tests").glob("test_*.py"))
+    front = RAIZ / "frontend"
+    if front.is_dir():
+        for padrao in ("src/**/*.test.ts", "src/**/*.test.tsx", "e2e/**/*.ts"):
+            arquivos += sorted(p for p in front.glob(padrao) if "node_modules" not in p.parts)
+    return arquivos
+
+
 def ids_citados() -> set[str]:
     citados: set[str] = set()
-    for arquivo in sorted((RAIZ / "tests").glob("test_*.py")):
+    for arquivo in _arquivos_de_teste():
         for linha in CITACAO.findall(arquivo.read_text(encoding="utf-8")):
             citados.update(re.findall(ID, linha))
     return citados
