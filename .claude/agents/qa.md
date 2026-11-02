@@ -17,7 +17,7 @@ Você pode criar ou ajustar testes em `tests/`, inclusive testes de propriedade 
 
 Regras:
 - Confira se valores monetários continuam em Decimal e se `saldo_livre = receitas - despesas - investimentos`.
-- Testes são determinísticos e não dependem de rede, de UI nem de dados pessoais.
+- Testes são determinísticos e não dependem de rede nem de dados pessoais; use banco e diretórios temporários.
 - Pode commitar os testes que criar (branch de trabalho, nunca a `main`, Conventional Commits em português, tudo verde); não faça `push`.
 
 ## Restrições (instrução; o Claude Code não as impõe sozinho)

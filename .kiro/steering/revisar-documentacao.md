@@ -6,9 +6,10 @@ inclusion: manual
 
 Acionado manualmente com `/revisar-documentacao` no chat.
 
-Revise `README.md` e `AGENTS.md` contra o código atual:
+Revise `README.md`, `AGENTS.md`, `CLAUDE.md`, `specs/README.md`, `specs/*/tasks.md` e os agentes em `.kiro/agents` contra o código atual:
 
-1. Leia `src/controlegastos/*.py`, `pyproject.toml`, `scripts/` e `.github/workflows/ci.yml`.
-2. Liste divergências: comandos, subcomandos, opções, módulos, dependências, esquema JSON e roadmap.
-3. Corrija apenas a documentação. O `AGENTS.md` é a fonte de verdade e deve continuar curto (~100 linhas).
-4. Relate o que mudou. Não crie commits.
+1. Leia `src/controlegastos/*.py`, `pyproject.toml`, `scripts/`, `.github/workflows/ci.yml` e `specs/*/spec.md`.
+2. Liste divergências: comandos, subcomandos, opções, módulos, dependências, esquema JSON, status dos specs, fases concluídas e roadmap.
+3. Corrija apenas a documentação (não edite `spec.md`: proponha a mudança). O `AGENTS.md` é a fonte de verdade e deve continuar curto (~100 linhas).
+4. Rode `uv run python scripts/sincronizar_agentes.py` se mexer em `.kiro/agents`.
+5. Relate o que mudou e commite em branch `docs/`, conforme o `AGENTS.md`.
