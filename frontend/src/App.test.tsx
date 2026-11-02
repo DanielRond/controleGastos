@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, vi } from "vitest";
 import { App } from "./App";
 import { renderizar, simularApi, USUARIO } from "./testes/api";
+import { mesVazio } from "./testes/dados";
 
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ["Date"] });
@@ -19,6 +20,7 @@ describe("login", () => {
     const chamadas = simularApi({
       "GET /api/me": { status: 401, corpo: { detalhe: "É preciso entrar." } },
       "POST /api/auth/login": { corpo: USUARIO },
+      "GET /api/meses/2026/11": { corpo: mesVazio() },
     });
     renderizar(<App />, "/entrar");
 
@@ -27,7 +29,7 @@ describe("login", () => {
     await userEvent.type(screen.getByLabelText("Senha"), "senha-segura-123");
     await userEvent.click(screen.getByRole("button", { name: "Entrar" }));
 
-    expect(await screen.findByRole("heading", { name: "Mês" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Mês: novembro de 2026" })).toBeInTheDocument();
     const login = chamadas.find((c) => c.caminho === "/api/auth/login");
     expect(login?.corpo).toEqual({ nome: "ana", senha: "senha-segura-123" });
   });
@@ -45,7 +47,7 @@ describe("login", () => {
     await userEvent.click(screen.getByRole("button", { name: "Entrar" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Usuário ou senha inválidos.");
-    expect(screen.queryByRole("heading", { name: "Mês" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /^Mês:/ })).not.toBeInTheDocument();
   });
 
   // Spec: WEB-20
@@ -104,7 +106,7 @@ describe("rotas protegidas", () => {
 
   // Spec: WEB-21
   it("com sessão, o cabeçalho tem os links, o nome e o botão Sair", async () => {
-    simularApi({ "GET /api/me": { corpo: USUARIO } });
+    simularApi({ "GET /api/me": { corpo: USUARIO }, "GET /api/meses/2026/11": { corpo: mesVazio() } });
     renderizar(<App />, "/");
 
     const navegacao = await screen.findByRole("navigation", { name: "Principal" });
@@ -120,6 +122,7 @@ describe("rotas protegidas", () => {
   it("Sair encerra a sessão e volta ao login", async () => {
     const chamadas = simularApi({
       "GET /api/me": { corpo: USUARIO },
+      "GET /api/meses/2026/11": { corpo: mesVazio() },
       "POST /api/auth/logout": { status: 204 },
     });
     renderizar(<App />, "/");
@@ -134,6 +137,7 @@ describe("rotas protegidas", () => {
   it("as escritas levam o token CSRF da sessão", async () => {
     const chamadas = simularApi({
       "GET /api/me": { corpo: USUARIO },
+      "GET /api/meses/2026/11": { corpo: mesVazio() },
       "POST /api/auth/logout": { status: 204 },
     });
     renderizar(<App />, "/");
@@ -141,5 +145,18 @@ describe("rotas protegidas", () => {
 
     await waitFor(() => expect(chamadas.find((c) => c.caminho === "/api/auth/logout")?.csrf).toBe("csrf-ana"));
     expect(chamadas.find((c) => c.metodo === "GET")?.csrf).toBeNull();
+  });
+});
+
+describe("sessão expirada", () => {
+  // Spec: WEB-21
+  it("se a API responde 401 no meio do uso, volta ao login", async () => {
+    simularApi({
+      "GET /api/me": { corpo: USUARIO },
+      "GET /api/meses/2026/11": { status: 401, corpo: { detalhe: "É preciso entrar para continuar." } },
+    });
+    renderizar(<App />, "/mes/2026/11");
+
+    expect(await screen.findByRole("heading", { name: "Entrar" })).toBeInTheDocument();
   });
 });

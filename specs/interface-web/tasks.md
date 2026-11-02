@@ -4,11 +4,11 @@
 
 Atualize esta seção a cada passo concluído, junto do commit.
 
-- **Estado**: Fases 1, 2 e 3 mescladas. Fase 4 (front-end) em andamento: 4.1 e 4.2 prontas na branch `feat/fase4a-frontend` (a mesclar); 4.3 em diante pendentes.
-- **Branch atual**: `feat/fase4a-frontend`.
-- **Último passo concluído**: Fase 4a: `frontend/` (Vite + React + TS + Vitest), cliente OpenAPI gerado, login, rotas protegidas, layout, formatação de dinheiro (WEB-18, 20, 21, 27 com testes), job `web` no CI, hook de TypeScript, conferidor lê testes TS.
-- **Próximo passo**: Fase 4b, tela do mês (WEB-22 e WEB-23): navegação entre meses, lista, totais, classes e meta, formulário com erros por campo, editar/apagar, salário e meta. Depois 4c (ano, lixeira, arquivos) e 4d (Playwright e promoção do spec `frontend` a `vigente`).
-- **Node**: instalado em `~/.local/share/node/node-v24.22.2-linux-x64/bin` (pôr no PATH: `export PATH=$HOME/.local/share/node/node-v24.22.2-linux-x64/bin:$PATH`); o Node do sistema é o 18 e não serve.
+- **Estado**: Fases 1 a 3 e 4a mescladas. Fase 4b (tela do mês) pronta na branch `feat/fase4b-mes`, a mesclar. Faltam 4c (ano, lixeira, arquivos) e 4d (Playwright e promoção do spec `frontend` a `vigente`).
+- **Branch atual**: `feat/fase4b-mes`.
+- **Último passo concluído**: 4b, tela do mês (WEB-22, WEB-23, com 56 testes Vitest): navegação, totais, classes, meta, formulário com erros por campo e `aria-describedby`, editar, apagar para a lixeira com aviso, salário e meta. Tratamento de sessão expirada (401) volta ao login.
+- **Próximo passo**: 4c. Tela do ano (WEB-24: tabela mensal e três gráficos ECharts: patrimônio, ranking, variação), lixeira (WEB-25: restaurar, excluir definitivamente e esvaziar, com confirmação) e arquivos (WEB-26: baixar xlsx/csv, exportar/importar JSON, 409 com "substituir"). Usar `api.GET("/api/anos/{ano}/resumo")`, `/api/lixeira`, `/api/exportar/{formato}`, `/api/importar/json`. Texto de confirmação via `window.confirm` ou diálogo acessível (`<dialog>`).
+- **Node**: `export PATH=$HOME/.local/share/node/node-v24.22.2-linux-x64/bin:$PATH` (o do sistema é o 18).
 - **Como retomar**: `git checkout main && git pull`; ler `AGENTS.md`, este arquivo, `design.md` e os specs; criar a branch da tarefa; spec primeiro, testes antes do código, `uv run ruff check . --no-cache`, `uv run pytest` e `uv run python scripts/conferir_specs.py` verdes antes de cada commit; abrir PR e mesclar com o CI verde.
 - **Ambiente**: Python 3.14 via uv; Docker disponível; Node 18 no sistema (a Fase 4 exige Node 20+, instalar com fnm).
 
@@ -31,7 +31,7 @@ Cada fase é um PR pequeno, com spec primeiro, testes antes do código e revisã
 - [ ] **Fase 4 — Front-end** (WEB-05 a 10, 18, 19)
   - [x] 4.1 Scaffold Vite + TS, cliente gerado do OpenAPI, job `web` no CI
   - [x] 4.2 Login e layout
-  - [ ] 4.3 Mês: lista, formulário, salário e meta, painel do mês
+  - [x] 4.3 Mês: lista, formulário, salário e meta, painel do mês
   - [ ] 4.4 Ano: gráficos e resumo; downloads e importação
   - [ ] 4.4b Lixeira: listar, restaurar, excluir definitivamente, esvaziar (WEB-19)
   - [ ] 4.5 Testes Playwright dos fluxos principais

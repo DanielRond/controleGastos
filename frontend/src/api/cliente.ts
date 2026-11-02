@@ -18,6 +18,18 @@ const csrf: Middleware = {
   },
 };
 
+// Sessão que expira no meio do uso: avisa a aplicação, que volta ao login (WEB-21).
+export const EVENTO_SESSAO_EXPIRADA = "sessao-expirada";
+const sessaoExpirada: Middleware = {
+  onResponse({ request, response }) {
+    const caminho = new URL(request.url).pathname;
+    if (response.status === 401 && !["/api/auth/login", "/api/me", "/api/auth/logout"].includes(caminho)) {
+      globalThis.dispatchEvent(new Event(EVENTO_SESSAO_EXPIRADA));
+    }
+    return response;
+  },
+};
+
 export const api = createClient<paths>({
   baseUrl: typeof location === "undefined" ? "" : location.origin,
   credentials: "same-origin",
@@ -25,6 +37,7 @@ export const api = createClient<paths>({
   fetch: (requisicao) => globalThis.fetch(requisicao),
 });
 api.use(csrf);
+api.use(sessaoExpirada);
 
 /** Erros de validação da API (422), com caminho e mensagem em português. */
 export function errosDeValidacao(erro: unknown): ErroCampo[] | null {

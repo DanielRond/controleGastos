@@ -22,3 +22,12 @@ input, select { font: inherit; padding: 8px; border: 1px solid var(--borda); bor
 .erro { color: var(--erro); margin: 4px 0 12px; } .aviso { color: var(--suave); }
 table { width: 100%; border-collapse: collapse; background: var(--cartao); } th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--borda); }
 td.valor, th.valor { text-align: right; font-variant-numeric: tabular-nums; }
+.navegacao-mes { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.navegacao-mes .escolha { display: flex; align-items: center; gap: 8px; } .navegacao-mes input[type=number] { width: 6rem; }
+.totais { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 0 0 16px; }
+.totais > div { background: var(--cartao); border: 1px solid var(--borda); border-radius: 10px; padding: 12px; }
+.totais dt { color: var(--suave); font-size: .85rem; } .totais dd { margin: 4px 0 0; font-size: 1.25rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.colunas { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 24px; align-items: start; }
+.botoes, .acoes { display: flex; gap: 8px; } .aviso-acao { background: #e8f3ec; border: 1px solid #b7d9c3; padding: 8px 12px; border-radius: 6px; }
+.meta { background: #fff7e0; border: 1px solid #f0dca0; padding: 8px 12px; border-radius: 6px; } small { color: var(--suave); }
+a { color: var(--marca); }
