@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { api, definirCsrf, mensagemDe } from "./api/cliente";
+import { api, definirCsrf, EVENTO_SESSAO_EXPIRADA, mensagemDe } from "./api/cliente";
 
 export interface Usuario {
   id: number;
@@ -36,6 +36,15 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
     return () => {
       ativo = false;
     };
+  }, []);
+
+  useEffect(() => {
+    const aoExpirar = () => {
+      definirCsrf("");
+      setUsuario(null);
+    };
+    globalThis.addEventListener(EVENTO_SESSAO_EXPIRADA, aoExpirar);
+    return () => globalThis.removeEventListener(EVENTO_SESSAO_EXPIRADA, aoExpirar);
   }, []);
 
   const entrar = useCallback(async (nome: string, senha: string): Promise<Resultado> => {

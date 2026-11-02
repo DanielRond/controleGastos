@@ -4,6 +4,7 @@ import { RotaProtegida } from "./componentes/RotaProtegida";
 import { mesAtual } from "./formato";
 import { EmConstrucao } from "./paginas/EmConstrucao";
 import { Login } from "./paginas/Login";
+import { Mes } from "./paginas/Mes";
 
 function InicioDoMes() {
   const { ano, mes } = mesAtual();
@@ -17,7 +18,7 @@ export function App() {
       <Route element={<RotaProtegida />}>
         <Route element={<Layout />}>
           <Route index element={<InicioDoMes />} />
-          <Route path="/mes/:ano/:mes" element={<EmConstrucao titulo="Mês" />} />
+          <Route path="/mes/:ano/:mes" element={<Mes />} />
           <Route path="/ano/:ano" element={<EmConstrucao titulo="Ano" />} />
           <Route path="/lixeira" element={<EmConstrucao titulo="Lixeira" />} />
           <Route path="/arquivos" element={<EmConstrucao titulo="Arquivos" />} />
