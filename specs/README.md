@@ -10,7 +10,8 @@ Lido da mesma forma pelo Kiro, pelo Claude Code e por pessoas. Idioma: pt-BR (o 
 | [validacao](validacao/spec.md) | VAL | vigente | Validação do JSON com todos os erros e caminho |
 | [exportacao](exportacao/spec.md) | EXP | vigente | `--formato`, CSV de lançamentos e de resumo |
 | [planilha](planilha/spec.md) | PLN | vigente | `.xlsx`: Resumo Geral, abas por mês, gráficos |
-| [interface-web](interface-web/spec.md) | WEB | rascunho | Objetivo de longo prazo; sem IDs ainda |
+| [armazenamento](armazenamento/spec.md) | STO | rascunho | Banco SQLite, centavos, usuários, importar/exportar JSON |
+| [interface-web](interface-web/spec.md) | WEB | rascunho | Login, lançamentos, painéis, downloads; SPA + FastAPI (com `design.md` e `tasks.md`) |
 
 ## Convenções
 
