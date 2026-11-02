@@ -4,10 +4,10 @@
 
 Atualize esta seção a cada passo concluído, junto do commit.
 
-- **Estado**: Fases 1 a 3 e 4a mescladas. Fase 4b (tela do mês) pronta na branch `feat/fase4b-mes`, a mesclar. Faltam 4c (ano, lixeira, arquivos) e 4d (Playwright e promoção do spec `frontend` a `vigente`).
-- **Branch atual**: `feat/fase4b-mes`.
-- **Último passo concluído**: 4b, tela do mês (WEB-22, WEB-23, com 56 testes Vitest): navegação, totais, classes, meta, formulário com erros por campo e `aria-describedby`, editar, apagar para a lixeira com aviso, salário e meta. Tratamento de sessão expirada (401) volta ao login.
-- **Próximo passo**: 4c. Tela do ano (WEB-24: tabela mensal e três gráficos ECharts: patrimônio, ranking, variação), lixeira (WEB-25: restaurar, excluir definitivamente e esvaziar, com confirmação) e arquivos (WEB-26: baixar xlsx/csv, exportar/importar JSON, 409 com "substituir"). Usar `api.GET("/api/anos/{ano}/resumo")`, `/api/lixeira`, `/api/exportar/{formato}`, `/api/importar/json`. Texto de confirmação via `window.confirm` ou diálogo acessível (`<dialog>`).
+- **Estado**: Fases 1 a 3, 4a e 4b mescladas. Fase 4c (ano, lixeira, arquivos) pronta na branch `feat/fase4c-ano-lixeira-arquivos`, a mesclar. Falta 4d: Playwright e promoção do spec `frontend` a `vigente`.
+- **Branch atual**: `feat/fase4c-ano-lixeira-arquivos`.
+- **Último passo concluído**: 4c (WEB-24, 25, 26; 74 testes Vitest). Gráficos ECharts carregados sob demanda, só desenhados com canvas; cada gráfico tem tabela de dados como alternativa em texto. Lixeira com confirmação em linha (`alertdialog`, foco em Cancelar). Arquivos: downloads por link, importação com erros por caminho e conflito 409 com "substituir".
+- **Próximo passo**: 4d. (1) Servir o front compilado pela API (`src/controlegastos/web/static`, fallback para `index.html` fora de `/api`), pois o Playwright precisa de um app real: um `scripts/servidor_e2e.py` sobe `criar_app` com SQLite temporário e um usuário, via uvicorn. (2) Instalar Playwright no `frontend/` (navegador Chromium, ~150 MB) e escrever `e2e/*.spec.ts` citando `// Spec: WEB-xx` (login, lançar e ver totais, editar/apagar/restaurar, ano com gráficos desenhados, importar com conflito, acessibilidade por teclado). (3) Job de CI para o E2E. (4) Passar `specs/frontend` a `vigente` (todo ID precisa de teste; WEB-18 e 27 já têm). Depois, Fase 5 (`controlegastos web`, Dockerfile).
 - **Node**: `export PATH=$HOME/.local/share/node/node-v24.22.2-linux-x64/bin:$PATH` (o do sistema é o 18).
 - **Como retomar**: `git checkout main && git pull`; ler `AGENTS.md`, este arquivo, `design.md` e os specs; criar a branch da tarefa; spec primeiro, testes antes do código, `uv run ruff check . --no-cache`, `uv run pytest` e `uv run python scripts/conferir_specs.py` verdes antes de cada commit; abrir PR e mesclar com o CI verde.
 - **Ambiente**: Python 3.14 via uv; Docker disponível; Node 18 no sistema (a Fase 4 exige Node 20+, instalar com fnm).
@@ -32,8 +32,8 @@ Cada fase é um PR pequeno, com spec primeiro, testes antes do código e revisã
   - [x] 4.1 Scaffold Vite + TS, cliente gerado do OpenAPI, job `web` no CI
   - [x] 4.2 Login e layout
   - [x] 4.3 Mês: lista, formulário, salário e meta, painel do mês
-  - [ ] 4.4 Ano: gráficos e resumo; downloads e importação
-  - [ ] 4.4b Lixeira: listar, restaurar, excluir definitivamente, esvaziar (WEB-19)
+  - [x] 4.4 Ano: gráficos e resumo; downloads e importação
+  - [x] 4.4b Lixeira: listar, restaurar, excluir definitivamente, esvaziar (WEB-19)
   - [ ] 4.5 Testes Playwright dos fluxos principais
 - [ ] **Fase 5 — Execução e entrega** (WEB-14, WEB-15)
   - [ ] 5.1 `controlegastos web` (local)
