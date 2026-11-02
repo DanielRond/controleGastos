@@ -20,6 +20,7 @@ Usar o controle de gastos de forma prática, sem editar JSON: entrar com login, 
 - Front-end: **React + TypeScript + Vite** (confirmado).
 - O login é exigido também no modo local, para ser igual ao hospedado (confirmado).
 - Uma pessoa usa na v1, mas o esquema já suporta vários usuários (confirmado).
+- Exclusão por **lixeira** com restauração (confirmado).
 - Escopo da v1 confirmado: login, CRUD de lançamentos, painéis do mês e do ano, downloads, importar/exportar JSON.
 
 ## Comportamento
@@ -33,7 +34,8 @@ Autenticação e segurança:
 
 Lançamentos:
 
-- **WEB-05** Criar, editar e excluir lançamentos de receita, despesa e investimento (descrição, valor, dia, categoria; investimentos também têm tipo e ativo).
+- **WEB-05** Criar, editar e excluir (para a lixeira, STO-12) lançamentos de receita, despesa e investimento (descrição, valor, dia, categoria; investimentos também têm tipo e ativo).
+- **WEB-19** Tela de lixeira: lista os lançamentos apagados do usuário e permite restaurar, excluir definitivamente ou esvaziar a lixeira (esvaziar e excluir definitivamente pedem confirmação). Itens da lixeira nunca entram nos totais e painéis.
 - **WEB-06** Listar os lançamentos de um mês, navegando entre meses, ordenados por dia, com os totais do mês.
 - **WEB-07** Definir o salário e a meta de investimento do mês.
 - **WEB-08** Erros de validação usam o contrato `caminho` + `mensagem` (VAL-09) e aparecem junto ao campo no formulário; nada é gravado enquanto houver erro. Valor com mais de duas casas decimais é um erro (STO-11).
@@ -63,7 +65,7 @@ Execução e contrato:
 
 ## Perguntas abertas
 
-1. Como excluir um lançamento: definitivo com confirmação, lixeira ou desfazer? (ver `armazenamento`, pergunta 3)
+1. A lixeira expira sozinha ou só é esvaziada manualmente? (ver `armazenamento`, pergunta 1)
 
 ## Rastreabilidade
 

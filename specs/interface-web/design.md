@@ -51,13 +51,15 @@ Extrai da CLI o que a web também precisa: carregar/validar, calcular, gerar. Mu
 | `POST /api/lancamentos`, `PATCH`/`DELETE /api/lancamentos/{id}` | CRUD | WEB-05, 08 |
 | `GET /api/anos/{ano}/resumo` | Resumo mensal e dados dos gráficos | WEB-10 |
 | `GET /api/exportar/{xlsx\|csv\|json}` | Downloads em memória | WEB-12, 13 |
+| `GET /api/lixeira`, `POST /api/lixeira/{id}/restaurar`, `DELETE /api/lixeira/{id}`, `DELETE /api/lixeira` | Lixeira | WEB-19, STO-13 |
 | `POST /api/importar/json` | Importação transacional | WEB-13, STO-08 |
 
 Dinheiro vai e volta como texto decimal (WEB-17); erros de validação como lista `{caminho, mensagem}` (WEB-08).
 
 ## Armazenamento
 
-- Tabelas: `usuario`, `mes` (usuário, ano, mês, salário e meta em centavos), `lancamento` (id, mes, tipo, descrição, valor em centavos, dia, categoria, tipo de investimento, ativo, origem).
+- Tabelas: `usuario`, `mes` (usuário, ano, mês, salário e meta em centavos), `lancamento` (id, mes, tipo, descrição, valor em centavos, dia, categoria, tipo de investimento, ativo, origem, `apagado_em` anulável).
+- **Lixeira (STO-12/13)**: toda leitura passa por uma única consulta base do repositório que filtra `apagado_em IS NULL` (e `user_id`); não há acesso direto à tabela fora dele. Testes de propriedade: totais após apagar um lançamento = totais do mesmo dado sem ele; restaurar devolve os totais originais; planilha, CSV e JSON exportados nunca contêm itens da lixeira.
 - Valores em centavos inteiros (STO-02); conversão para `Decimal` só no repositório. Teste de propriedade: `Decimal` → centavos → `Decimal` é identidade para 2 casas.
 - Migrações Alembic; comando `controlegastos banco atualizar` (STO-07).
 - `user_id` em toda consulta, centralizado no repositório (STO-06), com teste que tenta ler dados de outro usuário.
@@ -90,5 +92,6 @@ Confirmado: React + TypeScript + Vite, TanStack Query para dados, React Router, 
 | Dois toolchains (Python e Node) aumentam a manutenção | Contrato único via OpenAPI + cliente gerado; um único processo e imagem em produção; fases pequenas |
 | Cálculo duplicado no front diverge do back | WEB-11: o front só exibe; testes comparam API com `.xlsx`/CSV para os mesmos dados |
 | Perda de precisão do dinheiro | Centavos inteiros no banco; texto decimal na API; nunca `float`/`number` em cálculo |
+| Item apagado vazar para totais, gráficos ou exportações (esquecer o filtro em uma consulta) | Consulta base única no repositório com `user_id` e `apagado_em`; testes de propriedade e testes de comparação API × `.xlsx`/CSV com itens na lixeira |
 | Exposição indevida na internet | Login obrigatório mesmo no modo local, Argon2, limite de tentativas, HTTPS, sem cadastro público |
 | SQLite com muitos acessos simultâneos | Adequado ao porte; `DATABASE_URL` permite Postgres sem mudar o domínio |

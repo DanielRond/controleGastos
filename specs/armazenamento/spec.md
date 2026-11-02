@@ -25,10 +25,12 @@ Guardar os lançamentos de forma segura e consultável quando houver interface w
 - **STO-05** Toda gravação é transacional: falha não deixa dados parciais.
 - **STO-06** Nenhuma consulta retorna dados de outro usuário.
 - **STO-07** O esquema evolui por migrações versionadas, aplicáveis por comando (`controlegastos banco atualizar`), sem perder dados.
-- **STO-08** Importar JSON (formato atual): valida com as regras VAL-* e STO-11 antes de gravar, grava tudo ou nada e informa quantos lançamentos criou. Com erros, nada é gravado e todos os erros são devolvidos com caminho. Se o arquivo traz um mês que já existe para o usuário, a importação é **recusada** por padrão; com a opção explícita `substituir`, os meses do arquivo são trocados na mesma transação e os demais meses ficam intactos.
+- **STO-08** Importar JSON (formato atual): valida com as regras VAL-* e STO-11 antes de gravar, grava tudo ou nada e informa quantos lançamentos criou. Com erros, nada é gravado e todos os erros são devolvidos com caminho. Se o arquivo traz um mês que já existe para o usuário, a importação é **recusada** por padrão; com a opção explícita `substituir`, os meses do arquivo são trocados na mesma transação (os lançamentos antigos desses meses vão para a lixeira, STO-12) e os demais meses ficam intactos. Um mês "já existe" quando tem lançamento ativo, salário ou meta.
 - **STO-09** Exportar JSON no formato atual. Round trip: importar e exportar produz um JSON que gera o mesmo `LivroCaixa` (mesmos totais).
 - **STO-10** Carregar do banco para `LivroCaixa` de um usuário produz os mesmos totais que carregar o JSON equivalente (LAN-03).
 
+- **STO-12** Excluir é lógico: o lançamento ganha `apagado_em` e vai para a lixeira. Todas as leituras normais (listas, totais, gráficos, planilha, CSV, exportação JSON, `LivroCaixa`) ignoram lançamentos na lixeira, por uma única regra central do repositório.
+- **STO-13** Da lixeira é possível restaurar um lançamento (volta ao mesmo mês, com o mesmo `id`), excluí-lo definitivamente ou esvaziar a lixeira inteira. Restaurar, excluir definitivamente e esvaziar são restritos ao dono (STO-06).
 - **STO-11** Valor com mais de duas casas decimais é rejeitado como erro de validação, no caminho do campo (`valor deve ter no máximo 2 casas decimais`), tanto na importação quanto nos formulários; nunca é arredondado em silêncio. Ao implementar, isso vira também o requisito **VAL-13** no spec de validação, com teste.
 
 ## Valores de referência
@@ -37,9 +39,10 @@ Importar `data/entradas/exemplo.json` e carregar do banco dá, em 2025-01, recei
 
 ## Fora de escopo
 
+- Auditoria de quem apagou o quê (um usuário na v1).
 - Importação de extratos bancários (fase posterior; STO-04 já reserva a origem).
 - Múltiplas moedas.
 
 ## Perguntas abertas
 
-1. Exclusão de lançamento: definitiva com confirmação, lixeira (exclusão lógica) ou desfazer? Proposta: definitiva com confirmação na v1, com o JSON exportado como backup.
+1. A lixeira expira sozinha (ex.: após 30 dias) ou só é esvaziada manualmente? Proposta: **manual**, sem expiração na v1.
