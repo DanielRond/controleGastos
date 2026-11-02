@@ -4,11 +4,11 @@
 
 Atualize esta seção a cada passo concluído, junto do commit.
 
-- **Estado**: Fases 1 a 4 concluídas (4d na branch `feat/fase4d-e2e`, a mesclar). Resta a Fase 5: execução local (`controlegastos web`) e hospedada (Docker).
-- **Branch atual**: `feat/fase4d-e2e`.
-- **Último passo concluído**: 4d. A API serve o front compilado (fallback de SPA, sem leitura fora da pasta); `scripts/servidor_e2e.py`; 20 testes Playwright em Chromium real (login, mês, ano com gráficos desenhados, downloads, importação, lixeira, teclado); job `e2e` no CI; spec `frontend` vigente. O E2E achou 3 problemas reais que os testes de componente não pegavam (categoria que vazava para o próximo lançamento, formulário limpo no meio da digitação, aviso de "salvo" que sumia); todos corrigidos.
-- **Próximo passo**: Fase 5. (5.1) comando `controlegastos web` (uvicorn em 127.0.0.1, porta configurável, mesmo processo e origem, SQLite local em `dados/`, migrações no start, aviso se o front não foi compilado) com testes citando WEB-14; (5.2) `Dockerfile` em dois estágios (Node 24 compila o front; Python 3.14 instala com `uv sync --extra web --no-dev` e roda uvicorn), `docker-compose.yml` de exemplo com volume para o SQLite, leitura de `DATABASE_URL`, `CONTROLEGASTOS_CHAVE_SECRETA` e `CONTROLEGASTOS_COOKIE_SECURE`, criação de conta por `docker run ... usuario criar`, testes do WEB-15 e documentação de hospedagem (HTTPS por proxy reverso, backup do SQLite, exportar JSON); promover `interface-web` a `vigente`; (5.3) atualizar AGENTS.md, README e hooks.
-- **Node**: `export PATH=$HOME/.local/share/node/node-v24.22.2-linux-x64/bin:$PATH` (o do sistema é o 18). Docker 29 está instalado para testar a imagem.
+- **Estado**: Fases 1 a 5 concluídas no código (Fase 5 na branch `feat/fase5-execucao`, a mesclar). A interface web está completa. O único item sem verificação local é o build da imagem Docker (o Docker daemon desta máquina não inicia sem `sudo`); o job `imagem` do CI (`scripts/testar_imagem.py`) o verifica.
+- **Branch atual**: `feat/fase5-execucao`.
+- **Último passo concluído**: 5.1 `controlegastos web` (WEB-14), 5.2 Dockerfile em dois estágios sem root com volume e HEALTHCHECK, `docker-compose.yml`, `.dockerignore`, `docs/hospedagem.md` (WEB-15), rota `GET /api/saude` (WEB-28), `usuario criar --senha-stdin`; spec `interface-web` vigente. A instalação sem dependências de desenvolvimento foi simulada localmente e o app funcionou.
+- **Próximo passo**: nenhum obrigatório. Se o job `imagem` falhar no primeiro CI, corrigir o Dockerfile (ver os logs impressos por `scripts/testar_imagem.py`). Ideias futuras, em ordem: importação de extratos bancários (nova capacidade `extratos`, com tela de revisão e `origem=extrato` já reservada em STO-04); fase de polimento (gráficos mais ricos, tema escuro); limite de tentativas de login compartilhado se houver mais de uma instância.
+- **Node**: `export PATH=$HOME/.local/share/node/node-v24.22.2-linux-x64/bin:$PATH` (o do sistema é o 18).
 - **Como retomar**: `git checkout main && git pull`; ler `AGENTS.md`, este arquivo, `design.md` e os specs; criar a branch da tarefa; spec primeiro, testes antes do código, `uv run ruff check . --no-cache`, `uv run pytest` e `uv run python scripts/conferir_specs.py` verdes antes de cada commit; abrir PR e mesclar com o CI verde.
 - **Ambiente**: Python 3.14 via uv; Docker disponível; Node 18 no sistema (a Fase 4 exige Node 20+, instalar com fnm).
 
@@ -35,10 +35,10 @@ Cada fase é um PR pequeno, com spec primeiro, testes antes do código e revisã
   - [x] 4.4 Ano: gráficos e resumo; downloads e importação
   - [x] 4.4b Lixeira: listar, restaurar, excluir definitivamente, esvaziar (WEB-19)
   - [x] 4.5 Testes Playwright dos fluxos principais
-- [ ] **Fase 5 — Execução e entrega** (WEB-14, WEB-15)
-  - [ ] 5.1 `controlegastos web` (local)
-  - [ ] 5.2 Dockerfile em dois estágios e documentação de hospedagem
-  - [ ] 5.3 Atualizar `AGENTS.md`, README e hooks (`checar.py` com `frontend/`)
+- [x] **Fase 5 — Execução e entrega** (WEB-14, WEB-15)
+  - [x] 5.1 `controlegastos web` (local)
+  - [x] 5.2 Dockerfile em dois estágios e documentação de hospedagem
+  - [x] 5.3 Atualizar `AGENTS.md`, README e hooks (`checar.py` com `frontend/`)
 
 Importação de extratos bancários: capacidade futura, depois da fase 5, com tela de revisão antes de gravar.
 

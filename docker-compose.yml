@@ -1,0 +1,28 @@
+# Exemplo de hospedagem com Docker Compose. Veja docs/hospedagem.md.
+#   export CONTROLEGASTOS_CHAVE_SECRETA="$(python3 -c 'import secrets; print(secrets.token_urlsafe(48))')"
+#   docker compose up -d --build
+services:
+  controlegastos:
+    build: .
+    image: controlegastos:local
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000" # exponha à internet só por um proxy HTTPS (Caddy, Nginx, Traefik...)
+    environment:
+      # Obrigatória: assina o cookie de sessão. Sem ela o compose nem sobe.
+      CONTROLEGASTOS_CHAVE_SECRETA: ${CONTROLEGASTOS_CHAVE_SECRETA:?defina a chave secreta (veja docs/hospedagem.md)}
+      # 1 quando o acesso é por HTTPS (recomendado em qualquer hospedagem pública)
+      CONTROLEGASTOS_COOKIE_SECURE: ${CONTROLEGASTOS_COOKIE_SECURE:-1}
+      # Opcional: outro banco. Por padrão usa o SQLite do volume /data.
+      # DATABASE_URL: ${DATABASE_URL:-}
+    volumes:
+      - dados:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/saude', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  dados:

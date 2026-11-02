@@ -14,7 +14,8 @@ from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from sqlalchemy import select
+from sqlalchemy import select, text
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
@@ -256,6 +257,17 @@ def criar_app(config: Configuracao | None = None, pasta_front: Path | None = Non
     Leitura = Annotated[Repositorio, Depends(repositorio)]
     Escrita = Annotated[Repositorio, Depends(repositorio_escrita)]
     Erros = {422: {"model": es.ErrosValidacao}, 401: {"model": es.Detalhe}}
+
+    # -------------------------------------------------------------- saúde
+
+    @app.get("/api/saude", responses={503: {"model": es.Detalhe}}, tags=["saúde"])
+    def saude():
+        try:
+            with motor.connect() as conexao:
+                conexao.execute(text("select 1"))
+        except SQLAlchemyError:
+            return _erro_json(503, {"detalhe": "Banco de dados indisponível."})
+        return {"status": "ok"}
 
     # -------------------------------------------------------------- conta
 
