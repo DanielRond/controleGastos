@@ -15,9 +15,6 @@ saida/
 data/entradas/20*.json
 PROMPTS.md
 
-# Ferramentas locais (SpecKit/Specify e skills de agentes)
-.specify/
-.github/skills/
 # Banco SQLite local (dados pessoais)
 dados/
 *.db
