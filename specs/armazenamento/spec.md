@@ -30,6 +30,7 @@ Guardar os lançamentos de forma segura e consultável quando houver interface w
 - **STO-10** Carregar do banco para `LivroCaixa` de um usuário produz os mesmos totais que carregar o JSON equivalente (LAN-03).
 
 - **STO-12** Excluir é lógico: o lançamento ganha `apagado_em` e vai para a lixeira. Todas as leituras normais (listas, totais, gráficos, planilha, CSV, exportação JSON, `LivroCaixa`) ignoram lançamentos na lixeira, por uma única regra central do repositório.
+- **STO-14** A lixeira não expira sozinha: itens só saem dela por ação explícita do usuário (excluir definitivamente ou esvaziar). Não há tarefa agendada.
 - **STO-13** Da lixeira é possível restaurar um lançamento (volta ao mesmo mês, com o mesmo `id`), excluí-lo definitivamente ou esvaziar a lixeira inteira. Restaurar, excluir definitivamente e esvaziar são restritos ao dono (STO-06).
 - **STO-11** Valor com mais de duas casas decimais é rejeitado como erro de validação, no caminho do campo (`valor deve ter no máximo 2 casas decimais`), tanto na importação quanto nos formulários; nunca é arredondado em silêncio. Ao implementar, isso vira também o requisito **VAL-13** no spec de validação, com teste.
 
@@ -45,4 +46,4 @@ Importar `data/entradas/exemplo.json` e carregar do banco dá, em 2025-01, recei
 
 ## Perguntas abertas
 
-1. A lixeira expira sozinha (ex.: após 30 dias) ou só é esvaziada manualmente? Proposta: **manual**, sem expiração na v1.
+Nenhuma pendente. Todas as decisões desta capacidade estão registradas acima.

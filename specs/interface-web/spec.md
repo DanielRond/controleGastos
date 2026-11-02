@@ -20,7 +20,7 @@ Usar o controle de gastos de forma prática, sem editar JSON: entrar com login, 
 - Front-end: **React + TypeScript + Vite** (confirmado).
 - O login é exigido também no modo local, para ser igual ao hospedado (confirmado).
 - Uma pessoa usa na v1, mas o esquema já suporta vários usuários (confirmado).
-- Exclusão por **lixeira** com restauração (confirmado).
+- Exclusão por **lixeira** com restauração, esvaziada só manualmente (confirmado).
 - Escopo da v1 confirmado: login, CRUD de lançamentos, painéis do mês e do ano, downloads, importar/exportar JSON.
 
 ## Comportamento
@@ -65,7 +65,7 @@ Execução e contrato:
 
 ## Perguntas abertas
 
-1. A lixeira expira sozinha ou só é esvaziada manualmente? (ver `armazenamento`, pergunta 1)
+Nenhuma pendente.
 
 ## Rastreabilidade
 

@@ -2,7 +2,7 @@
 
 Cada fase é um PR pequeno, com testes antes e revisão humana. Começa depois da aprovação de `spec.md`, `design.md` e `../armazenamento/spec.md` e do merge do PR #1. Os status `rascunho` passam a `vigente` quando a fase correspondente começar (aí o CI exige os testes).
 
-- [ ] **Fase 0 — Aprovação**: responder as perguntas abertas, aprovar os specs; promover `armazenamento` e `interface-web` a `vigente` fase a fase.
+- [x] **Fase 0 — Decisões**: todas as perguntas abertas respondidas. Falta apenas a aprovação final dos specs pelo usuário (merge do PR); promover `armazenamento` e `interface-web` a `vigente` fase a fase.
 - [ ] **Fase 1 — Serviço (sem mudar comportamento)**
   - [ ] 1.1 Extrair `servico.py` e `resumo.py` (dados dos gráficos públicos); CLI chama o serviço
   - [ ] 1.2 Geração do `.xlsx` e dos CSV em memória (bytes)
