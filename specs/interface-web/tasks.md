@@ -8,7 +8,7 @@ Atualize esta seção a cada passo concluído, junto do commit.
 - **Branch atual**: `feat/fase5-execucao`.
 - **Último passo concluído**: 5.1 `controlegastos web` (WEB-14), 5.2 Dockerfile em dois estágios sem root com volume e HEALTHCHECK, `docker-compose.yml`, `.dockerignore`, `docs/hospedagem.md` (WEB-15), rota `GET /api/saude` (WEB-28), `usuario criar --senha-stdin`; spec `interface-web` vigente. A instalação sem dependências de desenvolvimento foi simulada localmente e o app funcionou.
 - **Próximo passo**: nenhum obrigatório. Se o job `imagem` falhar no primeiro CI, corrigir o Dockerfile (ver os logs impressos por `scripts/testar_imagem.py`). Ideias futuras, em ordem: importação de extratos bancários (nova capacidade `extratos`, com tela de revisão e `origem=extrato` já reservada em STO-04); fase de polimento (gráficos mais ricos, tema escuro); limite de tentativas de login compartilhado se houver mais de uma instância.
-- **Node**: via fnm (`~/.local/share/fnm`, ligado ao `~/.bashrc`; Node 24 como padrão e troca pelo `.nvmrc`). O Node do sistema (apt) é o 18 e fica sombreado. Em shell sem `.bashrc`, use `export PATH=$HOME/.local/share/fnm/node-versions/v24.22.2/installation/bin:$PATH`.
+- **Node**: o do sistema, versão 24 (ver `.nvmrc`); o front-end exige Node 24+.
 - **Como retomar**: `git checkout main && git pull`; ler `AGENTS.md`, este arquivo, `design.md` e os specs; criar a branch da tarefa; spec primeiro, testes antes do código, `uv run ruff check . --no-cache`, `uv run pytest` e `uv run python scripts/conferir_specs.py` verdes antes de cada commit; abrir PR e mesclar com o CI verde.
 - **Ambiente**: Python 3.14 via uv; Docker disponível; Node 18 no sistema (a Fase 4 exige Node 20+, instalar com fnm).
 
