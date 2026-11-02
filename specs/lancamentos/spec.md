@@ -34,7 +34,7 @@ Transformar o JSON de entrada em um livro-caixa em memória (`LivroCaixa`) com t
 
 ## Perguntas abertas
 
-- Quando houver interface web: os lançamentos continuam em JSON versionável ou passam a ter outro armazenamento? (ver `interface-web`)
+Nenhuma pendente. Com a interface web, os lançamentos passam a viver em banco (ver `armazenamento`); o JSON continua como importação, exportação e backup.
 
 ## Rastreabilidade
 

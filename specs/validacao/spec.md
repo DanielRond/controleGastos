@@ -43,7 +43,11 @@ anos[0].meses[0].despesas[0].valor: valor deve ser numérico finito (não boolea
 ## Perguntas abertas
 
 - Valores negativos devem ser erro? Hoje são aceitos.
-- A interface web mostrará esses erros como tabela (`caminho`, `mensagem`); o contrato de `ErroDeValidacao` deve se manter estável.
+- A interface web mostrará esses erros por campo (`caminho`, `mensagem`); o contrato de `ErroDeValidacao` deve se manter estável.
+
+## Planejado
+
+- VAL-13 (a ser adicionado na Fase 2, junto de STO-11): `valor` com mais de duas casas decimais é rejeitado, sem arredondar.
 
 ## Rastreabilidade
 

@@ -10,13 +10,13 @@ Lido da mesma forma pelo Kiro, pelo Claude Code e por pessoas. Idioma: pt-BR (o 
 | [validacao](validacao/spec.md) | VAL | vigente | Validação do JSON com todos os erros e caminho |
 | [exportacao](exportacao/spec.md) | EXP | vigente | `--formato`, CSV de lançamentos e de resumo |
 | [planilha](planilha/spec.md) | PLN | vigente | `.xlsx`: Resumo Geral, abas por mês, gráficos |
-| [armazenamento](armazenamento/spec.md) | STO | rascunho | Banco SQLite, centavos, usuários, importar/exportar JSON |
-| [interface-web](interface-web/spec.md) | WEB | rascunho | Login, lançamentos, painéis, downloads; SPA + FastAPI (com `design.md` e `tasks.md`) |
+| [armazenamento](armazenamento/spec.md) | STO | rascunho | Banco SQLite, centavos, usuários, lixeira, importar/exportar JSON (Fase 2) |
+| [interface-web](interface-web/spec.md) | WEB | rascunho | Login, lançamentos, painéis, downloads; SPA + FastAPI (com `design.md` e `tasks.md`; Fases 3 a 5) |
 
 ## Convenções
 
 - Cada requisito é uma linha `**XXX-NN**` (código da capacidade + número, nunca reaproveitado). Cenários usam **Dado / Quando / Então**.
-- `status`: `vigente` (verificado por testes), `rascunho` (intenção, ainda sem requisitos fechados) ou `adiado`.
+- `status`: `vigente` (verificado por testes), `rascunho` (decisões e requisitos escritos, ainda não implementados; o CI não exige testes) ou `adiado`. Um spec vira `vigente` no commit que começa a implementá-lo.
 - **Todo ID de um spec vigente precisa ser citado em ao menos um teste**, com o comentário `# Spec: VAL-03` acima do teste (vários IDs separados por vírgula). `uv run python scripts/conferir_specs.py` confere isso, e o CI roda o mesmo teste (`tests/test_conferir_specs.py`). Citar um ID inexistente também falha.
 - Valores de referência (totais do `data/entradas/exemplo.json`) são a verdade numérica: viram asserções, não texto solto.
 - Dinheiro é sempre `Decimal` (ver LAN-02).

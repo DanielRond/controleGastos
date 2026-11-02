@@ -8,7 +8,7 @@ status: rascunho
 
 ## Objetivo
 
-Usar o controle de gastos de forma prática, sem editar JSON: entrar com login, registrar e corrigir lançamentos, ver o mês e o ano em painéis e baixar planilha e CSV. A CLI foi o ponto de partida e continua existindo. **Rascunho: aguardando aprovação do usuário.**
+Usar o controle de gastos de forma prática, sem editar JSON: entrar com login, registrar e corrigir lançamentos, ver o mês e o ano em painéis e baixar planilha e CSV. A CLI foi o ponto de partida e continua existindo. **Decisões aprovadas pelo usuário; permanece `rascunho` até começar a implementação da capacidade, quando passa a `vigente` e o CI exige um teste por requisito.**
 
 ## Decisões tomadas
 
@@ -69,4 +69,4 @@ Nenhuma pendente.
 
 ## Rastreabilidade
 
-Ver `design.md` e `tasks.md` desta pasta. Ainda sem testes: o status `rascunho` isenta o CI até a aprovação.
+Ver `design.md` e `tasks.md` desta pasta. Ainda sem testes: no status `rascunho` o CI não os exige. A base já pronta (Fase 1) está coberta por LAN-07, PLN-12, PLN-13 e EXP-12.

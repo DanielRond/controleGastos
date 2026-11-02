@@ -1,6 +1,6 @@
 # Design: interface web
 
-Rascunho, para aprovação. Cobre `interface-web` (WEB) e `armazenamento` (STO).
+Decisões aprovadas; implementação em fases (ver `tasks.md`). Cobre `interface-web` (WEB) e `armazenamento` (STO). A Fase 1 (camada de serviço) já está feita.
 
 ## Visão geral
 
@@ -24,22 +24,23 @@ Princípio: o domínio (`modelo.py`) e as saídas (`generator.py`, `exportador_c
 
 ```text
 src/controlegastos/
-  servico.py          # casos de uso, sem FastAPI nem SQLAlchemy nos tipos de entrada/saída
+  servico.py          # (existe) casos de uso, sem FastAPI nem SQLAlchemy nos tipos de entrada/saída
+  resumo.py           # (existe) dados dos gráficos
   armazenamento/      # modelos SQLAlchemy, repositório, migrações (Alembic)
   web/                # app FastAPI: rotas, auth, esquemas Pydantic, serve a SPA já compilada
 frontend/             # app Vite (React + TypeScript); build copiado para src/controlegastos/web/static
 Dockerfile            # imagem única (build do front + back)
 ```
 
-Dependências do back-end ficam num extra opcional `web` do `pyproject.toml` (FastAPI, uvicorn, SQLAlchemy, Alembic, pwdlib[argon2], python-multipart), para a CLI continuar leve. Resolvem em Python 3.14 (verificado com `uv pip install --dry-run`; falta instalar de verdade na fase 3).
+Dependências do back-end ficam num extra opcional `web` do `pyproject.toml` (FastAPI, uvicorn, SQLAlchemy, Alembic, pwdlib[argon2], python-multipart), para a CLI continuar leve. Resolvem em Python 3.14 (verificado com `uv pip install --dry-run`; a instalação real é a primeira tarefa da Fase 2, 2.1).
 
 ## Camada de serviço
 
-Extrai da CLI o que a web também precisa: carregar/validar, calcular, gerar. Mudanças necessárias:
+**Feita na Fase 1** (LAN-07, PLN-12, PLN-13, EXP-12). A CLI só chama `servico.py`, que concentra o que a web também precisa:
 
-- `gerar_planilha` e `exportar_csv` ganham variantes que devolvem **bytes** (openpyxl salva em `BytesIO`; CSV em `StringIO`), mantendo as funções por caminho.
-- Os dados dos gráficos (`_patrimonio_acumulado`, `_ranking_despesas`, `_variacao_saldo`) viram funções públicas em um módulo de resumo (`resumo.py`), usadas pela planilha **e** pela API (WEB-10, WEB-11).
-- A CLI passa a chamar o serviço; comportamento externo idêntico (testes existentes continuam verdes).
+- `gerar_planilha_bytes` e `exportar_csv_bytes` devolvem os arquivos em memória (openpyxl salva em `BytesIO`; CSV em `StringIO`), com o mesmo conteúdo das funções por caminho.
+- Os dados dos gráficos (`patrimonio_acumulado`, `ranking_despesas`, `variacao_saldo`) são públicos em `resumo.py`, sem openpyxl, e serão usados pela planilha **e** pela API (WEB-10, WEB-11).
+- O comportamento externo da CLI não mudou.
 
 ## API (esboço)
 
