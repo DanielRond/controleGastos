@@ -2,7 +2,7 @@
 
 ![CI](https://github.com/DanielRond/controleGastos/actions/workflows/ci.yml/badge.svg)
 
-Ferramenta de **controle de gastos pessoais** que gera planilhas Excel (.xlsx) e arquivos CSV organizando **receitas**, **despesas** e **investimentos** por mês e por ano. Hoje funciona por linha de comando; uma **interface web** está em desenvolvimento (veja o [Roadmap](#roadmap)).
+Ferramenta de **controle de gastos pessoais** que gera planilhas Excel (.xlsx) e arquivos CSV organizando **receitas**, **despesas** e **investimentos** por mês e por ano. Funciona por **interface web** (com login, para registrar e acompanhar os lançamentos no navegador) e por **linha de comando** (gera a planilha a partir de JSON).
 
 ## Demonstração
 
@@ -76,6 +76,19 @@ uv run controlegastos gerar data/entradas/exemplo.json -o saida/planilha.xlsx --
 uv run controlegastos gerar data/entradas/exemplo.json -o saida/planilha.xlsx -v
 ```
 
+## Interface web
+
+Com login, no navegador: lançar e corrigir receitas, despesas e investimentos, ver o mês e o ano com gráficos, usar a lixeira e baixar planilha e CSV.
+
+```bash
+uv sync --extra web
+(cd frontend && npm ci && npm run build)    # precisa de Node 24+
+uv run controlegastos usuario criar ana     # cria a sua conta (senha pedida sem eco)
+uv run controlegastos web                   # abre em http://127.0.0.1:8000
+```
+
+Os dados ficam em `dados/controlegastos.db` (SQLite, ignorado pelo git); a tela *Arquivos* importa e exporta JSON. Para rodar hospedado, com Docker e HTTPS, veja [docs/hospedagem.md](docs/hospedagem.md).
+
 ## Entrada de dados
 
 Coloque seus lançamentos em JSON em `data/entradas/`. Veja o formato completo em [AGENTS.md](AGENTS.md#entrada-de-dados-json) e um exemplo em `data/entradas/exemplo.json`.
@@ -109,17 +122,11 @@ Concluído:
 - [x] **Validação de schema** — erros claros, todos de uma vez, com o caminho do campo; dinheiro com no máximo 2 casas decimais.
 - [x] **Exportação CSV** — além do `.xlsx`.
 - [x] **Gráficos extras** — evolução do patrimônio, ranking de categorias, comparativo entre meses.
-- [x] **Camada de serviço** — planilha e CSV também em memória, base da interface web.
+- [x] **Interface web** — login, lançamentos, painéis do mês e do ano, lixeira, downloads e importação de JSON; banco SQLite; roda local e hospedada (Docker). Construída em fases ([plano](specs/interface-web/tasks.md)): serviço, armazenamento, API, front-end e execução.
 
-Em andamento — **interface web** (login, lançamentos, painéis do mês e do ano, downloads; FastAPI + React/TypeScript, SQLite; roda local e hospedada). Plano em fases em [specs/interface-web](specs/interface-web/tasks.md):
+Próximo:
 
-- [x] Fase 1 — camada de serviço
-- [x] Fase 2 — armazenamento (SQLite, valores em centavos, usuários, lixeira, importar/exportar JSON)
-- [x] Fase 3 — API e autenticação (login, lançamentos, painéis, downloads, lixeira, contrato OpenAPI)
-- [x] Fase 4 — front-end (login, mês, ano, lixeira, arquivos; testes de componente e de ponta a ponta no navegador)
-- [ ] Fase 5 — execução local e hospedada
-
-Depois da interface web: **importação de extratos bancários** (OFX/CSV de banco), com tela de revisão.
+- **Importação de extratos bancários** (OFX/CSV de banco), com tela de revisão antes de gravar.
 
 ## Documentação para máquinas/agentes
 

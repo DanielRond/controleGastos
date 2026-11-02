@@ -1514,6 +1514,35 @@
           "meses"
         ]
       }
+    },
+    "/api/saude": {
+      "get": {
+        "operationId": "saude_api_saude_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detalhe"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Saude",
+        "tags": [
+          "saúde"
+        ]
+      }
     }
   }
 }

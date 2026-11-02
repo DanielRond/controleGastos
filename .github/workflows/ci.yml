@@ -103,3 +103,11 @@ jobs:
           name: playwright-test-results
           path: frontend/test-results
           retention-days: 7
+
+  imagem:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Constrói a imagem e confere o modo hospedado
+        run: python3 scripts/testar_imagem.py

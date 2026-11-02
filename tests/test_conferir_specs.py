@@ -21,11 +21,20 @@ def test_detecta_requisito_sem_teste_e_id_inexistente(monkeypatch) -> None:
     assert "VAL-01: requisito vigente sem teste" not in erros
 
 
-def test_spec_em_rascunho_nao_exige_teste() -> None:
+def test_spec_em_rascunho_nao_exige_teste(tmp_path, monkeypatch) -> None:
+    for nome, status, requisito in (("a", "vigente", "ZZZ-01"), ("b", "rascunho", "ZZZ-02")):
+        pasta = tmp_path / "specs" / nome
+        pasta.mkdir(parents=True)
+        (pasta / "spec.md").write_text(f"---\nstatus: {status}\n---\n- **{requisito}** texto\n", encoding="utf-8")
+    (tmp_path / "tests").mkdir()
+    monkeypatch.setattr(conferir, "RAIZ", tmp_path)
+
     vigentes, definidos = conferir.ids_definidos()
-    assert "WEB-01" in vigentes  # spec api: vigente
-    assert "WEB-14" in definidos  # spec interface-web: rascunho
-    assert "WEB-14" not in vigentes
+    assert vigentes == {"ZZZ-01"}
+    assert set(definidos) == {"ZZZ-01", "ZZZ-02"}
+    erros = "\n".join(conferir.problemas())
+    assert "ZZZ-01: requisito vigente sem teste" in erros
+    assert "ZZZ-02" not in erros
 
 
 def test_citacoes_em_testes_typescript_tambem_contam(tmp_path, monkeypatch) -> None:

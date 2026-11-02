@@ -4,61 +4,56 @@ Guia para agentes de IA (e humanos) trabalhando neste repositório. É a **fonte
 
 ## Propósito
 
-Ferramenta de **controle de gastos pessoais** que gera planilhas Excel (.xlsx) e CSV a partir de arquivos JSON, organizando receitas, despesas e investimentos por mês e por ano. Simples e auditável: dados em texto versionável, mesmos critérios de totalização sempre.
-
-Próximo grande passo: **interface web** (FastAPI + SPA React/TypeScript, SQLite, login; local e hospedada), em fases: a Fase 1 (camada de serviço) está pronta; a próxima é o armazenamento. Ver `specs/interface-web`. Importação de extratos bancários fica para depois da web.
+Ferramenta de **controle de gastos pessoais**: registra receitas, despesas e investimentos por mês e ano e gera planilha Excel, CSV e painéis. Dois jeitos de usar: **interface web** com login (SQLite; local ou hospedada em Docker) e **CLI** que gera a planilha a partir de JSON. Simples e auditável: mesmos critérios de totalização sempre; o JSON é formato de entrada, saída e backup. Pronto: validação, CSV, gráficos, serviço, armazenamento, API, front-end e hospedagem. Próximo: importação de extratos bancários (ver `specs/interface-web/tasks.md`).
 
 ## Stack
 
-- **Python 3.14** gerenciado via [uv](https://docs.astral.sh/uv/); `uv sync --extra web` instala a stack da web (FastAPI, SQLAlchemy, Alembic, Argon2)
-- **openpyxl** (planilha e gráficos), **pytest** + **hypothesis** (testes), **ruff** (lint)
-- Web: FastAPI, SQLAlchemy + SQLite; front-end em `frontend/` (React + TypeScript + Vite + Vitest; **Node 24+**, ver `.nvmrc`)
+- **Python 3.14** com [uv](https://docs.astral.sh/uv/); `uv sync --extra web` instala a web (FastAPI, SQLAlchemy, Alembic, Argon2)
+- **openpyxl** (planilha), **pytest** + **hypothesis** (testes), **ruff** (lint)
+- Front-end em `frontend/`: React + TypeScript + Vite, Vitest, Playwright; **Node 24+** (`.nvmrc`)
 
 ## Comandos principais
 
 ```bash
-uv sync                                                              # instala dependências
-uv run controlegastos gerar data/entradas/exemplo.json -o saida/planilha.xlsx
-uv run controlegastos gerar data/entradas/exemplo.json -o saida/planilha.xlsx --formato ambos  # xlsx | csv | ambos
-uv run controlegastos gerar ... -v                                   # log detalhado
-uv run controlegastos banco atualizar                                # cria/atualiza o banco SQLite (extra web; DATABASE_URL ou dados/)
-uv run controlegastos usuario criar NOME                             # cria uma conta de acesso à web (senha pedida sem eco)
-uv run python scripts/exportar_openapi.py                            # atualiza specs/api/openapi.json (um teste exige em dia)
-(cd frontend && npm ci && npm run api && npm test && npm run build)   # front-end: depois de mudar o OpenAPI, rode `npm run api`
-(cd frontend && npx playwright install chromium && npm run e2e)       # ponta a ponta (precisa do build; sobe scripts/servidor_e2e.py)
-uv run pytest                                                        # testes
-uv run ruff check .                                                  # estilo (use --no-cache ao criar módulos novos)
-uv run python scripts/conferir_specs.py                              # todo requisito vigente tem teste
-uv run python scripts/sincronizar_agentes.py                         # regenera .claude/agents a partir de .kiro/agents
-uv add <pacote>                                                      # nova dependência (use limites >=X,<Y)
+uv sync --extra web                                       # instala tudo do Python
+uv run controlegastos gerar data/entradas/exemplo.json -o saida/planilha.xlsx [--formato xlsx|csv|ambos] [-v]
+uv run controlegastos banco atualizar                     # cria/atualiza o SQLite (DATABASE_URL ou dados/)
+uv run controlegastos usuario criar NOME [--senha-stdin]  # conta de acesso à web
+uv run controlegastos web                                 # interface em http://127.0.0.1:8000 (precisa do front compilado)
+uv run pytest && uv run ruff check . --no-cache           # testes (inclui conferência de specs) e estilo
+uv run python scripts/conferir_specs.py                   # todo requisito vigente tem teste
+uv run python scripts/exportar_openapi.py                 # atualiza specs/api/openapi.json (um teste exige em dia)
+uv run python scripts/sincronizar_agentes.py              # regenera .claude/agents a partir de .kiro/agents
+(cd frontend && npm ci && npm run api && npm test && npm run build)   # front; `npm run api` após mudar o OpenAPI
+(cd frontend && npx playwright install chromium && npm run e2e)       # ponta a ponta (precisa do build)
+uv add <pacote>                                           # nova dependência (limites >=X,<Y)
 ```
 
-No Windows (PowerShell) use `;` em vez de `&&`. Hooks e scripts do projeto não dependem de shell.
+No Windows (PowerShell) use `;` em vez de `&&`. Hooks e scripts não dependem de shell.
 
 ## Estrutura do projeto
 
 ```
-frontend/            # SPA React/TS (npm; cliente da API gerado de specs/api/openapi.json em src/api/schema.d.ts)
-data/entradas/       # JSONs. exemplo*.json são fictícios e públicos; 20*.json são pessoais (não versionar)
-dados/               # banco SQLite local (dados pessoais; ignorado pelo git)
-saida/               # Planilhas e CSV gerados (ignorado pelo git)
 src/controlegastos/
-  cli.py             # argparse: subcomando `gerar` (-o, --formato, -v)
-  modelo.py          # dataclasses Receita, Despesa, Investimento, Mes, Ano, LivroCaixa (totais em Decimal)
-  validador.py       # valida o JSON bruto e devolve todos os erros com caminho (só biblioteca padrão)
-  loader.py          # lê JSON, valida (ErroDeValidacaoJSON) e constrói LivroCaixa
-  generator.py       # gera .xlsx (arquivo ou bytes): Resumo Geral, abas AAAA-MM e Gráficos (área de apoio nas colunas Q+)
-  resumo.py          # dados dos gráficos (patrimônio, ranking, variação do saldo) em Decimal, sem openpyxl
-  exportador_csv.py  # CSV de lançamentos e CSV de resumo mensal (UTF-8, vírgula, ponto decimal)
-  armazenamento/     # banco (extra web): modelos SQLAlchemy, migrações Alembic, repositório por usuário, centavos, lixeira
-  web/               # API FastAPI (extra web): config, segurança (Argon2, sessão, CSRF, limite de login), esquemas, rotas /api
-  servico.py         # casos de uso (carregar, gerar, exportar; em arquivo ou em memória); a CLI só chama este módulo
-tests/               # pytest: unitários e propriedades (hypothesis); cada teste cita o ID do spec (`# Spec: VAL-03`)
-specs/               # specs por capacidade (lancamentos, validacao, exportacao, planilha, armazenamento, api, interface-web); ver specs/README.md
-scripts/             # checar.py (hook), conferir_specs.py (spec↔teste), sincronizar_agentes.py (Kiro→Claude), exportar_openapi.py, servidor_e2e.py
-docs/media/          # capturas da planilha usadas no README (só dados fictícios)
-.kiro/               # agentes, hooks e steering manual; .claude/ e CLAUDE.md para o Claude Code
-.github/workflows/   # CI: ci (ruff, pytest), web (lint, tsc, vitest, build, cliente em dia), e2e (Playwright)
+  cli.py             # argparse: gerar, banco, usuario, web
+  modelo.py          # dataclasses Receita, Despesa, Investimento, Mes, Ano, LivroCaixa (Decimal)
+  validador.py       # valida o JSON bruto, devolve todos os erros com caminho (só stdlib)
+  loader.py          # JSON -> valida -> LivroCaixa
+  generator.py       # .xlsx (arquivo ou bytes): Resumo Geral, abas AAAA-MM, Gráficos
+  resumo.py          # dados dos gráficos e percentuais, em Decimal, sem openpyxl
+  exportador_csv.py  # CSV de lançamentos e de resumo mensal
+  servico.py         # casos de uso (carregar, gerar, exportar); a CLI só chama este módulo
+  armazenamento/     # SQLAlchemy + Alembic: repositório por usuário, centavos, lixeira
+  web/               # FastAPI: segurança (Argon2, sessão, CSRF), esquemas, rotas /api, serve o front
+frontend/            # SPA (cliente da API gerado em src/api/schema.d.ts); e2e/ com Playwright
+specs/               # specs por capacidade (ver specs/README.md); api/openapi.json é o contrato
+tests/               # pytest; cada teste cita o ID do spec (`# Spec: VAL-03`)
+scripts/             # hook (checar), conferir_specs, sincronizar_agentes, exportar_openapi, servidor_e2e, testar_imagem
+data/entradas/       # JSONs: exemplo*.json são públicos e fictícios; 20*.json são pessoais (não versionar)
+dados/ saida/        # banco SQLite local e arquivos gerados (dados pessoais; ignorados pelo git)
+docs/                # media/ (capturas fictícias) e hospedagem.md; Dockerfile e docker-compose.yml na raiz
+.kiro/ .claude/      # agentes, hooks e steering; CLAUDE.md importa este arquivo
+.github/workflows/   # CI: ci (ruff, pytest), web (front), e2e (Playwright), imagem (Docker)
 ```
 
 ## Entrada de dados (JSON)

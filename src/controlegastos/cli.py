@@ -5,6 +5,7 @@ Uso:
     uv run controlegastos gerar data/entradas/exemplo.json -o saida/planilha.xlsx --formato ambos
     uv run controlegastos banco atualizar   # requer o extra web
     uv run controlegastos usuario criar NOME # requer o extra web
+    uv run controlegastos web                # interface web em http://127.0.0.1:8000 (extra web)
 """
 
 from __future__ import annotations
@@ -57,6 +58,11 @@ def _montar_parser() -> argparse.ArgumentParser:
     acoes_usuario = usuario.add_subparsers(dest="acao", required=True, parser_class=_Parser)
     criar = acoes_usuario.add_parser("criar", help="Cria uma conta (a senha é pedida sem eco).")
     criar.add_argument("nome", help="Nome de usuário (único).")
+    criar.add_argument("--senha-stdin", action="store_true", help="Lê a senha da entrada padrão (scripts e contêineres).")
+
+    web = subparsers.add_parser("web", help="Sobe a interface web (API e telas) neste computador (requer o extra 'web').")
+    web.add_argument("--host", default="127.0.0.1", help="Endereço de escuta (padrão: 127.0.0.1, só esta máquina).")
+    web.add_argument("--porta", type=int, default=8000, help="Porta (padrão: 8000).")
     return parser
 
 
@@ -114,11 +120,14 @@ def _executar_usuario(args: argparse.Namespace) -> int:
         logger.error("Os comandos de usuário exigem o extra web. Instale com: uv sync --extra web")
         return 1
 
-    senha = getpass.getpass("Senha: ")
-    confirmacao = getpass.getpass("Repita a senha: ")
-    if senha != confirmacao:
-        logger.error("As senhas não conferem.")
-        return 1
+    if args.senha_stdin:
+        senha = sys.stdin.readline().rstrip("\r\n")
+    else:
+        senha = getpass.getpass("Senha: ")
+        confirmacao = getpass.getpass("Repita a senha: ")
+        if senha != confirmacao:
+            logger.error("As senhas não conferem.")
+            return 1
     if len(senha) < 8:
         logger.error("A senha deve ter ao menos 8 caracteres.")
         return 1
@@ -137,6 +146,36 @@ def _executar_usuario(args: argparse.Namespace) -> int:
     return 0
 
 
+def _executar_web(args: argparse.Namespace) -> int:
+    logging.getLogger("alembic").setLevel(logging.WARNING)
+    try:
+        import uvicorn
+
+        from .web import Configuracao, criar_app
+        from .web import app as modulo_app
+    except ImportError:
+        logger.error("A interface web exige o extra web. Instale com: uv sync --extra web")
+        return 1
+
+    config = Configuracao.do_ambiente()
+    if args.host not in ("127.0.0.1", "localhost", "::1") and not config.cookie_secure:
+        logger.warning(
+            "Escutando em %s sem HTTPS configurado: defina CONTROLEGASTOS_COOKIE_SECURE=1 e "
+            "CONTROLEGASTOS_CHAVE_SECRETA e coloque um proxy HTTPS na frente (veja docs/hospedagem.md).",
+            args.host,
+        )
+    if not (modulo_app.PASTA_DO_FRONT / "index.html").is_file():
+        logger.warning("Front-end não compilado: só a API será servida. Compile com: cd frontend && npm ci && npm run build")
+    try:
+        app = criar_app(config)
+    except RuntimeError as erro:
+        logger.error("%s", erro)
+        return 1
+    print(f"Interface disponível em http://{args.host}:{args.porta}")
+    uvicorn.run(app, host=args.host, port=args.porta, log_level="info")
+    return 0
+
+
 def main() -> int:
     parser = _montar_parser()
     args = parser.parse_args()
@@ -150,6 +189,8 @@ def main() -> int:
         return _executar_banco(args)
     if args.comando == "usuario":
         return _executar_usuario(args)
+    if args.comando == "web":
+        return _executar_web(args)
     return _executar_gerar(args)
 
 
