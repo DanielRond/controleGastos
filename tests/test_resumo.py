@@ -1,14 +1,13 @@
 """Dados públicos dos gráficos (resumo.py), independentes do openpyxl."""
 
-import sys
+import ast
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
 
-from controlegastos.resumo import patrimonio_acumulado, ranking_despesas, variacao_saldo
-
 from controlegastos.loader import carregar_json
 from controlegastos.modelo import Despesa, Investimento, LivroCaixa
+from controlegastos.resumo import patrimonio_acumulado, ranking_despesas, variacao_saldo
 
 RAIZ = Path(__file__).resolve().parent.parent
 EXEMPLO = RAIZ / "data" / "entradas" / "exemplo.json"
@@ -54,12 +53,13 @@ def test_livro_vazio_ou_com_um_mes_nao_quebra() -> None:
 
 
 # Spec: PLN-13
-def test_resumo_nao_depende_do_openpyxl() -> None:
-    import importlib
+def test_resumo_nao_importa_openpyxl_nem_outros_modulos_do_pacote_alem_do_modelo() -> None:
+    arvore = ast.parse((RAIZ / "src" / "controlegastos" / "resumo.py").read_text(encoding="utf-8"))
+    importados = set()
+    for no in ast.walk(arvore):
+        if isinstance(no, ast.Import):
+            importados.update(alias.name.split(".")[0] for alias in no.names)
+        elif isinstance(no, ast.ImportFrom):
+            importados.add(("." * no.level) + (no.module or ""))
 
-    for nome in [m for m in sys.modules if m.startswith("openpyxl")]:
-        del sys.modules[nome]
-    sys.modules.pop("controlegastos.resumo", None)
-    importlib.import_module("controlegastos.resumo")
-
-    assert not any(m.startswith("openpyxl") for m in sys.modules)
+    assert importados <= {"__future__", "decimal", ".modelo"}, importados
