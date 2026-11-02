@@ -118,7 +118,8 @@ def test_ranking_despesas_usa_sem_categoria() -> None:
     from datetime import date
     from decimal import Decimal
 
-    from controlegastos.generator import _ranking_despesas
+    from controlegastos.resumo import ranking_despesas
+
     from controlegastos.modelo import Despesa, LivroCaixa
 
     livro = LivroCaixa()
@@ -131,7 +132,7 @@ def test_ranking_despesas_usa_sem_categoria() -> None:
         Despesa("d", Decimal(10), d, "Moradia"),
         Despesa("e", Decimal(10), d, "Lazer"),
     ]
-    assert _ranking_despesas(livro) == [
+    assert ranking_despesas(livro) == [
         ("Lazer", Decimal(10)),
         ("Moradia", Decimal(10)),
         ("Sem categoria", Decimal(10)),
@@ -161,3 +162,32 @@ def test_graficos_sao_alimentados_por_area_de_apoio_a_partir_da_coluna_q(tmp_pat
     graficos = load_workbook(gerar_planilha(carregar_json(EXEMPLO), tmp_path / "p.xlsx"))["Gráficos"]
     cabecalho = [graficos.cell(1, coluna).value for coluna in range(17, 22)]
     assert cabecalho == ["Mês", "Receitas", "Despesas", "Investimentos", "Saldo Livre"]
+
+
+# Spec: PLN-12
+def test_planilha_em_memoria_tem_o_mesmo_conteudo_da_gerada_em_arquivo(tmp_path: Path) -> None:
+    from io import BytesIO
+
+    from controlegastos.generator import gerar_planilha_bytes
+
+    livros = carregar_json(RAIZ / "data" / "entradas" / "exemplo-completo.json")
+    arquivo = load_workbook(gerar_planilha(livros, tmp_path / "p.xlsx"))
+    memoria = load_workbook(BytesIO(gerar_planilha_bytes(livros)))
+
+    assert memoria.sheetnames == arquivo.sheetnames
+    for nome in arquivo.sheetnames:
+        celulas = lambda aba: {
+            (c.coordinate, c.value, c.number_format) for linha in aba.iter_rows() for c in linha if c.value is not None
+        }
+        assert celulas(memoria[nome]) == celulas(arquivo[nome]), nome
+    assert len(memoria["Gráficos"]._charts) == len(arquivo["Gráficos"]._charts) == 5
+    assert not list(tmp_path.glob("*.tmp"))
+
+
+# Spec: PLN-12
+def test_planilha_em_memoria_nao_escreve_em_disco(tmp_path: Path, monkeypatch) -> None:
+    from controlegastos.generator import gerar_planilha_bytes
+
+    monkeypatch.chdir(tmp_path)
+    assert gerar_planilha_bytes(carregar_json(EXEMPLO)).startswith(b"PK")  # zip/xlsx
+    assert list(tmp_path.iterdir()) == []

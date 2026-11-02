@@ -5,14 +5,11 @@ from datetime import date
 from decimal import Decimal
 from pathlib import Path
 
+from controlegastos.resumo import patrimonio_acumulado, ranking_despesas
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from controlegastos.generator import (
-    _patrimonio_acumulado,
-    _ranking_despesas,
-    gerar_planilha,
-)
+from controlegastos.generator import gerar_planilha
 from controlegastos.modelo import Despesa, Investimento, LivroCaixa
 
 valores = st.decimals(min_value=Decimal("0.01"), max_value=Decimal("9999.99"), places=2)
@@ -44,7 +41,7 @@ def _todos_meses(livro):
 @settings(max_examples=100, deadline=None)
 @given(livros())
 def test_ranking_ordenado_completo_e_rotulo_padrao(livro) -> None:
-    ranking = _ranking_despesas(livro)
+    ranking = ranking_despesas(livro)
     total = sum((m.total_despesas for m in _todos_meses(livro)), Decimal(0))
 
     assert sum((v for _, v in ranking), Decimal(0)) == total
@@ -58,7 +55,7 @@ def test_ranking_ordenado_completo_e_rotulo_padrao(livro) -> None:
 @settings(max_examples=100, deadline=None)
 @given(livros())
 def test_patrimonio_e_soma_cumulativa(livro) -> None:
-    patrimonio = _patrimonio_acumulado(livro)
+    patrimonio = patrimonio_acumulado(livro)
     meses = _todos_meses(livro)
 
     assert len(patrimonio) == len(meses)
