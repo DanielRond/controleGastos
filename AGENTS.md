@@ -91,7 +91,7 @@ docs/media/          # capturas da planilha usadas no README (só dados fictíci
 
 ## Regras para agentes de IA
 
-1. **Documentação é a fonte de verdade**: siga este arquivo. `PROMPTS.md` é local e não versionado.
+1. **Documentação é a fonte de verdade**: siga este arquivo.
 2. **Versionamento autônomo**: commite conforme necessário, sem pedir licença, em branch de trabalho (`feat/`, `fix/`, `docs/`, `chore/`), com commits pequenos e temáticos (Conventional Commits em português) e a suíte verde. Nunca commite ou dê `push` na `main`, nunca `push --force` nem `--no-verify`, nunca versione dados pessoais (`data/entradas/20*.json`) nem alterações locais que não são suas. Merge de PR é do usuário.
 3. Valores monetários são **Decimal**, nunca float (float só ao gravar células do openpyxl).
 4. Ao mudar o esquema, atualize **juntos**: `loader.py`, `validador.py`, `data/entradas/exemplo.json`, `specs/validacao/spec.md` e este arquivo.
