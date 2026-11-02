@@ -37,8 +37,10 @@ src/controlegastos/
   modelo.py          # dataclasses Receita, Despesa, Investimento, Mes, Ano, LivroCaixa (totais em Decimal)
   validador.py       # valida o JSON bruto e devolve todos os erros com caminho (só biblioteca padrão)
   loader.py          # lê JSON, valida (ErroDeValidacaoJSON) e constrói LivroCaixa
-  generator.py       # gera .xlsx: Resumo Geral, abas AAAA-MM e Gráficos (área de apoio nas colunas Q+)
+  generator.py       # gera .xlsx (arquivo ou bytes): Resumo Geral, abas AAAA-MM e Gráficos (área de apoio nas colunas Q+)
+  resumo.py          # dados dos gráficos (patrimônio, ranking, variação do saldo) em Decimal, sem openpyxl
   exportador_csv.py  # CSV de lançamentos e CSV de resumo mensal (UTF-8, vírgula, ponto decimal)
+  servico.py         # casos de uso (carregar, gerar, exportar; em arquivo ou em memória); a CLI só chama este módulo
 tests/               # pytest: unitários e propriedades (hypothesis); cada teste cita o ID do spec (`# Spec: VAL-03`)
 specs/               # specs por capacidade (lancamentos, validacao, exportacao, planilha, interface-web); ver specs/README.md
 scripts/             # checar.py (hook), conferir_specs.py (spec↔teste), sincronizar_agentes.py (Kiro→Claude)
