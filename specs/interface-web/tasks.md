@@ -4,10 +4,10 @@
 
 Atualize esta seção a cada passo concluído, junto do commit.
 
-- **Estado**: Fase 2 mesclada (PR #7). Fase 3 em andamento: spec `api` vigente (WEB-01..13, 16, 17, 19); testes e código ainda não feitos nesta branch.
+- **Estado**: Fase 2 mesclada (PR #7). Fase 3 em andamento: spec `api` vigente (WEB-01..13, 16, 17, 19); testes escritos (vermelhos), código ainda não.
 - **Branch atual**: `feat/fase3-api`.
 - **Último passo concluído**: Fase 2 mesclada; spec `api` criado (os requisitos de API saíram de `interface-web`, IDs inalterados).
-- **Próximo passo**: testes primeiro (`tests/test_api_*.py` com `TestClient`), depois `src/controlegastos/web/` (config, segurança, esquemas, app), comando `usuario criar`, `scripts/exportar_openapi.py` e `specs/api/openapi.json`.
+- **Próximo passo**: implementar `src/controlegastos/web/` (config, segurança, esquemas, app), comando `usuario criar`, `scripts/exportar_openapi.py` e `specs/api/openapi.json`.
 - **Como retomar**: `git checkout main && git pull`; ler `AGENTS.md`, este arquivo, `design.md` e os specs; criar a branch da tarefa; spec primeiro, testes antes do código, `uv run ruff check . --no-cache`, `uv run pytest` e `uv run python scripts/conferir_specs.py` verdes antes de cada commit; abrir PR e mesclar com o CI verde.
 - **Ambiente**: Python 3.14 via uv; Docker disponível; Node 18 no sistema (a Fase 4 exige Node 20+, instalar com fnm).
 
