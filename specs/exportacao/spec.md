@@ -23,6 +23,7 @@ Permitir levar os dados para outras ferramentas em CSV, além da planilha `.xlsx
 - **EXP-09** A CLI imprime uma linha por arquivo gerado: `Planilha disponível em: ...` (apenas xlsx) ou `Arquivo disponível em: ...` (csv/ambos).
 - **EXP-10** Falha de escrita (permissão, arquivo aberto no Excel) gera mensagem em português e código 1, sem reportar sucesso.
 - **EXP-11** Round trip: ler o CSV de lançamentos reproduz tipos, datas, textos (inclusive vírgulas, aspas e quebras de linha) e valores do livro.
+- **EXP-12** CSV em memória: `exportar_csv_bytes(livros)` devolve os dois CSV (lançamentos e resumo) como bytes UTF-8, idênticos byte a byte aos arquivos que `exportar_csv` grava para o mesmo livro.
 
 ## Valores de referência
 
@@ -35,7 +36,7 @@ Para `exemplo.json`, 2025-01: `2025,1,5250.00,1780.00,1000.00,2470.00`.
 
 ## Perguntas abertas
 
-- Para a interface web: gerar arquivos em memória (sem tocar o disco) para download. Hoje as funções recebem um caminho.
+Nenhuma pendente.
 
 ## Rastreabilidade
 
