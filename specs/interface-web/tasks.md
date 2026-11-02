@@ -11,7 +11,7 @@ Cada fase é um PR pequeno, com testes antes e revisão humana. Começa depois d
   - [ ] 2.1 Extra `web`, modelos SQLAlchemy, centavos, migração inicial
   - [ ] 2.2 Repositório por usuário, carga para `LivroCaixa`, isolamento (STO-06)
   - [ ] 2.3 Importar/exportar JSON transacional e `controlegastos banco atualizar`
-  - [ ] 2.4 Resolver as perguntas abertas 1 a 3 de `armazenamento` antes de codar 2.3
+  - [ ] 2.4 Resolver a pergunta aberta sobre exclusão (lançamentos) antes de codar o CRUD (fase 3)
 - [ ] **Fase 3 — API e autenticação** (WEB-01 a 08, 11, 12, 13, 16, 17)
   - [ ] 3.1 App FastAPI, sessão, login, CSRF, limite de tentativas, `controlegastos usuario criar`
   - [ ] 3.2 Rotas de meses e lançamentos com erros `{caminho, mensagem}`

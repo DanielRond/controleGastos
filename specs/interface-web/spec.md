@@ -17,6 +17,9 @@ Usar o controle de gastos de forma prática, sem editar JSON: entrar com login, 
 - Deve rodar **localmente e hospedado**, com a mesma base de código.
 - Autenticação com login; sem cadastro público na v1.
 - Importação de extratos fica para depois da v1.
+- Front-end: **React + TypeScript + Vite** (confirmado).
+- O login é exigido também no modo local, para ser igual ao hospedado (confirmado).
+- Uma pessoa usa na v1, mas o esquema já suporta vários usuários (confirmado).
 - Escopo da v1 confirmado: login, CRUD de lançamentos, painéis do mês e do ano, downloads, importar/exportar JSON.
 
 ## Comportamento
@@ -33,7 +36,7 @@ Lançamentos:
 - **WEB-05** Criar, editar e excluir lançamentos de receita, despesa e investimento (descrição, valor, dia, categoria; investimentos também têm tipo e ativo).
 - **WEB-06** Listar os lançamentos de um mês, navegando entre meses, ordenados por dia, com os totais do mês.
 - **WEB-07** Definir o salário e a meta de investimento do mês.
-- **WEB-08** Erros de validação usam o contrato `caminho` + `mensagem` (VAL-09) e aparecem junto ao campo no formulário; nada é gravado enquanto houver erro.
+- **WEB-08** Erros de validação usam o contrato `caminho` + `mensagem` (VAL-09) e aparecem junto ao campo no formulário; nada é gravado enquanto houver erro. Valor com mais de duas casas decimais é um erro (STO-11).
 
 Painéis:
 
@@ -44,7 +47,7 @@ Painéis:
 Arquivos:
 
 - **WEB-12** Baixar `.xlsx` e CSV (um ano ou todos), gerados em memória.
-- **WEB-13** Importar JSON (STO-08) mostrando os erros por caminho, e exportar JSON (STO-09).
+- **WEB-13** Importar JSON (STO-08) mostrando os erros por caminho, e exportar JSON (STO-09). Se algum mês do arquivo já existe, a importação é recusada e a tela oferece, de forma explícita, "substituir os meses do arquivo".
 
 Execução e contrato:
 
@@ -60,9 +63,7 @@ Execução e contrato:
 
 ## Perguntas abertas
 
-1. **Framework da SPA.** Proposta: **React + TypeScript + Vite** (maior ecossistema e melhor suporte de agentes de IA). Alternativas: Vue ou Svelte.
-2. Modo local exige login? Proposta: sim, para ser igual ao hospedado e simples de testar.
-3. Haverá mais de um usuário já na v1, ou um só com o esquema pronto para vários? Proposta: esquema pronto (STO-03), uso de um usuário.
+1. Como excluir um lançamento: definitivo com confirmação, lixeira ou desfazer? (ver `armazenamento`, pergunta 3)
 
 ## Rastreabilidade
 

@@ -25,9 +25,11 @@ Guardar os lançamentos de forma segura e consultável quando houver interface w
 - **STO-05** Toda gravação é transacional: falha não deixa dados parciais.
 - **STO-06** Nenhuma consulta retorna dados de outro usuário.
 - **STO-07** O esquema evolui por migrações versionadas, aplicáveis por comando (`controlegastos banco atualizar`), sem perder dados.
-- **STO-08** Importar JSON (formato atual): valida com as regras VAL-* antes de gravar, grava tudo ou nada e informa quantos lançamentos criou. Com erros, nada é gravado e todos os erros são devolvidos com caminho.
+- **STO-08** Importar JSON (formato atual): valida com as regras VAL-* e STO-11 antes de gravar, grava tudo ou nada e informa quantos lançamentos criou. Com erros, nada é gravado e todos os erros são devolvidos com caminho. Se o arquivo traz um mês que já existe para o usuário, a importação é **recusada** por padrão; com a opção explícita `substituir`, os meses do arquivo são trocados na mesma transação e os demais meses ficam intactos.
 - **STO-09** Exportar JSON no formato atual. Round trip: importar e exportar produz um JSON que gera o mesmo `LivroCaixa` (mesmos totais).
 - **STO-10** Carregar do banco para `LivroCaixa` de um usuário produz os mesmos totais que carregar o JSON equivalente (LAN-03).
+
+- **STO-11** Valor com mais de duas casas decimais é rejeitado como erro de validação, no caminho do campo (`valor deve ter no máximo 2 casas decimais`), tanto na importação quanto nos formulários; nunca é arredondado em silêncio. Ao implementar, isso vira também o requisito **VAL-13** no spec de validação, com teste.
 
 ## Valores de referência
 
@@ -40,6 +42,4 @@ Importar `data/entradas/exemplo.json` e carregar do banco dá, em 2025-01, recei
 
 ## Perguntas abertas
 
-1. Valor com mais de 2 casas decimais (aceito hoje no JSON): rejeitar com erro de validação ou arredondar half-up? Proposta: **rejeitar**, para o centavo nunca mudar em silêncio.
-2. Reimportar o mesmo JSON: acrescentar, substituir os meses do arquivo, ou recusar quando o mês já existe? Proposta: **recusar por padrão** e oferecer "substituir mês" como opção explícita.
-3. Exclusão de lançamento: definitiva ou com "lixeira"? Proposta: definitiva na v1 (o JSON exportado serve de backup).
+1. Exclusão de lançamento: definitiva com confirmação, lixeira (exclusão lógica) ou desfazer? Proposta: definitiva com confirmação na v1, com o JSON exportado como backup.

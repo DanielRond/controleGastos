@@ -70,7 +70,7 @@ Dinheiro vai e volta como texto decimal (WEB-17); erros de validação como list
 
 ## Front-end
 
-Proposta (pergunta aberta 1): React + TypeScript + Vite, TanStack Query para dados, React Router, gráficos com ECharts ou Recharts, cliente da API gerado com `openapi-typescript` (WEB-16). Testes: Vitest + Testing Library; ponta a ponta com Playwright contra o app real com SQLite temporário. Formatação BRL via `Intl.NumberFormat('pt-BR')` sobre o texto decimal recebido, sem fazer contas com `number` (WEB-11, WEB-17).
+Confirmado: React + TypeScript + Vite, TanStack Query para dados, React Router, gráficos com ECharts ou Recharts, cliente da API gerado com `openapi-typescript` (WEB-16). Testes: Vitest + Testing Library; ponta a ponta com Playwright contra o app real com SQLite temporário. Formatação BRL via `Intl.NumberFormat('pt-BR')` sobre o texto decimal recebido, sem fazer contas com `number` (WEB-11, WEB-17).
 
 ## Execução
 
