@@ -24,6 +24,7 @@ Rejeitar entradas inválidas **antes** de qualquer geração, mostrando todos os
 - **VAL-10** O loader valida antes de construir o `LivroCaixa`; com erros, levanta `ErroDeValidacaoJSON` (subclasse de `ValueError`) com todos eles. JSON ilegível gera mensagem em português com linha e coluna.
 - **VAL-11** Na CLI, com erros: exibe cada erro, retorna código 1 e **não grava nenhum arquivo**. Dado um JSON válido, Quando gerar, Então retorna 0.
 - **VAL-12** `data/entradas/exemplo.json` e `exemplo-completo.json` são sempre válidos.
+- **VAL-13** `valor`, `salario` e `meta_investimento` têm no máximo duas casas decimais; mais que isso é erro no caminho do campo (`valor deve ter no máximo 2 casas decimais`), nunca é arredondado em silêncio. Vale também para a CLI.
 
 ## Exemplo
 
@@ -45,9 +46,6 @@ anos[0].meses[0].despesas[0].valor: valor deve ser numérico finito (não boolea
 - Valores negativos devem ser erro? Hoje são aceitos.
 - A interface web mostrará esses erros por campo (`caminho`, `mensagem`); o contrato de `ErroDeValidacao` deve se manter estável.
 
-## Planejado
-
-- VAL-13 (a ser adicionado na Fase 2, junto de STO-11): `valor` com mais de duas casas decimais é rejeitado, sem arredondar.
 
 ## Rastreabilidade
 

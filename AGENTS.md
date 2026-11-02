@@ -10,9 +10,9 @@ Próximo grande passo: **interface web** (FastAPI + SPA React/TypeScript, SQLite
 
 ## Stack
 
-- **Python 3.14** gerenciado via [uv](https://docs.astral.sh/uv/); hoje só CLI, sem framework web
+- **Python 3.14** gerenciado via [uv](https://docs.astral.sh/uv/); `uv sync --extra web` instala a stack da web (FastAPI, SQLAlchemy, Alembic, Argon2)
 - **openpyxl** (planilha e gráficos), **pytest** + **hypothesis** (testes), **ruff** (lint)
-- Planejado para a web (ainda não instalado): FastAPI, SQLAlchemy + SQLite, React + TypeScript; ver `specs/interface-web/design.md`
+- Web: FastAPI, SQLAlchemy + SQLite e, depois, React + TypeScript; ver `specs/interface-web/design.md`
 
 ## Comandos principais
 

@@ -1,14 +1,14 @@
 ---
 capacidade: armazenamento
 codigo: STO
-status: rascunho
+status: vigente
 ---
 
 # Capacidade: armazenamento
 
 ## Objetivo
 
-Guardar os lançamentos de forma segura e consultável quando houver interface web e vários usuários, mantendo o JSON como formato de importação, exportação e backup versionável. **Decisões aprovadas pelo usuário; permanece `rascunho` até começar a implementação da capacidade, quando passa a `vigente` e o CI exige um teste por requisito.**
+Guardar os lançamentos de forma segura e consultável quando houver interface web e vários usuários, mantendo o JSON como formato de importação, exportação e backup versionável. **Vigente: cada requisito é coberto por teste.**
 
 ## Decisões tomadas
 
@@ -29,7 +29,7 @@ Guardar os lançamentos de forma segura e consultável quando houver interface w
 - **STO-09** Exportar JSON no formato atual. Round trip: importar e exportar produz um JSON que gera o mesmo `LivroCaixa` (mesmos totais).
 - **STO-10** Carregar do banco para `LivroCaixa` de um usuário produz os mesmos totais que carregar o JSON equivalente (LAN-03).
 
-- **STO-11** Valor com mais de duas casas decimais é rejeitado como erro de validação, no caminho do campo (`valor deve ter no máximo 2 casas decimais`), tanto na importação quanto nos formulários; nunca é arredondado em silêncio. Ao implementar, isso vira também o requisito VAL-13 no spec de validação, com teste.
+- **STO-11** Valor com mais de duas casas decimais é rejeitado como erro de validação, no caminho do campo (`valor deve ter no máximo 2 casas decimais`), tanto na importação quanto nos formulários; nunca é arredondado em silêncio. A regra mora no validador como VAL-13 (ver `validacao`), valendo também para a CLI.
 - **STO-12** Excluir é lógico: o lançamento ganha `apagado_em` e vai para a lixeira. Todas as leituras normais (listas, totais, gráficos, planilha, CSV, exportação JSON, `LivroCaixa`) ignoram lançamentos na lixeira, por uma única regra central do repositório.
 - **STO-13** Da lixeira é possível restaurar um lançamento (volta ao mesmo mês, com o mesmo `id`), excluí-lo definitivamente ou esvaziar a lixeira inteira. Restaurar, excluir definitivamente e esvaziar são restritos ao dono (STO-06).
 - **STO-14** A lixeira não expira sozinha: itens só saem dela por ação explícita do usuário (excluir definitivamente ou esvaziar). Não há tarefa agendada.
