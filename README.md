@@ -82,7 +82,7 @@ Com login, no navegador: lançar e corrigir receitas, despesas e investimentos, 
 
 ```bash
 uv sync --extra web
-(cd frontend && npm ci && npm run build)    # precisa de Node 24+ (veja .nvmrc; recomendado: fnm)
+(cd frontend && npm ci && npm run build)    # precisa de Node 24+ (veja .nvmrc)
 uv run controlegastos usuario criar ana     # cria a sua conta (senha pedida sem eco)
 uv run controlegastos web                   # abre em http://127.0.0.1:8000
 ```
