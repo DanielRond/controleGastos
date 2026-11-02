@@ -5,12 +5,12 @@ from datetime import date
 from decimal import Decimal
 from pathlib import Path
 
-from controlegastos.resumo import patrimonio_acumulado, ranking_despesas
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from controlegastos.generator import gerar_planilha
 from controlegastos.modelo import Despesa, Investimento, LivroCaixa
+from controlegastos.resumo import patrimonio_acumulado, ranking_despesas
 
 valores = st.decimals(min_value=Decimal("0.01"), max_value=Decimal("9999.99"), places=2)
 categorias = st.sampled_from(["", "   ", "geral", "Moradia", "Lazer", "Saúde"])

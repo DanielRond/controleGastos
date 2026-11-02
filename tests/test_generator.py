@@ -118,9 +118,8 @@ def test_ranking_despesas_usa_sem_categoria() -> None:
     from datetime import date
     from decimal import Decimal
 
-    from controlegastos.resumo import ranking_despesas
-
     from controlegastos.modelo import Despesa, LivroCaixa
+    from controlegastos.resumo import ranking_despesas
 
     livro = LivroCaixa()
     mes = livro.ano(2025).mes(1)
