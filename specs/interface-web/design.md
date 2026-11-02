@@ -42,7 +42,7 @@ Dependências do back-end ficam num extra opcional `web` do `pyproject.toml` (Fa
 - Os dados dos gráficos (`patrimonio_acumulado`, `ranking_despesas`, `variacao_saldo`) são públicos em `resumo.py`, sem openpyxl, e serão usados pela planilha **e** pela API (WEB-10, WEB-11).
 - O comportamento externo da CLI não mudou.
 
-## API (esboço)
+## API (contrato em [specs/api](../api/spec.md))
 
 | Método e rota | Função | Requisitos |
 |---|---|---|

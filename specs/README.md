@@ -11,6 +11,7 @@ Lido da mesma forma pelo Kiro, pelo Claude Code e por pessoas. Idioma: pt-BR (o 
 | [exportacao](exportacao/spec.md) | EXP | vigente | `--formato`, CSV de lançamentos e de resumo |
 | [planilha](planilha/spec.md) | PLN | vigente | `.xlsx`: Resumo Geral, abas por mês, gráficos |
 | [armazenamento](armazenamento/spec.md) | STO | vigente (implementado) | Banco SQLite, centavos, usuários, lixeira, importar/exportar JSON |
+| [api](api/spec.md) | WEB | vigente | API HTTP, login/sessão/CSRF, lançamentos, painéis, downloads, lixeira, contrato OpenAPI (Fase 3) |
 | [interface-web](interface-web/spec.md) | WEB | rascunho | Login, lançamentos, painéis, downloads; SPA + FastAPI (com `design.md` e `tasks.md`; Fases 3 a 5) |
 
 ## Convenções
