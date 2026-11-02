@@ -116,7 +116,7 @@ Em andamento — **interface web** (login, lançamentos, painéis do mês e do a
 - [x] Fase 1 — camada de serviço
 - [x] Fase 2 — armazenamento (SQLite, valores em centavos, usuários, lixeira, importar/exportar JSON)
 - [x] Fase 3 — API e autenticação (login, lançamentos, painéis, downloads, lixeira, contrato OpenAPI)
-- [ ] Fase 4 — front-end (feitos: base, login, mês, ano, lixeira e arquivos; falta o teste de ponta a ponta no navegador)
+- [x] Fase 4 — front-end (login, mês, ano, lixeira, arquivos; testes de componente e de ponta a ponta no navegador)
 - [ ] Fase 5 — execução local e hospedada
 
 Depois da interface web: **importação de extratos bancários** (OFX/CSV de banco), com tela de revisão.

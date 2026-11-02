@@ -59,3 +59,47 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Instala uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.14"
+
+      - name: Instala dependências Python
+        run: uv sync --extra web
+
+      - name: Instala Node
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Instala dependências do front-end
+        run: npm ci
+        working-directory: frontend
+
+      - name: Compila o front-end (servido pela API)
+        run: npm run build
+        working-directory: frontend
+
+      - name: Instala o navegador do Playwright
+        run: npx playwright install --with-deps chromium
+        working-directory: frontend
+
+      - name: Testes de ponta a ponta
+        run: npm run e2e
+        working-directory: frontend
+
+      - name: Guarda os rastros dos testes que falharam
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: playwright-test-results
+          path: frontend/test-results
+          retention-days: 7

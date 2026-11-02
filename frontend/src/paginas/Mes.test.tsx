@@ -117,6 +117,34 @@ describe("novo lançamento", () => {
     expect(envio?.corpo).toEqual({ ano: 2026, mes: 11, tipo: "despesa", descricao: "Padaria", valor: "1234.56", dia: 7, categoria: "alimentacao" });
     expect(envio?.csrf).toBe("csrf-ana");
     expect(screen.getByLabelText("Descrição")).toHaveValue(""); // formulário limpo para o próximo
+    expect(screen.getByLabelText("Categoria")).toHaveValue(""); // a categoria não vaza para o próximo lançamento
+    await waitFor(() => expect(screen.getByLabelText("Dia")).toHaveFocus()); // pronto para digitar o seguinte
+  });
+
+  // Spec: WEB-22, WEB-18
+  it("durante o envio os campos ficam desabilitados, para nada digitado ser apagado pela resposta", async () => {
+    let liberar!: () => void;
+    const espera = new Promise<void>((resolver) => (liberar = resolver));
+    simularApi(base({
+      "GET /api/meses/2026/11": { corpo: mesVazio() },
+      "POST /api/lancamentos": async () => {
+        await espera;
+        return { status: 201, corpo: lanc() };
+      },
+    }));
+    renderizar(<App />, "/mes/2026/11");
+
+    await userEvent.type(await screen.findByLabelText("Dia"), "7");
+    await userEvent.type(screen.getByLabelText("Descrição"), "Padaria");
+    await userEvent.type(screen.getByLabelText("Valor (R$)"), "10");
+    await userEvent.click(screen.getByRole("button", { name: "Adicionar" }));
+
+    await waitFor(() => expect(screen.getByLabelText("Descrição")).toBeDisabled());
+    expect(screen.getByRole("button", { name: "Adicionar" })).toBeDisabled();
+
+    liberar();
+    await waitFor(() => expect(screen.getByLabelText("Descrição")).toBeEnabled());
+    expect(screen.getByLabelText("Descrição")).toHaveValue("");
   });
 
   // Spec: WEB-27
@@ -237,10 +265,14 @@ describe("editar e apagar", () => {
 
 describe("salário e meta", () => {
   // Spec: WEB-23
-  it("mostra os valores atuais, salva e envia texto decimal", async () => {
+  it("mostra os valores atuais, salva e envia texto decimal; o aviso de salvo permanece depois de recarregar", async () => {
+    let atual = mesComDados();
     const chamadas = simularApi(base({
-      "GET /api/meses/2026/11": { corpo: mesComDados() },
-      "PUT /api/meses/2026/11": { corpo: mesComDados() },
+      "GET /api/meses/2026/11": () => ({ corpo: atual }),
+      "PUT /api/meses/2026/11": (corpo) => {
+        atual = { ...atual, salario: (corpo as { salario: string }).salario };
+        return { corpo: atual };
+      },
     }));
     renderizar(<App />, "/mes/2026/11");
 
@@ -252,8 +284,14 @@ describe("salário e meta", () => {
     await userEvent.type(salario, "3.500,25");
     await userEvent.click(screen.getByRole("button", { name: "Salvar" }));
 
+    // o servidor agora devolve o salário novo; mesmo assim a confirmação continua na tela
     expect(await screen.findByText("Salário e meta salvos.")).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByLabelText("Salário (R$)")).toHaveValue("3500,25"));
+    expect(screen.getByText("Salário e meta salvos.")).toBeInTheDocument();
     expect(chamadas.find((c) => c.metodo === "PUT")?.corpo).toEqual({ salario: "3500.25", meta_investimento: "850.00" });
+
+    await userEvent.type(screen.getByLabelText("Salário (R$)"), "1"); // voltar a editar esconde o aviso
+    expect(screen.queryByText("Salário e meta salvos.")).not.toBeInTheDocument();
   });
 
   // Spec: WEB-23

@@ -25,6 +25,7 @@ uv run controlegastos banco atualizar                                # cria/atua
 uv run controlegastos usuario criar NOME                             # cria uma conta de acesso à web (senha pedida sem eco)
 uv run python scripts/exportar_openapi.py                            # atualiza specs/api/openapi.json (um teste exige em dia)
 (cd frontend && npm ci && npm run api && npm test && npm run build)   # front-end: depois de mudar o OpenAPI, rode `npm run api`
+(cd frontend && npx playwright install chromium && npm run e2e)       # ponta a ponta (precisa do build; sobe scripts/servidor_e2e.py)
 uv run pytest                                                        # testes
 uv run ruff check .                                                  # estilo (use --no-cache ao criar módulos novos)
 uv run python scripts/conferir_specs.py                              # todo requisito vigente tem teste
@@ -54,10 +55,10 @@ src/controlegastos/
   servico.py         # casos de uso (carregar, gerar, exportar; em arquivo ou em memória); a CLI só chama este módulo
 tests/               # pytest: unitários e propriedades (hypothesis); cada teste cita o ID do spec (`# Spec: VAL-03`)
 specs/               # specs por capacidade (lancamentos, validacao, exportacao, planilha, armazenamento, api, interface-web); ver specs/README.md
-scripts/             # checar.py (hook), conferir_specs.py (spec↔teste), sincronizar_agentes.py (Kiro→Claude), exportar_openapi.py
+scripts/             # checar.py (hook), conferir_specs.py (spec↔teste), sincronizar_agentes.py (Kiro→Claude), exportar_openapi.py, servidor_e2e.py
 docs/media/          # capturas da planilha usadas no README (só dados fictícios)
 .kiro/               # agentes, hooks e steering manual; .claude/ e CLAUDE.md para o Claude Code
-.github/workflows/   # CI: uv sync, ruff, pytest em Python 3.14
+.github/workflows/   # CI: ci (ruff, pytest), web (lint, tsc, vitest, build, cliente em dia), e2e (Playwright)
 ```
 
 ## Entrada de dados (JSON)

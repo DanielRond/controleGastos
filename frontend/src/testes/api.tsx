@@ -6,7 +6,7 @@ import { vi } from "vitest";
 import { SessaoProvider } from "../sessao";
 
 export type Resposta = { status?: number; corpo?: unknown };
-export type Rotas = Record<string, Resposta | ((corpo: unknown) => Resposta)>;
+export type Rotas = Record<string, Resposta | ((corpo: unknown) => Resposta | Promise<Resposta>)>;
 export interface Chamada {
   metodo: string;
   caminho: string;
@@ -27,7 +27,7 @@ export function simularApi(rotas: Rotas): Chamada[] {
       const chave = `${requisicao.method} ${url.pathname}`;
       const definida = rotas[chave];
       if (!definida) return new Response(JSON.stringify({ detalhe: `sem rota simulada: ${chave}` }), { status: 404 });
-      const { status = 200, corpo: resposta } = typeof definida === "function" ? definida(corpo) : definida;
+      const { status = 200, corpo: resposta } = typeof definida === "function" ? await definida(corpo) : definida;
       return new Response(status === 204 ? null : JSON.stringify(resposta ?? {}), {
         status,
         headers: { "content-type": "application/json" },

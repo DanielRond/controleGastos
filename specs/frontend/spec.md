@@ -1,14 +1,14 @@
 ---
 capacidade: frontend
 codigo: WEB
-status: rascunho
+status: vigente
 ---
 
 # Capacidade: telas da interface web
 
 ## Objetivo
 
-As telas que o usuário usa no navegador: entrar, registrar e corrigir lançamentos, ver o mês e o ano, usar a lixeira e levar/trazer arquivos. Consomem só a API de [specs/api](../api/spec.md); nunca recalculam totais. **Rascunho: passa a `vigente` na última etapa da Fase 4, quando todo requisito tiver teste (Vitest ou ponta a ponta com Playwright).**
+As telas que o usuário usa no navegador: entrar, registrar e corrigir lançamentos, ver o mês e o ano, usar a lixeira e levar/trazer arquivos. Consomem só a API de [specs/api](../api/spec.md); nunca recalculam totais. **Vigente: cada requisito tem teste de componente (Vitest) e, onde há fluxo real, de ponta a ponta (Playwright).**
 
 ## Decisões
 
