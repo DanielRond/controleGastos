@@ -14,6 +14,8 @@ from openpyxl import load_workbook
 
 from controlegastos.loader import carregar_json
 from controlegastos.resumo import (
+    livro_ate_o_ano,
+    livro_do_ano,
     patrimonio_acumulado,
     ranking_despesas,
     variacao_saldo,
@@ -216,14 +218,26 @@ def test_valores_de_referencia_do_exemplo(ana) -> None:
 def test_resumo_do_ano_usa_as_mesmas_funcoes_do_resumo(ana) -> None:
     _importar(ana, COMPLETO)
     livro = carregar_json(COMPLETO)
+    do_ano = livro_do_ano(livro, 2025)
     ano = ana.get("/api/anos/2025/resumo").json()
 
     assert [(m["mes"], m["saldo_livre"]) for m in ano["meses"]] == [
-        (n, f"{mes.saldo_livre:.2f}") for n, mes in sorted(livro.anos[2025].meses.items())
+        (n, f"{mes.saldo_livre:.2f}") for n, mes in sorted(do_ano.anos[2025].meses.items())
     ]
-    assert [(p["rotulo"], p["valor"]) for p in ano["patrimonio"]] == [(r, f"{v:.2f}") for r, v in patrimonio_acumulado(livro)]
-    assert [(r["categoria"], r["total"]) for r in ano["ranking"]] == [(c, f"{v:.2f}") for c, v in ranking_despesas(livro)]
-    assert [(v["rotulo"], v["valor"]) for v in ano["variacao"]] == [(r, f"{v:.2f}") for r, v in variacao_saldo(livro)]
+    patrimonio_esperado = [(r, v) for r, v in patrimonio_acumulado(livro_ate_o_ano(livro, 2025)) if r.startswith("2025-")]
+    assert [(p["rotulo"], p["valor"]) for p in ano["patrimonio"]] == [(r, f"{v:.2f}") for r, v in patrimonio_esperado]
+    assert [(r["categoria"], r["total"]) for r in ano["ranking"]] == [(c, f"{v:.2f}") for c, v in ranking_despesas(do_ano)]
+    assert [(v["rotulo"], v["valor"]) for v in ano["variacao"]] == [(r, f"{v:.2f}") for r, v in variacao_saldo(do_ano)]
+
+
+# Spec: WEB-10
+def test_patrimonio_de_um_ano_acumula_os_anos_anteriores(ana) -> None:
+    _importar(ana, COMPLETO)
+    p2025 = ana.get("/api/anos/2025/resumo").json()["patrimonio"]
+    p2026 = ana.get("/api/anos/2026/resumo").json()["patrimonio"]
+
+    assert all(p["rotulo"].startswith("2026-") for p in p2026)
+    assert Decimal(p2026[0]["valor"]) > Decimal(p2025[-1]["valor"])  # janeiro/2026 já inclui tudo de 2025
 
 
 # Spec: WEB-10

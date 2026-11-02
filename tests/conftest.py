@@ -69,9 +69,8 @@ def app():
 @pytest.fixture
 def criar_conta(app):
     def _criar(nome: str, senha: str = SENHA_PADRAO) -> int:
-        from controlegastos.web.seguranca import gerar_hash
-
         from controlegastos.armazenamento import criar_sessao, criar_usuario
+        from controlegastos.web.seguranca import gerar_hash
 
         with criar_sessao(app.state.motor) as sessao:
             return criar_usuario(sessao, nome, gerar_hash(senha))

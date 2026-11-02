@@ -34,8 +34,8 @@ Lançamentos e meses:
 
 Painéis:
 
-- **WEB-09** O mesmo `GET /api/meses/{ano}/{mes}` traz `investimentos_por_classe` (tipo, total e percentual do total investido, como na aba do mês, PLN-04) e `meta` (`valor`, `investido`, `diferenca = meta - investido` e `situacao` `falta` ou `acima`), presente só quando há meta.
-- **WEB-10** `GET /api/anos/{ano}/resumo` devolve o resumo de cada mês (receitas, despesas, investimentos, saldo livre), `patrimonio`, `ranking` de categorias (com `Sem categoria`) e `variacao` do saldo, pelas mesmas funções e regras de PLN-06 a PLN-09. Ano sem dados responde 200 com listas vazias.
+- **WEB-09** O mesmo `GET /api/meses/{ano}/{mes}` traz `investimentos_por_classe` (tipo, total e percentual do total investido, como na aba do mês, PLN-04) e `meta` (`valor`, `investido`, `diferenca = meta - investido` e `situacao`: `falta` quando `diferenca > 0`, `acima` quando a meta foi atingida ou ultrapassada, como na planilha), presente só quando há meta.
+- **WEB-10** `GET /api/anos/{ano}/resumo` devolve o resumo de cada mês do ano (receitas, despesas, investimentos, saldo livre), o `patrimonio` (aportes acumulados desde o primeiro mês registrado até cada mês do ano, inclusive os de anos anteriores), o `ranking` de categorias do ano (com `Sem categoria`) e a `variacao` do saldo dentro do ano (a partir do segundo mês), pelas mesmas funções e regras de PLN-06 a PLN-09. Ano sem dados responde 200 com listas vazias.
 - **WEB-11** Os números da API vêm do mesmo cálculo do `.xlsx` e do CSV (`LivroCaixa` e `resumo.py`); o front-end nunca recalcula totais.
 
 Arquivos:

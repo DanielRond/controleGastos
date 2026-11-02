@@ -304,6 +304,25 @@ class Repositorio:
     def listar_lixeira(self) -> list[LancamentoDados]:
         return self._listar(self._apagados())
 
+    def obter_lancamento(self, id_: int) -> LancamentoDados:
+        """Um lançamento do dono, vivo ou na lixeira."""
+        for consulta in (self._ativos(), self._apagados()):
+            encontrados = self._listar(consulta.where(LancamentoRegistro.id == id_))
+            if encontrados:
+                return encontrados[0]
+        raise LancamentoInexistente(id_)
+
+    def dados_do_mes(self, ano: int, mes: int) -> tuple[Decimal | None, Decimal | None]:
+        """Salário e meta cadastrados no mês (None quando não definidos)."""
+        registro = self._mes(ano, mes, criar=False)
+        if registro is None:
+            return None, None
+        salario, meta = registro.salario_centavos, registro.meta_investimento_centavos
+        return (
+            None if salario is None else de_centavos(salario),
+            None if meta is None else de_centavos(meta),
+        )
+
     # ------------------------------------------------------------ leitura
 
     def meses(self) -> list[tuple[int, int]]:
@@ -318,23 +337,27 @@ class Repositorio:
     def listar_mes(self, ano: int, mes: int) -> list[LancamentoDados]:
         return self._listar(self._ativos().where(MesRegistro.ano == ano, MesRegistro.mes == mes))
 
-    def _meses_com_itens(self) -> list[tuple[MesRegistro, list[LancamentoRegistro]]]:
-        registros = list(
-            self.sessao.scalars(
-                select(MesRegistro)
-                .where(MesRegistro.usuario_id == self.usuario_id)
-                .order_by(MesRegistro.ano, MesRegistro.mes)
-            )
-        )
+    def _meses_com_itens(
+        self, ano: int | None = None, mes: int | None = None
+    ) -> list[tuple[MesRegistro, list[LancamentoRegistro]]]:
+        consulta = select(MesRegistro).where(MesRegistro.usuario_id == self.usuario_id)
+        if ano is not None:
+            consulta = consulta.where(MesRegistro.ano == ano)
+        if mes is not None:
+            consulta = consulta.where(MesRegistro.mes == mes)
+        registros = list(self.sessao.scalars(consulta.order_by(MesRegistro.ano, MesRegistro.mes)))
         itens: dict[int, list[LancamentoRegistro]] = {}
         for item in self.sessao.scalars(self._ativos().order_by(LancamentoRegistro.id)):
             itens.setdefault(item.mes_id, []).append(item)
         return [(registro, itens.get(registro.id, [])) for registro in registros]
 
-    def carregar_livro(self) -> LivroCaixa:
-        """O `LivroCaixa` do usuário, igual ao que o loader montaria do JSON equivalente (STO-10)."""
+    def carregar_livro(self, *, ano: int | None = None, mes: int | None = None) -> LivroCaixa:
+        """O `LivroCaixa` do usuário, igual ao que o loader montaria do JSON equivalente (STO-10).
+
+        `ano` e `mes` recortam o resultado (útil para não ler tudo a cada requisição).
+        """
         livro = LivroCaixa()
-        for registro, itens in self._meses_com_itens():
+        for registro, itens in self._meses_com_itens(ano, mes):
             atual = livro.ano(registro.ano).mes(registro.mes)
             ancora = date(registro.ano, registro.mes, 1)
             if registro.salario_centavos:

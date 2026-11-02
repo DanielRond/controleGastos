@@ -1,0 +1,1519 @@
+{
+  "components": {
+    "schemas": {
+      "AnoSaida": {
+        "properties": {
+          "ano": {
+            "title": "Ano",
+            "type": "integer"
+          },
+          "meses": {
+            "items": {
+              "$ref": "#/components/schemas/ResumoMes"
+            },
+            "title": "Meses",
+            "type": "array"
+          },
+          "patrimonio": {
+            "items": {
+              "$ref": "#/components/schemas/PontoSerie"
+            },
+            "title": "Patrimonio",
+            "type": "array"
+          },
+          "ranking": {
+            "items": {
+              "$ref": "#/components/schemas/ItemRanking"
+            },
+            "title": "Ranking",
+            "type": "array"
+          },
+          "variacao": {
+            "items": {
+              "$ref": "#/components/schemas/PontoSerie"
+            },
+            "title": "Variacao",
+            "type": "array"
+          }
+        },
+        "required": [
+          "ano",
+          "meses",
+          "patrimonio",
+          "ranking",
+          "variacao"
+        ],
+        "title": "AnoSaida",
+        "type": "object"
+      },
+      "Classe": {
+        "properties": {
+          "percentual": {
+            "title": "Percentual",
+            "type": "string"
+          },
+          "tipo": {
+            "title": "Tipo",
+            "type": "string"
+          },
+          "total": {
+            "title": "Total",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tipo",
+          "total",
+          "percentual"
+        ],
+        "title": "Classe",
+        "type": "object"
+      },
+      "Conflito": {
+        "properties": {
+          "mensagem": {
+            "title": "Mensagem",
+            "type": "string"
+          },
+          "meses": {
+            "items": {
+              "$ref": "#/components/schemas/MesRef"
+            },
+            "title": "Meses",
+            "type": "array"
+          }
+        },
+        "required": [
+          "mensagem",
+          "meses"
+        ],
+        "title": "Conflito",
+        "type": "object"
+      },
+      "Detalhe": {
+        "properties": {
+          "detalhe": {
+            "title": "Detalhe",
+            "type": "string"
+          }
+        },
+        "required": [
+          "detalhe"
+        ],
+        "title": "Detalhe",
+        "type": "object"
+      },
+      "ErroCampo": {
+        "properties": {
+          "caminho": {
+            "title": "Caminho",
+            "type": "string"
+          },
+          "mensagem": {
+            "title": "Mensagem",
+            "type": "string"
+          }
+        },
+        "required": [
+          "caminho",
+          "mensagem"
+        ],
+        "title": "ErroCampo",
+        "type": "object"
+      },
+      "ErrosValidacao": {
+        "properties": {
+          "erros": {
+            "items": {
+              "$ref": "#/components/schemas/ErroCampo"
+            },
+            "title": "Erros",
+            "type": "array"
+          }
+        },
+        "required": [
+          "erros"
+        ],
+        "title": "ErrosValidacao",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "ItemRanking": {
+        "properties": {
+          "categoria": {
+            "title": "Categoria",
+            "type": "string"
+          },
+          "total": {
+            "title": "Total",
+            "type": "string"
+          }
+        },
+        "required": [
+          "categoria",
+          "total"
+        ],
+        "title": "ItemRanking",
+        "type": "object"
+      },
+      "Lancamento": {
+        "properties": {
+          "ano": {
+            "title": "Ano",
+            "type": "integer"
+          },
+          "apagado_em": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Apagado Em"
+          },
+          "ativo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ativo"
+          },
+          "categoria": {
+            "title": "Categoria",
+            "type": "string"
+          },
+          "descricao": {
+            "title": "Descricao",
+            "type": "string"
+          },
+          "dia": {
+            "title": "Dia",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "mes": {
+            "title": "Mes",
+            "type": "integer"
+          },
+          "origem": {
+            "title": "Origem",
+            "type": "string"
+          },
+          "tipo": {
+            "title": "Tipo",
+            "type": "string"
+          },
+          "tipo_investimento": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tipo Investimento"
+          },
+          "valor": {
+            "title": "Valor",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "ano",
+          "mes",
+          "tipo",
+          "descricao",
+          "valor",
+          "dia",
+          "categoria",
+          "tipo_investimento",
+          "ativo",
+          "origem"
+        ],
+        "title": "Lancamento",
+        "type": "object"
+      },
+      "LancamentoAtualizacao": {
+        "additionalProperties": false,
+        "description": "Só os campos enviados mudam (`model_fields_set`).",
+        "properties": {
+          "ativo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ativo"
+          },
+          "categoria": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Categoria"
+          },
+          "descricao": {
+            "title": "Descricao",
+            "type": "string"
+          },
+          "dia": {
+            "title": "Dia",
+            "type": "integer"
+          },
+          "tipo_investimento": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tipo Investimento"
+          },
+          "valor": {
+            "examples": [
+              "1200.00"
+            ],
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Valor",
+            "type": "string"
+          }
+        },
+        "title": "LancamentoAtualizacao",
+        "type": "object"
+      },
+      "LancamentoEntrada": {
+        "additionalProperties": false,
+        "properties": {
+          "ano": {
+            "title": "Ano",
+            "type": "integer"
+          },
+          "ativo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ativo"
+          },
+          "categoria": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Categoria"
+          },
+          "descricao": {
+            "title": "Descricao",
+            "type": "string"
+          },
+          "dia": {
+            "title": "Dia",
+            "type": "integer"
+          },
+          "mes": {
+            "title": "Mes",
+            "type": "integer"
+          },
+          "tipo": {
+            "enum": [
+              "receita",
+              "despesa",
+              "investimento"
+            ],
+            "title": "Tipo",
+            "type": "string"
+          },
+          "tipo_investimento": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tipo Investimento"
+          },
+          "valor": {
+            "examples": [
+              "1200.00"
+            ],
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Valor",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ano",
+          "mes",
+          "tipo",
+          "descricao",
+          "valor",
+          "dia"
+        ],
+        "title": "LancamentoEntrada",
+        "type": "object"
+      },
+      "LoginEntrada": {
+        "additionalProperties": false,
+        "properties": {
+          "nome": {
+            "title": "Nome",
+            "type": "string"
+          },
+          "senha": {
+            "title": "Senha",
+            "type": "string"
+          }
+        },
+        "required": [
+          "nome",
+          "senha"
+        ],
+        "title": "LoginEntrada",
+        "type": "object"
+      },
+      "MesEntrada": {
+        "additionalProperties": false,
+        "description": "Só os campos enviados mudam; `null` limpa.",
+        "properties": {
+          "meta_investimento": {
+            "examples": [
+              "1200.00"
+            ],
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Meta Investimento",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "salario": {
+            "examples": [
+              "1200.00"
+            ],
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Salario",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "title": "MesEntrada",
+        "type": "object"
+      },
+      "MesRef": {
+        "properties": {
+          "ano": {
+            "title": "Ano",
+            "type": "integer"
+          },
+          "mes": {
+            "title": "Mes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "ano",
+          "mes"
+        ],
+        "title": "MesRef",
+        "type": "object"
+      },
+      "MesSaida": {
+        "properties": {
+          "ano": {
+            "title": "Ano",
+            "type": "integer"
+          },
+          "investimentos_por_classe": {
+            "items": {
+              "$ref": "#/components/schemas/Classe"
+            },
+            "title": "Investimentos Por Classe",
+            "type": "array"
+          },
+          "lancamentos": {
+            "items": {
+              "$ref": "#/components/schemas/Lancamento"
+            },
+            "title": "Lancamentos",
+            "type": "array"
+          },
+          "mes": {
+            "title": "Mes",
+            "type": "integer"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Meta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "meta_investimento": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta Investimento"
+          },
+          "salario": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salario"
+          },
+          "totais": {
+            "$ref": "#/components/schemas/Totais"
+          }
+        },
+        "required": [
+          "ano",
+          "mes",
+          "salario",
+          "meta_investimento",
+          "lancamentos",
+          "totais",
+          "investimentos_por_classe",
+          "meta"
+        ],
+        "title": "MesSaida",
+        "type": "object"
+      },
+      "Meta": {
+        "properties": {
+          "diferenca": {
+            "title": "Diferenca",
+            "type": "string"
+          },
+          "investido": {
+            "title": "Investido",
+            "type": "string"
+          },
+          "situacao": {
+            "enum": [
+              "falta",
+              "acima"
+            ],
+            "title": "Situacao",
+            "type": "string"
+          },
+          "valor": {
+            "title": "Valor",
+            "type": "string"
+          }
+        },
+        "required": [
+          "valor",
+          "investido",
+          "diferenca",
+          "situacao"
+        ],
+        "title": "Meta",
+        "type": "object"
+      },
+      "PontoSerie": {
+        "properties": {
+          "rotulo": {
+            "title": "Rotulo",
+            "type": "string"
+          },
+          "valor": {
+            "title": "Valor",
+            "type": "string"
+          }
+        },
+        "required": [
+          "rotulo",
+          "valor"
+        ],
+        "title": "PontoSerie",
+        "type": "object"
+      },
+      "Removidos": {
+        "properties": {
+          "removidos": {
+            "title": "Removidos",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "removidos"
+        ],
+        "title": "Removidos",
+        "type": "object"
+      },
+      "ResultadoImportacao": {
+        "properties": {
+          "lancamentos_criados": {
+            "title": "Lancamentos Criados",
+            "type": "integer"
+          },
+          "meses": {
+            "items": {
+              "$ref": "#/components/schemas/MesRef"
+            },
+            "title": "Meses",
+            "type": "array"
+          },
+          "substituidos": {
+            "title": "Substituidos",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "lancamentos_criados",
+          "meses",
+          "substituidos"
+        ],
+        "title": "ResultadoImportacao",
+        "type": "object"
+      },
+      "ResumoMes": {
+        "properties": {
+          "despesas": {
+            "title": "Despesas",
+            "type": "string"
+          },
+          "investimentos": {
+            "title": "Investimentos",
+            "type": "string"
+          },
+          "mes": {
+            "title": "Mes",
+            "type": "integer"
+          },
+          "receitas": {
+            "title": "Receitas",
+            "type": "string"
+          },
+          "saldo_livre": {
+            "title": "Saldo Livre",
+            "type": "string"
+          }
+        },
+        "required": [
+          "mes",
+          "receitas",
+          "despesas",
+          "investimentos",
+          "saldo_livre"
+        ],
+        "title": "ResumoMes",
+        "type": "object"
+      },
+      "Totais": {
+        "properties": {
+          "despesas": {
+            "title": "Despesas",
+            "type": "string"
+          },
+          "investimentos": {
+            "title": "Investimentos",
+            "type": "string"
+          },
+          "receitas": {
+            "title": "Receitas",
+            "type": "string"
+          },
+          "saldo_livre": {
+            "title": "Saldo Livre",
+            "type": "string"
+          }
+        },
+        "required": [
+          "receitas",
+          "despesas",
+          "investimentos",
+          "saldo_livre"
+        ],
+        "title": "Totais",
+        "type": "object"
+      },
+      "Usuario": {
+        "properties": {
+          "csrf_token": {
+            "title": "Csrf Token",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "nome": {
+            "title": "Nome",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "nome",
+          "csrf_token"
+        ],
+        "title": "Usuario",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "API do controle de gastos pessoais.",
+    "title": "controleGastos",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/anos/{ano}/resumo": {
+      "get": {
+        "operationId": "resumo_do_ano_api_anos__ano__resumo_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ano",
+            "required": true,
+            "schema": {
+              "title": "Ano",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnoSaida"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detalhe"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrosValidacao"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Resumo Do Ano",
+        "tags": [
+          "painéis"
+        ]
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "operationId": "login_api_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginEntrada"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Usuario"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detalhe"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detalhe"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          }
+        },
+        "summary": "Login",
+        "tags": [
+          "conta"
+        ]
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "operationId": "logout_api_auth_logout_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Logout",
+        "tags": [
+          "conta"
+        ]
+      }
+    },
+    "/api/exportar/{formato}": {
+      "get": {
+        "operationId": "exportar_api_exportar__formato__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "formato",
+            "required": true,
+            "schema": {
+              "enum": [
+                "xlsx",
+                "csv",
+                "json"
+              ],
+              "title": "Formato",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "ano",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Ano"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Arquivo gerado."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detalhe"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Exportar",
+        "tags": [
+          "arquivos"
+        ]
+      }
+    },
+    "/api/importar/json": {
+      "post": {
+        "operationId": "importar_api_importar_json_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "substituir",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Substituir",
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultadoImportacao"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detalhe"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Conflito"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrosValidacao"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Importar",
+        "tags": [
+          "arquivos"
+        ]
+      }
+    },
+    "/api/lancamentos": {
+      "post": {
+        "operationId": "criar_lancamento_api_lancamentos_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LancamentoEntrada"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Lancamento"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detalhe"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrosValidacao"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Criar Lancamento",
+        "tags": [
+          "lançamentos"
+        ]
+      }
+    },
+    "/api/lancamentos/{id}": {
+      "delete": {
+        "operationId": "apagar_lancamento_api_lancamentos__id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "title": "Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detalhe"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Apagar Lancamento",
+        "tags": [
+          "lançamentos"
+        ]
+      },
+      "patch": {
+        "operationId": "editar_lancamento_api_lancamentos__id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "title": "Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LancamentoAtualizacao"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Lancamento"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detalhe"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detalhe"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrosValidacao"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Editar Lancamento",
+        "tags": [
+          "lançamentos"
+        ]
+      }
+    },
+    "/api/lixeira": {
+      "delete": {
+        "operationId": "esvaziar_api_lixeira_delete",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Removidos"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detalhe"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          }
+        },
+        "summary": "Esvaziar",
+        "tags": [
+          "lixeira"
+        ]
+      },
+      "get": {
+        "operationId": "listar_lixeira_api_lixeira_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Lancamento"
+                  },
+                  "title": "Response Listar Lixeira Api Lixeira Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detalhe"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          }
+        },
+        "summary": "Listar Lixeira",
+        "tags": [
+          "lixeira"
+        ]
+      }
+    },
+    "/api/lixeira/{id}": {
+      "delete": {
+        "operationId": "excluir_definitivamente_api_lixeira__id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "title": "Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detalhe"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Excluir Definitivamente",
+        "tags": [
+          "lixeira"
+        ]
+      }
+    },
+    "/api/lixeira/{id}/restaurar": {
+      "post": {
+        "operationId": "restaurar_api_lixeira__id__restaurar_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "title": "Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Lancamento"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detalhe"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Restaurar",
+        "tags": [
+          "lixeira"
+        ]
+      }
+    },
+    "/api/me": {
+      "get": {
+        "operationId": "eu_api_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Usuario"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detalhe"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          }
+        },
+        "summary": "Eu",
+        "tags": [
+          "conta"
+        ]
+      }
+    },
+    "/api/meses/{ano}/{mes}": {
+      "get": {
+        "operationId": "ver_mes_api_meses__ano___mes__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ano",
+            "required": true,
+            "schema": {
+              "title": "Ano",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "mes",
+            "required": true,
+            "schema": {
+              "title": "Mes",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MesSaida"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detalhe"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrosValidacao"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Ver Mes",
+        "tags": [
+          "meses"
+        ]
+      },
+      "put": {
+        "operationId": "definir_mes_api_meses__ano___mes__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ano",
+            "required": true,
+            "schema": {
+              "title": "Ano",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "mes",
+            "required": true,
+            "schema": {
+              "title": "Mes",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MesEntrada"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MesSaida"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detalhe"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrosValidacao"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Definir Mes",
+        "tags": [
+          "meses"
+        ]
+      }
+    }
+  }
+}

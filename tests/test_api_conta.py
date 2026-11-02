@@ -4,6 +4,8 @@ import pytest
 
 pytest.importorskip("fastapi")
 
+from fastapi.testclient import TestClient
+
 from controlegastos.web import Configuracao, criar_app
 from controlegastos.web.seguranca import (
     assinar_sessao,
@@ -11,7 +13,6 @@ from controlegastos.web.seguranca import (
     ler_sessao,
     verificar_hash,
 )
-from fastapi.testclient import TestClient
 
 ROTAS_DE_DADOS = [
     ("GET", "/api/me"),

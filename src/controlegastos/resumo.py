@@ -55,3 +55,27 @@ def variacao_saldo(livros: LivroCaixa) -> list[tuple[str, Decimal]]:
         for i, (rotulo, mes) in enumerate(meses)
         if i > 0
     ]
+
+
+def totais_por_classe(mes: Mes) -> dict[str, Decimal]:
+    """Total investido por classe (tipo do investimento) em um mês."""
+    por_tipo: dict[str, Decimal] = {}
+    for item in mes.investimentos:
+        chave = item.tipo or item.categoria
+        por_tipo[chave] = por_tipo.get(chave, Decimal(0)) + item.valor
+    return por_tipo
+
+
+def percentual(parte: Decimal, total: Decimal) -> Decimal:
+    """Percentual com duas casas (mesmo arredondamento da aba do mês)."""
+    return round(parte * 100 / total, 2)
+
+
+def livro_do_ano(livros: LivroCaixa, ano: int) -> LivroCaixa:
+    """Recorte com um único ano."""
+    return LivroCaixa(moeda=livros.moeda, anos={n: a for n, a in livros.anos.items() if n == ano})
+
+
+def livro_ate_o_ano(livros: LivroCaixa, ano: int) -> LivroCaixa:
+    """Recorte com todos os anos até o informado (para o patrimônio acumulado)."""
+    return LivroCaixa(moeda=livros.moeda, anos={n: a for n, a in livros.anos.items() if n <= ano})

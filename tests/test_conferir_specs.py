@@ -22,5 +22,7 @@ def test_detecta_requisito_sem_teste_e_id_inexistente(monkeypatch) -> None:
 
 
 def test_spec_em_rascunho_nao_exige_teste() -> None:
-    vigentes, _ = conferir.ids_definidos()
-    assert not any(i.startswith("WEB") for i in vigentes)
+    vigentes, definidos = conferir.ids_definidos()
+    assert "WEB-01" in vigentes  # spec api: vigente
+    assert "WEB-14" in definidos  # spec interface-web: rascunho
+    assert "WEB-14" not in vigentes
