@@ -12,7 +12,7 @@ Próximo grande passo: **interface web** (FastAPI + SPA React/TypeScript, SQLite
 
 - **Python 3.14** gerenciado via [uv](https://docs.astral.sh/uv/); `uv sync --extra web` instala a stack da web (FastAPI, SQLAlchemy, Alembic, Argon2)
 - **openpyxl** (planilha e gráficos), **pytest** + **hypothesis** (testes), **ruff** (lint)
-- Web: FastAPI, SQLAlchemy + SQLite e, depois, React + TypeScript; ver `specs/interface-web/design.md`
+- Web: FastAPI, SQLAlchemy + SQLite; front-end em `frontend/` (React + TypeScript + Vite + Vitest; **Node 24+**, ver `.nvmrc`)
 
 ## Comandos principais
 
@@ -24,6 +24,7 @@ uv run controlegastos gerar ... -v                                   # log detal
 uv run controlegastos banco atualizar                                # cria/atualiza o banco SQLite (extra web; DATABASE_URL ou dados/)
 uv run controlegastos usuario criar NOME                             # cria uma conta de acesso à web (senha pedida sem eco)
 uv run python scripts/exportar_openapi.py                            # atualiza specs/api/openapi.json (um teste exige em dia)
+(cd frontend && npm ci && npm run api && npm test && npm run build)   # front-end: depois de mudar o OpenAPI, rode `npm run api`
 uv run pytest                                                        # testes
 uv run ruff check .                                                  # estilo (use --no-cache ao criar módulos novos)
 uv run python scripts/conferir_specs.py                              # todo requisito vigente tem teste
@@ -36,6 +37,7 @@ No Windows (PowerShell) use `;` em vez de `&&`. Hooks e scripts do projeto não 
 ## Estrutura do projeto
 
 ```
+frontend/            # SPA React/TS (npm; cliente da API gerado de specs/api/openapi.json em src/api/schema.d.ts)
 data/entradas/       # JSONs. exemplo*.json são fictícios e públicos; 20*.json são pessoais (não versionar)
 dados/               # banco SQLite local (dados pessoais; ignorado pelo git)
 saida/               # Planilhas e CSV gerados (ignorado pelo git)
@@ -111,5 +113,5 @@ docs/media/          # capturas da planilha usadas no README (só dados fictíci
 
 - **Specs** em `specs/<capacidade>/spec.md`, neutros entre Kiro e Claude Code, em pt-BR com IDs estáveis; permanecem depois de prontos e o código responde a eles (fluxo em `specs/README.md`). `design.md`/`tasks.md` só em mudanças grandes.
 - **Agentes**: a fonte é `.kiro/agents/`; `.claude/agents/` é gerado por `uv run python scripts/sincronizar_agentes.py` (um teste falha se defasado). Papéis: `planejador` (só `specs/`), `implementador` (código e testes; não escreve em `.kiro/`, `.github/`, `AGENTS.md` nem `spec.md`; pode commitar, não faz push), `qa` (só `tests/`; pode commitar, não faz push), `documentacao` (README, este arquivo, `docs/`). No Kiro as restrições são impostas por `permissions.rules`; no Claude Code valem como instrução.
-- **Hooks**: `scripts/checar.py` roda ruff e os testes do módulo editado (Kiro: `.kiro/hooks/checar-ao-salvar.json`; Claude Code: `.claude/settings.json`). O lembrete de esquema (`lembrete-esquema.json`) existe só no Kiro; no Claude Code vale a regra 4. No Kiro o hook de salvar só dispara quando o **agente** edita um arquivo, não quando você salva no editor.
+- **Hooks**: `scripts/checar.py` roda ruff e os testes do módulo editado (Kiro: `.kiro/hooks/checar-ao-salvar.json`; Claude Code: `.claude/settings.json`); em `frontend/` roda lint, tipos e testes relacionados. O lembrete de esquema (`lembrete-esquema.json`) existe só no Kiro; no Claude Code vale a regra 4. No Kiro o hook de salvar só dispara quando o **agente** edita um arquivo, não quando você salva no editor.
 - **Steering** só manual: `/revisar-documentacao` compara README e este arquivo com o código.

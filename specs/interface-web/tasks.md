@@ -4,10 +4,11 @@
 
 Atualize esta seção a cada passo concluído, junto do commit.
 
-- **Estado**: Fases 1, 2 e 3 concluídas no código (283 testes, 75 requisitos vigentes). Falta mesclar o PR da Fase 3 e começar a Fase 4.
-- **Branch atual**: `feat/fase3-api` (PR aberto) ou `main` depois do merge.
-- **Último passo concluído**: Fase 3 inteira: `src/controlegastos/web/` (config, segurança, esquemas, app), `usuario criar`, `scripts/exportar_openapi.py` e `specs/api/openapi.json`.
-- **Próximo passo**: Fase 4, tarefa 4.1. Instalar Node 20+ com `fnm` (o sistema tem Node 18), criar `frontend/` (Vite + React + TypeScript), gerar o cliente TypeScript de `specs/api/openapi.json` (`openapi-typescript`), job `web` no CI (lint, tsc, vitest, build, cliente em dia) e `.nvmrc`. Promover os requisitos de tela (WEB-18) a `vigente` quando houver teste; as telas citam os IDs WEB-05..13 e 19 nos testes de ponta a ponta.
+- **Estado**: Fases 1, 2 e 3 mescladas. Fase 4 (front-end) em andamento: 4.1 e 4.2 prontas na branch `feat/fase4a-frontend` (a mesclar); 4.3 em diante pendentes.
+- **Branch atual**: `feat/fase4a-frontend`.
+- **Último passo concluído**: Fase 4a: `frontend/` (Vite + React + TS + Vitest), cliente OpenAPI gerado, login, rotas protegidas, layout, formatação de dinheiro (WEB-18, 20, 21, 27 com testes), job `web` no CI, hook de TypeScript, conferidor lê testes TS.
+- **Próximo passo**: Fase 4b, tela do mês (WEB-22 e WEB-23): navegação entre meses, lista, totais, classes e meta, formulário com erros por campo, editar/apagar, salário e meta. Depois 4c (ano, lixeira, arquivos) e 4d (Playwright e promoção do spec `frontend` a `vigente`).
+- **Node**: instalado em `~/.local/share/node/node-v24.22.2-linux-x64/bin` (pôr no PATH: `export PATH=$HOME/.local/share/node/node-v24.22.2-linux-x64/bin:$PATH`); o Node do sistema é o 18 e não serve.
 - **Como retomar**: `git checkout main && git pull`; ler `AGENTS.md`, este arquivo, `design.md` e os specs; criar a branch da tarefa; spec primeiro, testes antes do código, `uv run ruff check . --no-cache`, `uv run pytest` e `uv run python scripts/conferir_specs.py` verdes antes de cada commit; abrir PR e mesclar com o CI verde.
 - **Ambiente**: Python 3.14 via uv; Docker disponível; Node 18 no sistema (a Fase 4 exige Node 20+, instalar com fnm).
 
@@ -28,8 +29,8 @@ Cada fase é um PR pequeno, com spec primeiro, testes antes do código e revisã
   - [x] 3.2 Rotas de meses e lançamentos com erros `{caminho, mensagem}`
   - [x] 3.3 Resumo anual, downloads, importação e rotas da lixeira; OpenAPI exportado
 - [ ] **Fase 4 — Front-end** (WEB-05 a 10, 18, 19)
-  - [ ] 4.1 Scaffold Vite + TS, cliente gerado do OpenAPI, job `web` no CI
-  - [ ] 4.2 Login e layout
+  - [x] 4.1 Scaffold Vite + TS, cliente gerado do OpenAPI, job `web` no CI
+  - [x] 4.2 Login e layout
   - [ ] 4.3 Mês: lista, formulário, salário e meta, painel do mês
   - [ ] 4.4 Ano: gráficos e resumo; downloads e importação
   - [ ] 4.4b Lixeira: listar, restaurar, excluir definitivamente, esvaziar (WEB-19)
