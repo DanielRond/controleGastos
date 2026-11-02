@@ -12,7 +12,8 @@ Lido da mesma forma pelo Kiro, pelo Claude Code e por pessoas. Idioma: pt-BR (o 
 | [planilha](planilha/spec.md) | PLN | vigente | `.xlsx`: Resumo Geral, abas por mês, gráficos |
 | [armazenamento](armazenamento/spec.md) | STO | vigente (implementado) | Banco SQLite, centavos, usuários, lixeira, importar/exportar JSON |
 | [api](api/spec.md) | WEB | vigente (implementado) | API HTTP, login/sessão/CSRF, lançamentos, painéis, downloads, lixeira, contrato OpenAPI (Fase 3) |
-| [interface-web](interface-web/spec.md) | WEB | rascunho | Login, lançamentos, painéis, downloads; SPA + FastAPI (com `design.md` e `tasks.md`; Fases 3 a 5) |
+| [frontend](frontend/spec.md) | WEB | rascunho | Telas React/TypeScript: login, mês, ano, lixeira, arquivos (Fase 4; vira vigente na última etapa) |
+| [interface-web](interface-web/spec.md) | WEB | rascunho | Execução local e hospedada (`controlegastos web`, Docker) e plano geral (`design.md`, `tasks.md`) |
 
 ## Convenções
 

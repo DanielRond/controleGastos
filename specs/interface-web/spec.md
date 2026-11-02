@@ -25,13 +25,12 @@ Usar o controle de gastos de forma prática, sem editar JSON: entrar com login, 
 
 ## Comportamento
 
-As telas (Fase 4) usam a API de [specs/api](../api/spec.md) e são verificadas por testes de ponta a ponta que citam os mesmos IDs `WEB-xx`.
+As telas estão em [specs/frontend](../frontend/spec.md) (WEB-18 e WEB-20 a 27) e a API em [specs/api](../api/spec.md). Aqui ficam só os requisitos de execução, da Fase 5.
 
-Execução e tela (os requisitos da API, WEB-01 a 13, 16, 17 e 19, estão em [specs/api](../api/spec.md)):
+Execução:
 
 - **WEB-14** Modo local: `uv run controlegastos web` sobe API e front no mesmo processo e origem, ligado a `127.0.0.1`, com SQLite local; o login continua exigido.
 - **WEB-15** Modo hospedado: uma imagem Docker; configuração só por variáveis de ambiente (`DATABASE_URL`, chave secreta, cookie seguro); dados em volume; nenhum segredo no repositório.
-- **WEB-18** Interface em pt-BR, valores em R$ no formato brasileiro, e navegável por teclado com campos rotulados.
 
 ## Fora de escopo (v1)
 
